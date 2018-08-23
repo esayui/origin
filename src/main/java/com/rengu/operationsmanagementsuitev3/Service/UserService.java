@@ -178,14 +178,14 @@ public class UserService implements UserDetailsService {
     }
 
     // 根据id创建工程
-    public ProjectEntity saveProjectById(String userId, ProjectEntity projectEntity) {
+    public ProjectEntity saveProjectByUser(String userId, ProjectEntity projectEntity) {
         UserEntity userEntity = getUserById(userId);
         return projectService.saveProjectByUser(projectEntity, userEntity);
     }
 
     // 根据用户id查询工程
-    public Page<ProjectEntity> getProjectsById(Pageable pageable, String userId) {
+    public Page<ProjectEntity> getProjectsByDeletedAndUser(Pageable pageable, String userId, boolean deleted) {
         UserEntity userEntity = getUserById(userId);
-        return projectService.getProjectsByUser(pageable, userEntity);
+        return projectService.getProjectsByDeletedAndUser(pageable, deleted, userEntity);
     }
 }

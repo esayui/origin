@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
+import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ProjectRepository;
@@ -27,10 +28,12 @@ import org.springframework.util.StringUtils;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final DeviceService deviceService;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, DeviceService deviceService) {
         this.projectRepository = projectRepository;
+        this.deviceService = deviceService;
     }
 
     // 根据用户创建工程
@@ -38,7 +41,7 @@ public class ProjectService {
         if (StringUtils.isEmpty(projectEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.PROJECT_NAME_ARGS_NOT_FOUND);
         }
-        if (hasProjectByNameAndUser(projectEntity.getName(), userEntity)) {
+        if (hasProjectByNameAndDeletedAndUser(projectEntity.getName(), false, userEntity)) {
             throw new RuntimeException(ApplicationMessages.PROJECT_NAME_EXISTED + projectEntity.getName());
         }
         projectEntity.setUserEntity(userEntity);
@@ -49,6 +52,22 @@ public class ProjectService {
     @CacheEvict(value = "Project_Cache", allEntries = true)
     public ProjectEntity deleteProjectById(String projectId) {
         ProjectEntity projectEntity = getProjectById(projectId);
+        projectEntity.setDeleted(true);
+        return projectRepository.save(projectEntity);
+    }
+
+    // 根据Id还原工程
+    @CacheEvict(value = "Project_Cache", allEntries = true)
+    public ProjectEntity restoreProjectById(String projectId) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        projectEntity.setDeleted(false);
+        return projectRepository.save(projectEntity);
+    }
+
+    // 根据Id彻底删除工程
+    @CacheEvict(value = "Project_Cache", allEntries = true)
+    public ProjectEntity cleanProjectById(String projectId) {
+        ProjectEntity projectEntity = getProjectById(projectId);
         projectRepository.delete(projectEntity);
         return projectEntity;
     }
@@ -58,7 +77,7 @@ public class ProjectService {
     public ProjectEntity updateProjectById(String projectId, ProjectEntity projectArgs) {
         ProjectEntity projectEntity = getProjectById(projectId);
         if (!StringUtils.isEmpty(projectArgs.getName()) && !projectEntity.getName().equals(projectArgs.getName())) {
-            if (hasProjectByNameAndUser(projectArgs.getName(), projectEntity.getUserEntity())) {
+            if (hasProjectByNameAndDeletedAndUser(projectArgs.getName(), false, projectEntity.getUserEntity())) {
                 throw new RuntimeException(ApplicationMessages.PROJECT_NAME_EXISTED + projectArgs.getName());
             }
             projectEntity.setName(projectArgs.getName());
@@ -70,12 +89,12 @@ public class ProjectService {
     }
 
 
-    // 根据名称和用户判断工程是否存在
-    public boolean hasProjectByNameAndUser(String name, UserEntity userEntity) {
+    // 根据名称、是否删除及用户判断工程是否存在
+    public boolean hasProjectByNameAndDeletedAndUser(String name, boolean deleted, UserEntity userEntity) {
         if (StringUtils.isEmpty(name)) {
             return false;
         }
-        return projectRepository.existsByNameAndUserEntity(name, userEntity);
+        return projectRepository.existsByNameAndDeletedAndUserEntity(name, deleted, userEntity);
     }
 
     // 根据id判断工程是否存在
@@ -95,13 +114,31 @@ public class ProjectService {
         return projectRepository.findById(projectId).get();
     }
 
-    // 根据用户查询工程
-    public Page<ProjectEntity> getProjectsByUser(Pageable pageable, UserEntity userEntity) {
-        return projectRepository.findByUserEntity(pageable, userEntity);
+    // 根据是否删除及用户查询工程
+    public Page<ProjectEntity> getProjectsByDeletedAndUser(Pageable pageable, boolean deleted, UserEntity userEntity) {
+        return projectRepository.findByDeletedAndUserEntity(pageable, deleted, userEntity);
     }
 
     // 查询所有工程
     public Page<ProjectEntity> getProjects(Pageable pageable) {
         return projectRepository.findAll(pageable);
+    }
+
+    // 根据Id创建设备
+    public DeviceEntity saveDeviceByProject(String projectId, DeviceEntity deviceEntity) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        return deviceService.saveDeviceByProject(projectEntity, deviceEntity);
+    }
+
+    // 根据是否删除及工程查询设备
+    public Page<DeviceEntity> getDevicesByDeletedAndProject(Pageable pageable, String projectId, boolean deleted) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        return deviceService.getDevicesByDeletedAndProject(pageable, deleted, projectEntity);
+    }
+
+    // 根据Id查询设备数量
+    public long countDevicesByDeletedAndProject(String projectId, boolean deleted) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        return deviceService.countDevicesByDeletedAndProject(deleted, projectEntity);
     }
 }

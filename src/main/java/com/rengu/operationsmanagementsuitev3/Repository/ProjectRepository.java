@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProjectRepository extends JpaRepository<ProjectEntity, String> {
 
-    boolean existsByNameAndUserEntity(String name, UserEntity userEntity);
+    boolean existsByNameAndDeletedAndUserEntity(String name, boolean deleted, UserEntity userEntity);
 
-    Page<ProjectEntity> findByUserEntity(Pageable pageable, UserEntity userEntity);
+    Page<ProjectEntity> findByDeletedAndUserEntity(Pageable pageable, boolean deleted, UserEntity userEntity);
 }

@@ -36,4 +36,18 @@ public class ApplicationMessages {
     public static final String PROJECT_ID_ARGS_NOT_FOUND = "工程Id参数不存在或不合法";
     public static final String PROJECT_ID_NOT_FOUND = "未发现该工程Id：";
 
+    // 设备相关提示信息
+    public static final String DEVICE_NAME_ARGS_NOT_FOUND = "设备名参数不存在或不合法";
+    public static final String DEVICE_NAME_NOT_FOUND = "未发现该设备名：";
+    public static final String DEVICE_NAME_EXISTED = "该设备名已存在：";
+    public static final String DEVICE_HOST_ADDRESS_ARGS_NOT_FOUND = "设备IP参数不存在或不合法";
+    public static final String DEVICE_HOST_ADDRESS_NOT_FOUND = "未发现该设备IP：";
+    public static final String DEVICE_HOST_ADDRESS_EXISTED = "该设备IP已存在：";
+    public static final String DEVICE_DEPLOY_PATH_ARGS_NOT_FOUND = "设备部署路径参数不存在或不合法";
+    public static final String DEVICE_DEPLOY_PATH_NOT_FOUND = "未发现该设备部署路径：";
+    public static final String DEVICE_DEPLOY_PATH_EXISTED = "该设备部署路径已存在：";
+    public static final String DEVICE_ID_ARGS_NOT_FOUND = "设备Id参数不存在或不合法";
+    public static final String DEVICE_ID_NOT_FOUND = "未发现该设备Id：";
+    public static final String DEVICE_ID_EXISTED = "该设备Id已存在：";
+
 }

@@ -91,13 +91,13 @@ public class UserController {
 
     // 根据id创建工程
     @PostMapping(value = "/{userId}/project")
-    public ResultEntity saveProjectById(@PathVariable(value = "userId") String userId, ProjectEntity projectEntity) {
-        return ResultUtils.build(userService.saveProjectById(userId, projectEntity));
+    public ResultEntity saveProjectByUser(@PathVariable(value = "userId") String userId, ProjectEntity projectEntity) {
+        return ResultUtils.build(userService.saveProjectByUser(userId, projectEntity));
     }
 
     // 根据用户id查询工程
     @GetMapping(value = "/{userId}/projects")
-    public ResultEntity getProjectsById(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId) {
-        return ResultUtils.build(userService.getProjectsById(pageable, userId));
+    public ResultEntity getProjectsByDeletedAndUser(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(userService.getProjectsByDeletedAndUser(pageable, userId, deleted));
     }
 }

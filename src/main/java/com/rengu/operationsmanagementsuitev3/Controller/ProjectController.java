@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
+import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
@@ -35,6 +36,18 @@ public class ProjectController {
         return ResultUtils.build(projectService.deleteProjectById(projectId));
     }
 
+    // 根据Id还原工程
+    @PatchMapping(value = "/{projectId}/restore")
+    public ResultEntity restoreProjectById(@PathVariable(value = "projectId") String projectId) {
+        return ResultUtils.build(projectService.restoreProjectById(projectId));
+    }
+
+    // 根据Id彻底删除工程
+    @DeleteMapping(value = "/{projectId}/clean")
+    public ResultEntity cleanProjectById(@PathVariable(value = "projectId") String projectId) {
+        return ResultUtils.build(projectService.cleanProjectById(projectId));
+    }
+
     // 根据Id修改工程
     @PatchMapping(value = "/{projectId}")
     public ResultEntity updateProjectById(@PathVariable(value = "projectId") String projectId, ProjectEntity projectArgs) {
@@ -52,5 +65,23 @@ public class ProjectController {
     @PreAuthorize(value = "hasRole('admin')")
     public ResultEntity getProjects(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResultUtils.build(projectService.getProjects(pageable));
+    }
+
+    // 根据Id创建设备
+    @PostMapping(value = "/{projectId}/device")
+    public ResultEntity saveDeviceByProject(@PathVariable(value = "projectId") String projectId, DeviceEntity deviceEntity) {
+        return ResultUtils.build(projectService.saveDeviceByProject(projectId, deviceEntity));
+    }
+
+    // 根据Id查询设备
+    @GetMapping(value = "/{projectId}/devices")
+    public ResultEntity getDevicesByDeletedAndProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(projectService.getDevicesByDeletedAndProject(pageable, projectId, deleted));
+    }
+
+    // 根据Id查询设备数量
+    @GetMapping(value = "/{projectId}/devicecounts")
+    public ResultEntity countDevicesByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(projectService.countDevicesByDeletedAndProject(projectId, deleted));
     }
 }
