@@ -5,7 +5,6 @@ import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
@@ -13,22 +12,19 @@ import java.util.UUID;
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
- * @create: 2018-08-23 11:03
+ * @create: 2018-08-24 09:01
  **/
 
 @Data
 @Entity
-public class DeviceEntity implements Serializable {
+public class FileEntity implements Serializable {
 
     @Id
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
-    private String name;
-    private String hostAddress;
-    private String description;
-    private String deployPath;
-    private boolean deleted = false;
-    @ManyToOne
-    private ProjectEntity projectEntity;
+    private String mD5;
+    private String type;
+    private long size;
+    private String localPath;
 }

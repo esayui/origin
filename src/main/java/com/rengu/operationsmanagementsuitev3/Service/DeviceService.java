@@ -4,6 +4,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.DeviceRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import com.rengu.operationsmanagementsuitev3.Utils.IPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -47,6 +48,7 @@ public class DeviceService {
         if (hasDeviceByHostAddressAndDeletedAndProject(deviceEntity.getHostAddress(), false, projectEntity)) {
             throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_EXISTED + deviceEntity.getHostAddress());
         }
+        deviceEntity.setDeployPath(FormatUtils.formatPath(deviceEntity.getDeployPath()));
         deviceEntity.setProjectEntity(projectEntity);
         return deviceRepository.save(deviceEntity);
     }

@@ -13,22 +13,21 @@ import java.util.UUID;
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
- * @create: 2018-08-23 11:03
+ * @create: 2018-08-24 11:41
  **/
 
 @Data
 @Entity
-public class DeviceEntity implements Serializable {
+public class ComponentFileEntity implements Serializable {
 
     @Id
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
     private String name;
-    private String hostAddress;
-    private String description;
-    private String deployPath;
-    private boolean deleted = false;
+    private boolean isFolder;
     @ManyToOne
-    private ProjectEntity projectEntity;
+    private ComponentFileEntity parentNode;
+    @ManyToOne
+    private ComponentFileEntity componentFileEntity;
 }
