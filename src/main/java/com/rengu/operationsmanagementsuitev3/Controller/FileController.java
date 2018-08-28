@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -27,11 +28,17 @@ public class FileController {
         this.fileService = fileService;
     }
 
+    // 检查文件块是否存在
     @GetMapping(value = "/chunks")
-    public void get(HttpServletResponse httpServletResponse, ChunkEntity chunkEntity) {
+    public void hasChunk(HttpServletResponse httpServletResponse, ChunkEntity chunkEntity) {
+        if (!fileService.hasChunk(chunkEntity)) {
+            httpServletResponse.setStatus(HttpServletResponse.SC_GONE);
+        }
     }
 
+    // 检查文件块是否存在
     @PostMapping(value = "/chunks")
-    public void post(ChunkEntity chunkEntity, @RequestParam(value = "file") MultipartFile chunk) {
+    public void saveChunk(ChunkEntity chunkEntity, @RequestParam(value = "file") MultipartFile multipartFile) throws IOException {
+        fileService.saveChunk(chunkEntity, multipartFile);
     }
 }
