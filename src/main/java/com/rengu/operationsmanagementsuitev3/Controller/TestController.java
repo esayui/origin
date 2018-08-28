@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.jms.Destination;
-import java.util.Date;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -25,7 +24,9 @@ public class TestController {
 
     @GetMapping(value = "/avtiveMQ")
     public void sendMessage() {
-        Destination destination = new ActiveMQQueue("temp.queue");
-        activeMQMessageProducer.sendMessage(destination, new Date());
+        Destination destination = new ActiveMQQueue("QUEUE.HEARTBEAT");
+        for (int i = 0; i <= 10; i++) {
+            activeMQMessageProducer.sendMessage(destination, "第" + i + "条信息：" + "Hello form OSX");
+        }
     }
 }

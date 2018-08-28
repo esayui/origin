@@ -64,5 +64,4 @@ public class ApplicationMessages {
     public static final String COMPONENT_ID_NOT_FOUND = "未发现该组件Id：";
     public static final String COMPONENT_ID_EXISTED = "该组件Id已存在：";
     public static final String COMPONENT_NAME_AND_VERSION_EXISTED = "该组件已存在：";
-
 }

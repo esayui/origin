@@ -28,6 +28,12 @@ public class DeviceController {
         this.deviceService = deviceService;
     }
 
+    // 根据Id复制设备
+    @PostMapping(value = "/{deviceId}/copy")
+    public ResultEntity copyDeviceById(@PathVariable(value = "deviceId") String deviceId) {
+        return ResultUtils.build(deviceService.copyDeviceById(deviceId));
+    }
+
     // 根据Id删除设备
     @DeleteMapping(value = "/{deviceId}")
     public ResultEntity deleteDeviceById(@PathVariable(value = "deviceId") String deviceId) {
@@ -56,12 +62,6 @@ public class DeviceController {
     @GetMapping(value = "/{deviceId}")
     public ResultEntity getDeviceById(@PathVariable(value = "deviceId") String deviceId) {
         return ResultUtils.build(deviceService.getDeviceById(deviceId));
-    }
-
-    // 根据Id复制设备
-    @PostMapping(value = "/{deviceId}/copy")
-    public ResultEntity copyDeviceById(@PathVariable(value = "deviceId") String deviceId) {
-        return ResultUtils.build(deviceService.copyDeviceById(deviceId));
     }
 
     // 查询所有设备

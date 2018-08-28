@@ -29,5 +29,5 @@ public class ComponentFileEntity implements Serializable {
     @ManyToOne
     private ComponentFileEntity parentNode;
     @ManyToOne
-    private ComponentFileEntity componentFileEntity;
+    private ComponentEntity componentEntity;
 }

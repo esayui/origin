@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ActiveMQMessageConsumer {
 
-    @JmsListener(destination = "temp.queue")
-    public void receiveQueue(String message) {
-        log.info("ActiveMQ:" + message);
+    @JmsListener(destination = "QUEUE.HEARTBEAT")
+    public void receiveHeartbeatMessage(String message) {
+        log.info("Heartbeat:" + message);
     }
 }

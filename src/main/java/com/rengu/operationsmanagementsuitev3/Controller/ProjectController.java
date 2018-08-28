@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
@@ -83,5 +84,23 @@ public class ProjectController {
     @GetMapping(value = "/{projectId}/devicecounts")
     public ResultEntity countDevicesByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
         return ResultUtils.build(projectService.countDevicesByDeletedAndProject(projectId, deleted));
+    }
+
+    // 根据Id创建组件
+    @PostMapping(value = "/{projectId}/component")
+    public ResultEntity saveComponentByProject(@PathVariable(value = "projectId") String projectId, ComponentEntity componentEntity) {
+        return ResultUtils.build(projectService.saveComponentByProject(projectId, componentEntity));
+    }
+
+    // 根据Id查询组件
+    @GetMapping(value = "/{projectId}/components")
+    public ResultEntity getComponentsByDeletedAndProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(projectService.getComponentsByDeletedAndProject(pageable, projectId, deleted));
+    }
+
+    // 根据Id查询组件数量
+    @GetMapping(value = "/{projectId}/componentcounts")
+    public ResultEntity countComponentsByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(projectService.countComponentsByDeletedAndProject(projectId, deleted));
     }
 }

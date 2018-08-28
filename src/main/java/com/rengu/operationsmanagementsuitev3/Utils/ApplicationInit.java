@@ -4,11 +4,15 @@ import com.rengu.operationsmanagementsuitev3.Entity.RoleEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import com.rengu.operationsmanagementsuitev3.Service.RoleService;
 import com.rengu.operationsmanagementsuitev3.Service.UserService;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -30,7 +34,7 @@ public class ApplicationInit implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args) throws IOException {
         // 初始化默认管理员角色
         if (!roleService.hasRoleByName(ApplicationConfig.DEFAULT_ADMIN_ROLE_NAME)) {
             RoleEntity roleEntity = new RoleEntity();
@@ -51,6 +55,11 @@ public class ApplicationInit implements ApplicationRunner {
             userEntity.setUsername(ApplicationConfig.DEFAULT_ADMIN_USERNAME);
             userEntity.setPassword(ApplicationConfig.DEFAULT_ADMIN_PASSWORD);
             userService.saveAdminUser(userEntity);
+        }
+        // 初始化文件保存路径
+        File file = new File(ApplicationConfig.FILES_SAVE_PATH);
+        if (!file.exists()) {
+            FileUtils.forceMkdir(file);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
@@ -29,11 +30,13 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final DeviceService deviceService;
+    private final ComponentService componentService;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, DeviceService deviceService) {
+    public ProjectService(ProjectRepository projectRepository, DeviceService deviceService, ComponentService componentService) {
         this.projectRepository = projectRepository;
         this.deviceService = deviceService;
+        this.componentService = componentService;
     }
 
     // 根据用户创建工程
@@ -140,5 +143,23 @@ public class ProjectService {
     public long countDevicesByDeletedAndProject(String projectId, boolean deleted) {
         ProjectEntity projectEntity = getProjectById(projectId);
         return deviceService.countDevicesByDeletedAndProject(deleted, projectEntity);
+    }
+
+    // 根据Id创建组件
+    public ComponentEntity saveComponentByProject(String projectId, ComponentEntity componentEntity) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        return componentService.saveComponentByProject(projectEntity, componentEntity);
+    }
+
+    // 根据Id查询组件
+    public Page<ComponentEntity> getComponentsByDeletedAndProject(Pageable pageable, String projectId, boolean deleted) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        return componentService.getComponentsByDeletedAndProject(pageable, deleted, projectEntity);
+    }
+
+    // 根据Id查询组件数量
+    public long countComponentsByDeletedAndProject(String projectId, boolean deleted) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        return componentService.countComponentsByDeletedAndProject(deleted, projectEntity);
     }
 }
