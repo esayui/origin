@@ -47,27 +47,6 @@ public class FileService {
         IOUtils.copy(multipartFile.getInputStream(), new FileOutputStream(chunk));
     }
 
-    // 检查文件块是否存在
-    public boolean hasChunk(ChunkEntity chunkEntity) {
-        return new File(ApplicationConfig.CHUNKS_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + File.separator + chunkEntity.getChunkNumber() + ".tmp").exists();
-    }
-
-    // 合并文件块
-    public FileEntity mergeChunk(ChunkEntity chunkEntity) throws IOException {
-        File file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + "." + FilenameUtils.getExtension(chunkEntity.getFilename()));
-        file.getParentFile().mkdirs();
-        file.createNewFile();
-        for (int i = 1; i <= chunkEntity.getTotalChunks(); i++) {
-            File chunk = new File(ApplicationConfig.CHUNKS_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + File.separator + i + ".tmp");
-            if (chunk.exists()) {
-                FileUtils.writeByteArrayToFile(file, IOUtils.toByteArray(new FileInputStream(chunk)), true);
-            } else {
-                throw new RuntimeException(ApplicationMessages.FILE_CHUNK_NOT_FOUND + chunk.getAbsolutePath());
-            }
-        }
-        return saveFile(file);
-    }
-
     // 保存文件信息
     public FileEntity saveFile(File file) throws IOException {
         FileEntity fileEntity = new FileEntity();
@@ -82,11 +61,45 @@ public class FileService {
         return fileRepository.save(fileEntity);
     }
 
+    // 检查文件块是否存在
+    public boolean hasChunk(ChunkEntity chunkEntity) {
+        File chunk = new File(ApplicationConfig.CHUNKS_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + File.separator + chunkEntity.getChunkNumber() + ".tmp");
+        return chunk.exists() && chunkEntity.getChunkSize() == FileUtils.sizeOf(chunk);
+    }
+
     // 根据Md5判断文件是否存在
     public boolean hasFileByMD5(String MD5) {
         if (StringUtils.isEmpty(MD5)) {
             return false;
         }
         return fileRepository.existsByMD5(MD5);
+    }
+
+    // 根据MD5查询文件
+    public FileEntity getFileByMD5(String MD5) {
+        if (!hasFileByMD5(MD5)) {
+            throw new RuntimeException(ApplicationMessages.FILE_MD5_NOT_FOUND + MD5);
+        }
+        return fileRepository.findByMD5(MD5).get();
+    }
+
+    // 合并文件块
+    public FileEntity mergeChunk(ChunkEntity chunkEntity) throws IOException {
+        if (hasFileByMD5(chunkEntity.getIdentifier())) {
+            return getFileByMD5(chunkEntity.getIdentifier());
+        } else {
+            File file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + "." + FilenameUtils.getExtension(chunkEntity.getFilename()));
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            for (int i = 1; i <= chunkEntity.getTotalChunks(); i++) {
+                File chunk = new File(ApplicationConfig.CHUNKS_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + File.separator + i + ".tmp");
+                if (chunk.exists()) {
+                    FileUtils.writeByteArrayToFile(file, IOUtils.toByteArray(new FileInputStream(chunk)), true);
+                } else {
+                    throw new RuntimeException(ApplicationMessages.FILE_CHUNK_NOT_FOUND + chunk.getAbsolutePath());
+                }
+            }
+            return saveFile(file);
+        }
     }
 }

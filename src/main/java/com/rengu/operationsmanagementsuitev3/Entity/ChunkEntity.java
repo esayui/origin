@@ -18,8 +18,8 @@ public class ChunkEntity {
     private Date createTime = new Date();
     private int chunkNumber;
     private int totalChunks;
-    private int chunkSize;
-    private int totalSize;
+    private long chunkSize;
+    private long totalSize;
     private String identifier;
     private String filename;
     private String relativePath;
