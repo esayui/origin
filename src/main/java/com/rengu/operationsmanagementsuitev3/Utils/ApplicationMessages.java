@@ -66,5 +66,10 @@ public class ApplicationMessages {
     public static final String COMPONENT_NAME_AND_VERSION_EXISTED = "该组件已存在：";
 
     // 文件块相关提示信息
-    public static final String FILE_CHUNK_DIR_CREATE_ERROR = "建立文件块文件夹失败：";
+    public static final String FILE_CHUNK_ARGS_NOT_FOUND = "文件块不存在或不合法";
+    public static final String FILE_CHUNK_NOT_FOUND = "未发现该文件块：";
+    public static final String FILE_CHUNK_EXISTED = "该文件块已存在：";
+    public static final String FILE_MD5_ARGS_NOT_FOUND = "文件MD5不存在或不合法";
+    public static final String FILE_MD5_NOT_FOUND = "未发现该文件MD5：";
+    public static final String FILE_MD5_EXISTED = "该文件MD5已存在：";
 }
