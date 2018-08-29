@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ChunkEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.FileService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,7 @@ public class FileController {
 
     // 合并文件块
     @PostMapping(value = "/chunks/merge")
-    public void mergeChunk(ChunkEntity chunkEntity) throws IOException {
-        ResultUtils.build(fileService.mergeChunk(chunkEntity));
+    public ResultEntity mergeChunks(ChunkEntity chunkEntity) throws IOException {
+        return ResultUtils.build(fileService.mergeChunks(chunkEntity));
     }
 }

@@ -11,6 +11,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -61,10 +63,26 @@ public class FileService {
         return fileRepository.save(fileEntity);
     }
 
+    // 根据Id删除文件
+    public FileEntity deleteFileById(String fileId) throws IOException {
+        FileEntity fileEntity = getFileById(fileId);
+        FileUtils.forceDeleteOnExit(new File(fileEntity.getLocalPath()));
+        fileRepository.delete(fileEntity);
+        return fileEntity;
+    }
+
     // 检查文件块是否存在
     public boolean hasChunk(ChunkEntity chunkEntity) {
         File chunk = new File(ApplicationConfig.CHUNKS_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + File.separator + chunkEntity.getChunkNumber() + ".tmp");
         return chunk.exists() && chunkEntity.getChunkSize() == FileUtils.sizeOf(chunk);
+    }
+
+    // 根据Id判断文件是否存在
+    public boolean hasFileById(String fileId) {
+        if (StringUtils.isEmpty(fileId)) {
+            return false;
+        }
+        return fileRepository.existsById(fileId);
     }
 
     // 根据Md5判断文件是否存在
@@ -75,6 +93,14 @@ public class FileService {
         return fileRepository.existsByMD5(MD5);
     }
 
+    // 根据Id查询文件
+    public FileEntity getFileById(String fileId) {
+        if (!hasFileById(fileId)) {
+            throw new RuntimeException(ApplicationMessages.FILE_ID_NOT_FOUND + fileId);
+        }
+        return fileRepository.findById(fileId).get();
+    }
+
     // 根据MD5查询文件
     public FileEntity getFileByMD5(String MD5) {
         if (!hasFileByMD5(MD5)) {
@@ -83,8 +109,13 @@ public class FileService {
         return fileRepository.findByMD5(MD5).get();
     }
 
+    // 查询所有文件
+    public Page<FileEntity> getFiles(Pageable pageable) {
+        return fileRepository.findAll(pageable);
+    }
+
     // 合并文件块
-    public FileEntity mergeChunk(ChunkEntity chunkEntity) throws IOException {
+    public FileEntity mergeChunks(ChunkEntity chunkEntity) throws IOException {
         if (hasFileByMD5(chunkEntity.getIdentifier())) {
             return getFileByMD5(chunkEntity.getIdentifier());
         } else {

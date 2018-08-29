@@ -72,4 +72,7 @@ public class ApplicationMessages {
     public static final String FILE_MD5_ARGS_NOT_FOUND = "文件MD5不存在或不合法";
     public static final String FILE_MD5_NOT_FOUND = "未发现该文件MD5：";
     public static final String FILE_MD5_EXISTED = "该文件MD5已存在：";
+    public static final String FILE_ID_ARGS_NOT_FOUND = "文件Id参数不存在或不合法";
+    public static final String FILE_ID_NOT_FOUND = "未发现该文件Id：";
+    public static final String FILE_ID_EXISTED = "该文件Id已存在：";
 }
