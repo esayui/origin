@@ -75,4 +75,12 @@ public class ApplicationMessages {
     public static final String FILE_ID_ARGS_NOT_FOUND = "文件Id参数不存在或不合法";
     public static final String FILE_ID_NOT_FOUND = "未发现该文件Id：";
     public static final String FILE_ID_EXISTED = "该文件Id已存在：";
+
+    // 组件文件相关提示信息
+    public static final String COMPONENT_FILE_NAME_ARGS_NOT_FOUND = "组件文件名参数不存在或不合法";
+    public static final String COMPONENT_FILE_NAME_NOT_FOUND = "未发现该组件文件名：";
+    public static final String COMPONENT_FILE_NAME_EXISTED = "该组件文件名已存在：";
+    public static final String COMPONENT_FILE_ID_ARGS_NOT_FOUND = "组件文件Id参数不存在或不合法";
+    public static final String COMPONENT_FILE_ID_NOT_FOUND = "未发现该组件文件Id：";
+    public static final String COMPONENT_FILE_ID_EXISTED = "该组件文件Id已存在：";
 }

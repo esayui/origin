@@ -27,6 +27,8 @@ public class ComponentFileHistoryEntity implements Serializable {
     private String name;
     private boolean isFolder;
     @ManyToOne
+    private FileEntity fileEntity;
+    @ManyToOne
     private ComponentFileHistoryEntity parentNode;
     @ManyToOne
     private ComponentHistoryEntity componentHistoryEntity;

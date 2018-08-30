@@ -27,6 +27,8 @@ public class ComponentFileEntity implements Serializable {
     private String name;
     private boolean isFolder;
     @ManyToOne
+    private FileEntity fileEntity;
+    @ManyToOne
     private ComponentFileEntity parentNode;
     @ManyToOne
     private ComponentEntity componentEntity;

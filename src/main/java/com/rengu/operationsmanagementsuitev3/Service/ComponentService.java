@@ -1,17 +1,22 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.FileInfoEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -25,12 +30,12 @@ import org.springframework.util.StringUtils;
 public class ComponentService {
 
     private final ComponentRepository componentRepository;
-    private final ComponentHistoryService componentHistoryService;
+    private final ComponentFileService componentFileService;
 
     @Autowired
-    public ComponentService(ComponentRepository componentRepository, ComponentHistoryService componentHistoryService) {
+    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService) {
         this.componentRepository = componentRepository;
-        this.componentHistoryService = componentHistoryService;
+        this.componentFileService = componentFileService;
     }
 
     // 根据工程保存组件
@@ -49,9 +54,67 @@ public class ComponentService {
         }
         componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
         componentEntity.setProjectEntity(projectEntity);
+        return componentRepository.save(componentEntity);
+    }
+
+    // 根据id复制组件
+    public ComponentEntity copyComponentById(String componentId) {
+        ComponentEntity componentArgs = getComponentById(componentId);
+        ComponentEntity componentEntity = new ComponentEntity();
+        BeanUtils.copyProperties(componentArgs, componentEntity, "id", "createTime");
+        componentEntity.setName(getName(componentArgs.getName(), componentArgs.getVersion(), componentArgs.getProjectEntity()));
         componentRepository.save(componentEntity);
-        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
         return componentEntity;
+    }
+
+    // 根据Id删除组件
+    public ComponentEntity deleteComponentById(String componentId) {
+        ComponentEntity componentEntity = getComponentById(componentId);
+        componentEntity.setDeleted(true);
+        return componentRepository.save(componentEntity);
+    }
+
+    // 根据Id撤销删除组件
+    public ComponentEntity restoreComponentById(String componentId) {
+        ComponentEntity componentEntity = getComponentById(componentId);
+        componentEntity.setDeleted(false);
+        return componentRepository.save(componentEntity);
+    }
+
+    // 根据Id清除组件
+    public ComponentEntity cleanComponentById(String componentId) {
+        ComponentEntity componentEntity = getComponentById(componentId);
+        componentRepository.delete(componentEntity);
+        return componentEntity;
+    }
+
+    // 根据Id修改组件
+    public ComponentEntity updateComponentById(String componentId, ComponentEntity componentArgs) {
+        boolean isModifiedName = false;
+        boolean isModifiedVersion = false;
+        ComponentEntity componentEntity = getComponentById(componentId);
+        if (!StringUtils.isEmpty(componentArgs.getName()) && !componentEntity.getName().equals(componentArgs.getName())) {
+            isModifiedName = true;
+        }
+        if (!StringUtils.isEmpty(componentArgs.getVersion()) && !componentEntity.getVersion().equals(componentArgs.getVersion())) {
+            isModifiedVersion = true;
+        }
+        if ((isModifiedName || isModifiedVersion) && hasComponentByNameAndVersionAndDeletedAndProject(componentArgs.getName(), componentArgs.getVersion(), false, componentEntity.getProjectEntity())) {
+            throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_AND_VERSION_EXISTED + componentArgs.getName() + "-" + componentArgs.getVersion());
+        }
+        if (!StringUtils.isEmpty(componentArgs.getRelativePath()) && !componentEntity.getRelativePath().equals(componentArgs.getRelativePath())) {
+            componentEntity.setRelativePath(componentArgs.getRelativePath());
+        }
+        if (componentArgs.getDescription() != null && !componentEntity.getDescription().equals(componentArgs.getDescription())) {
+            componentEntity.setDescription(componentArgs.getDescription());
+        }
+        if (isModifiedName) {
+            componentEntity.setName(componentArgs.getName());
+        }
+        if (isModifiedVersion) {
+            componentEntity.setVersion(componentArgs.getVersion());
+        }
+        return componentRepository.save(componentEntity);
     }
 
     // 根据组件名称、版本、是否删除及工程查询组件是否存在
@@ -101,5 +164,23 @@ public class ComponentService {
             name = name + "(" + index + ")";
         }
         return name;
+    }
+
+    // 根据id和父节点Id创建文件夹
+    public ComponentFileEntity saveComponentFileByParentNodeAndComponent(String componentId, String parentNodeId, ComponentFileEntity componentFileEntity) {
+        ComponentEntity componentEntity = getComponentById(componentId);
+        return componentFileService.saveComponentFileByParentNodeAndComponent(componentEntity, parentNodeId, componentFileEntity);
+    }
+
+    // 根据id和父节点Id创建文件
+    public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(String componentId, String parentNodeId, List<FileInfoEntity> fileInfoEntityList) {
+        ComponentEntity componentEntity = getComponentById(componentId);
+        return componentFileService.saveComponentFilesByParentNodeAndComponent(componentEntity, parentNodeId, fileInfoEntityList);
+    }
+
+    // 根据id和父节点查询组件文件
+    public List<ComponentFileEntity> getComponentFilesByParentNodeAndComponent(String componentId, String parentNodeId) {
+        ComponentEntity componentEntity = getComponentById(componentId);
+        return componentFileService.getComponentFilesByParentNodeAndComponent(parentNodeId, componentEntity);
     }
 }

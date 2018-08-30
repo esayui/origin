@@ -49,4 +49,10 @@ public class FileController {
     public ResultEntity mergeChunks(ChunkEntity chunkEntity) throws IOException {
         return ResultUtils.build(fileService.mergeChunks(chunkEntity));
     }
+
+    // 根据MD5检查文件是否存在
+    @GetMapping(value = "/hasmd5")
+    public ResultEntity hasFileByMD5(@RequestParam(value = "MD5") String MD5) {
+        return ResultUtils.build(fileService.hasFileByMD5(MD5));
+    }
 }
