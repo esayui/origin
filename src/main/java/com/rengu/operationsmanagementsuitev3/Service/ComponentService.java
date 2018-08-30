@@ -2,7 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.FileInfoEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
@@ -173,9 +173,9 @@ public class ComponentService {
     }
 
     // 根据id和父节点Id创建文件
-    public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(String componentId, String parentNodeId, List<FileInfoEntity> fileInfoEntityList) {
+    public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(String componentId, String parentNodeId, List<FileMetaEntity> fileMetaEntityList) {
         ComponentEntity componentEntity = getComponentById(componentId);
-        return componentFileService.saveComponentFilesByParentNodeAndComponent(componentEntity, parentNodeId, fileInfoEntityList);
+        return componentFileService.saveComponentFilesByParentNodeAndComponent(componentEntity, parentNodeId, fileMetaEntityList);
     }
 
     // 根据id和父节点查询组件文件

@@ -2,7 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Controller;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.FileInfoEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
@@ -83,8 +83,8 @@ public class ComponentController {
 
     // 根据id和父节点Id创建文件
     @PostMapping(value = "/{componentId}/uploadfiles")
-    public ResultEntity saveComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId, @RequestBody List<FileInfoEntity> fileInfoEntityList) {
-        return ResultUtils.build(componentService.saveComponentFilesByParentNodeAndComponent(componentId, parentNodeId, fileInfoEntityList));
+    public ResultEntity saveComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId, @RequestBody List<FileMetaEntity> fileMetaEntityList) {
+        return ResultUtils.build(componentService.saveComponentFilesByParentNodeAndComponent(componentId, parentNodeId, fileMetaEntityList));
     }
 
     // 根据id和父节点查询组件文件

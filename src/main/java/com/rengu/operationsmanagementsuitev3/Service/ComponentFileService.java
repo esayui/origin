@@ -2,7 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.FileInfoEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
@@ -50,25 +50,25 @@ public class ComponentFileService {
     }
 
     // 根据组件父节点保存文件
-    public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(ComponentEntity componentEntity, String parentNodeId, List<FileInfoEntity> fileInfoEntityList) {
+    public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(ComponentEntity componentEntity, String parentNodeId, List<FileMetaEntity> fileMetaEntityList) {
         List<ComponentFileEntity> componentFileEntityList = new ArrayList<>();
-        for (FileInfoEntity fileInfoEntity : fileInfoEntityList) {
+        for (FileMetaEntity fileMetaEntity : fileMetaEntityList) {
             ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
-            for (String path : fileInfoEntity.getRelativePath().split("/")) {
-                if (path.equals(fileInfoEntity.getName())) {
+            for (String path : fileMetaEntity.getRelativePath().split("/")) {
+                if (path.equals(fileMetaEntity.getName())) {
                     // 文件节点，先判断是否存在该节点
                     if (hasComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity)) {
                         ComponentFileEntity componentFileEntity = getComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity);
                         componentFileEntity.setCreateTime(new Date());
-                        componentFileEntity.setName(FilenameUtils.getBaseName(fileInfoEntity.getRelativePath()));
+                        componentFileEntity.setName(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
                         componentFileEntity.setFolder(false);
-                        componentFileEntity.setFileEntity(fileService.getFileById(fileInfoEntity.getFileId()));
+                        componentFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
                         componentFileEntityList.add(componentFileRepository.save(componentFileEntity));
                     } else {
                         ComponentFileEntity componentFileEntity = new ComponentFileEntity();
-                        componentFileEntity.setName(FilenameUtils.getBaseName(fileInfoEntity.getRelativePath()));
+                        componentFileEntity.setName(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
                         componentFileEntity.setFolder(false);
-                        componentFileEntity.setFileEntity(fileService.getFileById(fileInfoEntity.getFileId()));
+                        componentFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
                         componentFileEntity.setParentNode(parentNode);
                         componentFileEntity.setComponentEntity(componentEntity);
                         componentFileEntityList.add(componentFileRepository.save(componentFileEntity));

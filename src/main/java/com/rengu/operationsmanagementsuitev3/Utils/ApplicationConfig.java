@@ -27,4 +27,7 @@ public class ApplicationConfig {
     public static final String CHUNKS_SAVE_PATH = FormatUtils.formatPath(FileUtils.getTempDirectoryPath() + File.separator + "OMS" + File.separator + "CHUNKS");
     // 文件保存路径
     public static final String FILES_SAVE_PATH = FormatUtils.formatPath(FileUtils.getUserDirectoryPath() + File.separator + "OMS" + File.separator + "FILES");
+
+    // 扫描超时时间
+    public static final long SCAN_TIME_OUT = 1000 * 10;
 }

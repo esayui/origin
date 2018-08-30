@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.DeviceService;
@@ -10,6 +11,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -69,5 +73,11 @@ public class DeviceController {
     @PreAuthorize(value = "hasRole('admin')")
     public ResultEntity getDevices(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResultUtils.build(deviceService.getDevices(pageable));
+    }
+
+    // 获取磁盘信息
+    @GetMapping(value = "/{deviceId}/disks")
+    public ResultEntity getDisksById(@PathVariable(value = "deviceId") String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
+        return ResultUtils.build(deviceService.getDisksById(deviceId));
     }
 }

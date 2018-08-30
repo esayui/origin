@@ -1,6 +1,9 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.DiskScanResultEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.OrderEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.DeviceRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
@@ -16,6 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -28,10 +36,14 @@ import org.springframework.util.StringUtils;
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
+    private final OrderService orderService;
+    private final ScanHandlerService scanHandlerService;
 
     @Autowired
-    public DeviceService(DeviceRepository deviceRepository) {
+    public DeviceService(DeviceRepository deviceRepository, OrderService orderService, ScanHandlerService scanHandlerService) {
         this.deviceRepository = deviceRepository;
+        this.orderService = orderService;
+        this.scanHandlerService = scanHandlerService;
     }
 
     // 根据工程创建设备
@@ -129,7 +141,7 @@ public class DeviceService {
 
     // 根据Id查询设备
     public DeviceEntity getDeviceById(String deviceId) {
-        if (hasDeviceById(deviceId)) {
+        if (!hasDeviceById(deviceId)) {
             throw new RuntimeException(ApplicationMessages.DEVICE_ID_NOT_FOUND + deviceId);
         }
         return deviceRepository.findById(deviceId).get();
@@ -156,5 +168,12 @@ public class DeviceService {
             hostAddress = IPUtils.longToIP(IPUtils.ipToLong(hostAddress) + 1);
         }
         return hostAddress;
+    }
+
+    // 根据id扫描设备磁盘信息
+    public List<DiskScanResultEntity> getDisksById(String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
+        DeviceEntity deviceEntity = getDeviceById(deviceId);
+        OrderEntity orderEntity = orderService.sendScanDiskOrder(deviceEntity);
+        return scanHandlerService.scanDiskHandler(orderEntity).get(20, TimeUnit.SECONDS);
     }
 }
