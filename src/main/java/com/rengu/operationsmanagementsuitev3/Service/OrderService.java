@@ -22,7 +22,8 @@ import javax.jms.Destination;
 @Service
 public class OrderService {
 
-    private static final String SCAN_DISK_TAG = "S105";
+    private static final String PROCESS_SCAN_TAG = "S105";
+    private static final String DISK_SCAN_TAG = "S106";
 
     private final JmsMessagingTemplate jmsMessagingTemplate;
 
@@ -31,11 +32,18 @@ public class OrderService {
         this.jmsMessagingTemplate = jmsMessagingTemplate;
     }
 
-
-    public OrderEntity sendScanDiskOrder(DeviceEntity deviceEntity) throws JsonProcessingException {
+    public OrderEntity sendProcessScanOrder(DeviceEntity deviceEntity) throws JsonProcessingException {
         Destination destination = new ActiveMQQueue("QUEUE." + deviceEntity.getHostAddress());
         OrderEntity orderEntity = new OrderEntity();
-        orderEntity.setTag(SCAN_DISK_TAG);
+        orderEntity.setTag(PROCESS_SCAN_TAG);
+        jmsMessagingTemplate.convertAndSend(destination, JsonUtils.toJson(orderEntity));
+        return orderEntity;
+    }
+
+    public OrderEntity sendDiskScanOrder(DeviceEntity deviceEntity) throws JsonProcessingException {
+        Destination destination = new ActiveMQQueue("QUEUE." + deviceEntity.getHostAddress());
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setTag(DISK_SCAN_TAG);
         jmsMessagingTemplate.convertAndSend(destination, JsonUtils.toJson(orderEntity));
         return orderEntity;
     }

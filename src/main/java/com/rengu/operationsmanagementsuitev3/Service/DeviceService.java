@@ -1,10 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.DiskScanResultEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.OrderEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Repository.DeviceRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
@@ -171,9 +168,16 @@ public class DeviceService {
     }
 
     // 根据id扫描设备磁盘信息
+    public List<ProcessScanResultEntity> getProcessById(String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
+        DeviceEntity deviceEntity = getDeviceById(deviceId);
+        OrderEntity orderEntity = orderService.sendProcessScanOrder(deviceEntity);
+        return scanHandlerService.processScanHandler(orderEntity).get(30, TimeUnit.SECONDS);
+    }
+
+    // 根据id扫描设备磁盘信息
     public List<DiskScanResultEntity> getDisksById(String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
-        OrderEntity orderEntity = orderService.sendScanDiskOrder(deviceEntity);
-        return scanHandlerService.scanDiskHandler(orderEntity).get(20, TimeUnit.SECONDS);
+        OrderEntity orderEntity = orderService.sendDiskScanOrder(deviceEntity);
+        return scanHandlerService.diskScanHandler(orderEntity).get(30, TimeUnit.SECONDS);
     }
 }

@@ -75,6 +75,12 @@ public class DeviceController {
         return ResultUtils.build(deviceService.getDevices(pageable));
     }
 
+    // 获取进程信息
+    @GetMapping(value = "/{deviceId}/process")
+    public ResultEntity getProcessById(@PathVariable(value = "deviceId") String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
+        return ResultUtils.build(deviceService.getProcessById(deviceId));
+    }
+
     // 获取磁盘信息
     @GetMapping(value = "/{deviceId}/disks")
     public ResultEntity getDisksById(@PathVariable(value = "deviceId") String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
