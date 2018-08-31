@@ -29,16 +29,16 @@ public class ComponentFileController {
         this.componentService = componentService;
     }
 
-//    // 根据Id复制组件文件
-//    @PatchMapping(value = "/{componentfileId}/copyto")
-//    public ResultEntity copyComponentFileToById(@PathVariable(value = "componentfileId") String componentfileId, @RequestParam(value = "targetNodeId", required = false, defaultValue = "") String targetNodeId) {
-//        return ResultUtils.build(componentFileService.copyComponentFileToById(componentfileId, targetNodeId));
-//    }
+    // 根据Id复制组件文件
+    @PatchMapping(value = "/{sourceNodeId}/copy")
+    public ResultEntity copyComponentFileById(@PathVariable(value = "sourceNodeId") String sourceNodeId, @RequestParam(value = "targetComponentId") String targetComponentId, @RequestParam(value = "targetNodeId", required = false, defaultValue = "") String targetNodeId) {
+        return ResultUtils.build(componentFileService.copyComponentFileById(sourceNodeId, targetNodeId, componentService.getComponentById(targetComponentId)));
+    }
 
     // 根据Id移动组件文件
-    @PatchMapping(value = "/{componentfileId}/move")
-    public ResultEntity moveComponentFileById(@PathVariable(value = "componentfileId") String componentfileId, @RequestParam(value = "targetComponentId") String targetComponentId, @RequestParam(value = "targetNodeId", required = false, defaultValue = "") String targetNodeId) {
-        return ResultUtils.build(componentFileService.moveComponentFileById(componentfileId, targetNodeId, componentService.getComponentById(targetComponentId)));
+    @PatchMapping(value = "/{sourceNodeId}/move")
+    public ResultEntity moveComponentFileById(@PathVariable(value = "sourceNodeId") String sourceNodeId, @RequestParam(value = "targetComponentId") String targetComponentId, @RequestParam(value = "targetNodeId", required = false, defaultValue = "") String targetNodeId) {
+        return ResultUtils.build(componentFileService.moveComponentFileById(sourceNodeId, targetNodeId, componentService.getComponentById(targetComponentId)));
     }
 
     // 根据Id删除组件文件

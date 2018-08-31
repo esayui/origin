@@ -1,7 +1,5 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ProjectRepository;
@@ -29,14 +27,10 @@ import org.springframework.util.StringUtils;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final DeviceService deviceService;
-    private final ComponentService componentService;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, DeviceService deviceService, ComponentService componentService) {
+    public ProjectService(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
-        this.deviceService = deviceService;
-        this.componentService = componentService;
     }
 
     // 根据用户创建工程
@@ -125,41 +119,5 @@ public class ProjectService {
     // 查询所有工程
     public Page<ProjectEntity> getProjects(Pageable pageable) {
         return projectRepository.findAll(pageable);
-    }
-
-    // 根据Id创建设备
-    public DeviceEntity saveDeviceByProject(String projectId, DeviceEntity deviceEntity) {
-        ProjectEntity projectEntity = getProjectById(projectId);
-        return deviceService.saveDeviceByProject(projectEntity, deviceEntity);
-    }
-
-    // 根据是否删除及工程查询设备
-    public Page<DeviceEntity> getDevicesByDeletedAndProject(Pageable pageable, String projectId, boolean deleted) {
-        ProjectEntity projectEntity = getProjectById(projectId);
-        return deviceService.getDevicesByDeletedAndProject(pageable, deleted, projectEntity);
-    }
-
-    // 根据Id查询设备数量
-    public long countDevicesByDeletedAndProject(String projectId, boolean deleted) {
-        ProjectEntity projectEntity = getProjectById(projectId);
-        return deviceService.countDevicesByDeletedAndProject(deleted, projectEntity);
-    }
-
-    // 根据Id创建组件
-    public ComponentEntity saveComponentByProject(String projectId, ComponentEntity componentEntity) {
-        ProjectEntity projectEntity = getProjectById(projectId);
-        return componentService.saveComponentByProject(projectEntity, componentEntity);
-    }
-
-    // 根据Id查询组件
-    public Page<ComponentEntity> getComponentsByDeletedAndProject(Pageable pageable, String projectId, boolean deleted) {
-        ProjectEntity projectEntity = getProjectById(projectId);
-        return componentService.getComponentsByDeletedAndProject(pageable, deleted, projectEntity);
-    }
-
-    // 根据Id查询组件数量
-    public long countComponentsByDeletedAndProject(String projectId, boolean deleted) {
-        ProjectEntity projectEntity = getProjectById(projectId);
-        return componentService.countComponentsByDeletedAndProject(deleted, projectEntity);
     }
 }

@@ -4,6 +4,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
+import com.rengu.operationsmanagementsuitev3.Service.UserActionLogService;
 import com.rengu.operationsmanagementsuitev3.Service.UserService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,13 @@ public class UserController {
 
     private final UserService userService;
     private final ProjectService projectService;
+    private final UserActionLogService userActionLogService;
 
     @Autowired
-    public UserController(UserService userService, ProjectService projectService) {
+    public UserController(UserService userService, ProjectService projectService, UserActionLogService userActionLogService) {
         this.userService = userService;
         this.projectService = projectService;
+        this.userActionLogService = userActionLogService;
     }
 
     // 保存普通用户
@@ -89,7 +92,7 @@ public class UserController {
     // 根据Id查询用户操作日志
     @GetMapping(value = "/{userId}/useractionlogs")
     public ResultEntity getUserActionLogsByUsername(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId) {
-        return ResultUtils.build(userService.getUserActionLogsByUsername(pageable, userId));
+        return ResultUtils.build(userActionLogService.getUserActionLogsByUsername(pageable, userService.getUserById(userId).getUsername()));
     }
 
     // 根据id创建工程

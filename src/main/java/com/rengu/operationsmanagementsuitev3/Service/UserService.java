@@ -1,8 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.RoleEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.UserActionLogEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.UserRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
@@ -38,15 +36,11 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleService roleService;
-    private final UserActionLogService userActionLogService;
-    private final ProjectService projectService;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleService roleService, UserActionLogService userActionLogService, ProjectService projectService) {
+    public UserService(UserRepository userRepository, RoleService roleService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
-        this.userActionLogService = userActionLogService;
-        this.projectService = projectService;
     }
 
     @Override
@@ -169,23 +163,5 @@ public class UserService implements UserDetailsService {
     // 查询所有用户
     public Page<UserEntity> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
-    }
-
-    // 根据用户名查询用户操作日志
-    public Page<UserActionLogEntity> getUserActionLogsByUsername(Pageable pageable, String userId) {
-        UserEntity userEntity = getUserById(userId);
-        return userActionLogService.getUserActionLogsByUsername(pageable, userEntity.getUsername());
-    }
-
-    // 根据id创建工程
-    public ProjectEntity saveProjectByUser(String userId, ProjectEntity projectEntity) {
-        UserEntity userEntity = getUserById(userId);
-        return projectService.saveProjectByUser(projectEntity, userEntity);
-    }
-
-    // 根据用户id查询工程
-    public Page<ProjectEntity> getProjectsByDeletedAndUser(Pageable pageable, String userId, boolean deleted) {
-        UserEntity userEntity = getUserById(userId);
-        return projectService.getProjectsByDeletedAndUser(pageable, deleted, userEntity);
     }
 }
