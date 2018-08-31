@@ -1,8 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
@@ -16,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -30,12 +26,10 @@ import java.util.List;
 public class ComponentService {
 
     private final ComponentRepository componentRepository;
-    private final ComponentFileService componentFileService;
 
     @Autowired
-    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService) {
+    public ComponentService(ComponentRepository componentRepository) {
         this.componentRepository = componentRepository;
-        this.componentFileService = componentFileService;
     }
 
     // 根据工程保存组件
@@ -164,23 +158,5 @@ public class ComponentService {
             name = name + "(" + index + ")";
         }
         return name;
-    }
-
-    // 根据id和父节点Id创建文件夹
-    public ComponentFileEntity saveComponentFileByParentNodeAndComponent(String componentId, String parentNodeId, ComponentFileEntity componentFileEntity) {
-        ComponentEntity componentEntity = getComponentById(componentId);
-        return componentFileService.saveComponentFileByParentNodeAndComponent(componentEntity, parentNodeId, componentFileEntity);
-    }
-
-    // 根据id和父节点Id创建文件
-    public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(String componentId, String parentNodeId, List<FileMetaEntity> fileMetaEntityList) {
-        ComponentEntity componentEntity = getComponentById(componentId);
-        return componentFileService.saveComponentFilesByParentNodeAndComponent(componentEntity, parentNodeId, fileMetaEntityList);
-    }
-
-    // 根据id和父节点查询组件文件
-    public List<ComponentFileEntity> getComponentFilesByParentNodeAndComponent(String componentId, String parentNodeId) {
-        ComponentEntity componentEntity = getComponentById(componentId);
-        return componentFileService.getComponentFilesByParentNodeAndComponent(parentNodeId, componentEntity);
     }
 }

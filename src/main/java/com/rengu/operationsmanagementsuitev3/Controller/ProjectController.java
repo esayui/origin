@@ -4,6 +4,8 @@ import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
+import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
+import com.rengu.operationsmanagementsuitev3.Service.DeviceService;
 import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,14 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final DeviceService deviceService;
+    private final ComponentService componentService;
 
     @Autowired
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, DeviceService deviceService, ComponentService componentService) {
         this.projectService = projectService;
+        this.deviceService = deviceService;
+        this.componentService = componentService;
     }
 
     // 根据Id删除工程
@@ -71,36 +77,36 @@ public class ProjectController {
     // 根据Id创建设备
     @PostMapping(value = "/{projectId}/device")
     public ResultEntity saveDeviceByProject(@PathVariable(value = "projectId") String projectId, DeviceEntity deviceEntity) {
-        return ResultUtils.build(projectService.saveDeviceByProject(projectId, deviceEntity));
+        return ResultUtils.build(deviceService.saveDeviceByProject(projectService.getProjectById(projectId), deviceEntity));
     }
 
     // 根据Id查询设备
     @GetMapping(value = "/{projectId}/devices")
     public ResultEntity getDevicesByDeletedAndProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(projectService.getDevicesByDeletedAndProject(pageable, projectId, deleted));
+        return ResultUtils.build(deviceService.getDevicesByDeletedAndProject(pageable, deleted, projectService.getProjectById(projectId)));
     }
 
     // 根据Id查询设备数量
     @GetMapping(value = "/{projectId}/devicecounts")
     public ResultEntity countDevicesByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(projectService.countDevicesByDeletedAndProject(projectId, deleted));
+        return ResultUtils.build(deviceService.countDevicesByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
     }
 
     // 根据Id创建组件
     @PostMapping(value = "/{projectId}/component")
     public ResultEntity saveComponentByProject(@PathVariable(value = "projectId") String projectId, ComponentEntity componentEntity) {
-        return ResultUtils.build(projectService.saveComponentByProject(projectId, componentEntity));
+        return ResultUtils.build(componentService.saveComponentByProject(projectService.getProjectById(projectId), componentEntity));
     }
 
     // 根据Id查询组件
     @GetMapping(value = "/{projectId}/components")
     public ResultEntity getComponentsByDeletedAndProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(projectService.getComponentsByDeletedAndProject(pageable, projectId, deleted));
+        return ResultUtils.build(componentService.getComponentsByDeletedAndProject(pageable, deleted, projectService.getProjectById(projectId)));
     }
 
     // 根据Id查询组件数量
     @GetMapping(value = "/{projectId}/componentcounts")
     public ResultEntity countComponentsByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(projectService.countComponentsByDeletedAndProject(projectId, deleted));
+        return ResultUtils.build(componentService.countComponentsByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
     }
 }

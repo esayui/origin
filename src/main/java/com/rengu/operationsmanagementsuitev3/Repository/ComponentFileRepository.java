@@ -2,6 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Repository;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.FileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +19,8 @@ import java.util.Optional;
 public interface ComponentFileRepository extends JpaRepository<ComponentFileEntity, String> {
 
     boolean existsByNameAndParentNodeAndComponentEntity(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity);
+
+    boolean existsByFileEntity(FileEntity fileEntity);
 
     Optional<ComponentFileEntity> findByNameAndParentNodeAndComponentEntity(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity);
 

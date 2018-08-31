@@ -4,6 +4,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
+import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,12 @@ import java.util.List;
 public class ComponentController {
 
     private final ComponentService componentService;
+    private final ComponentFileService componentFileService;
 
     @Autowired
-    public ComponentController(ComponentService componentService) {
+    public ComponentController(ComponentService componentService, ComponentFileService componentFileService) {
         this.componentService = componentService;
+        this.componentFileService = componentFileService;
     }
 
     // 根据id复制组件
@@ -78,18 +81,18 @@ public class ComponentController {
     // 根据id和父节点Id创建文件夹
     @PostMapping(value = "/{componentId}/createfolder")
     public ResultEntity saveComponentFileByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId, ComponentFileEntity componentFileEntity) {
-        return ResultUtils.build(componentService.saveComponentFileByParentNodeAndComponent(componentId, parentNodeId, componentFileEntity));
+        return ResultUtils.build(componentFileService.saveComponentFileByParentNodeAndComponent(componentService.getComponentById(componentId), parentNodeId, componentFileEntity));
     }
 
     // 根据id和父节点Id创建文件
     @PostMapping(value = "/{componentId}/uploadfiles")
     public ResultEntity saveComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId, @RequestBody List<FileMetaEntity> fileMetaEntityList) {
-        return ResultUtils.build(componentService.saveComponentFilesByParentNodeAndComponent(componentId, parentNodeId, fileMetaEntityList));
+        return ResultUtils.build(componentFileService.saveComponentFilesByParentNodeAndComponent(componentService.getComponentById(componentId), parentNodeId, fileMetaEntityList));
     }
 
     // 根据id和父节点查询组件文件
     @GetMapping(value = "/{componentId}/files")
     public ResultEntity getComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId) {
-        return ResultUtils.build(componentService.getComponentFilesByParentNodeAndComponent(componentId, parentNodeId));
+        return ResultUtils.build(componentFileService.getComponentFilesByParentNodeAndComponent(parentNodeId, componentService.getComponentById(componentId)));
     }
 }

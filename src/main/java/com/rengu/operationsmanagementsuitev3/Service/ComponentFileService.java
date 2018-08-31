@@ -2,6 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.FileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -91,6 +93,46 @@ public class ComponentFileService {
         return componentFileEntityList;
     }
 
+    // 根据Id移动组件文件
+    public ComponentFileEntity moveComponentFileById(String componentfileId, String targetNodeId, ComponentEntity componentEntity) {
+        ComponentFileEntity sourceComponentFile = getComponentFileById(componentfileId);
+        ComponentFileEntity targetComponentFile = hasComponentFileById(targetNodeId) ? getComponentFileById(targetNodeId) : null;
+        sourceComponentFile.setParentNode(targetComponentFile);
+        sourceComponentFile.setComponentEntity(componentEntity);
+        return componentFileRepository.save(sourceComponentFile);
+    }
+
+    // 根据Id删除组件文件
+    public ComponentFileEntity deleteComponentFileById(String componentfileId) throws IOException {
+        ComponentFileEntity componentFileEntity = getComponentFileById(componentfileId);
+        if (componentFileEntity.isFolder()) {
+            // 是文件夹, 获取子文件遍历递归
+            for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(componentFileEntity.getId(), componentFileEntity.getComponentEntity())) {
+                deleteComponentFileById(tempComponentFile.getId());
+            }
+            componentFileRepository.deleteById(componentFileEntity.getId());
+        } else {
+            // 是文件，检查是否需要删除实际文件
+            if (!hasComponentFileByFile(componentFileEntity.getFileEntity())) {
+                fileService.deleteFileById(componentFileEntity.getFileEntity().getId());
+            }
+            componentFileRepository.deleteById(componentFileEntity.getId());
+        }
+        return componentFileEntity;
+    }
+
+    // 根据Id修改组件文件
+    public ComponentFileEntity updateComponentFileById(String componentfileId, ComponentFileEntity componentFileArgs) {
+        ComponentFileEntity componentFileEntity = getComponentFileById(componentfileId);
+        if (!StringUtils.isEmpty(componentFileArgs.getName()) && !componentFileEntity.getName().equals(FilenameUtils.getBaseName(componentFileArgs.getName()))) {
+            if (hasComponentFileByNameAndParentNodeAndComponent(FilenameUtils.getBaseName(componentFileArgs.getName()), componentFileEntity.getParentNode(), componentFileEntity.getComponentEntity())) {
+                throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_NAME_EXISTED + componentFileArgs.getName());
+            }
+            componentFileEntity.setName(FilenameUtils.getBaseName(componentFileArgs.getName()));
+        }
+        return componentFileRepository.save(componentFileEntity);
+    }
+
     // 根据Id查询组件文件是否存在
     public boolean hasComponentFileById(String componentFileId) {
         if (StringUtils.isEmpty(componentFileId)) {
@@ -107,6 +149,11 @@ public class ComponentFileService {
         return componentFileRepository.existsByNameAndParentNodeAndComponentEntity(name, parentNode, componentEntity);
     }
 
+    // 根据引用文件判断是否存在
+    public boolean hasComponentFileByFile(FileEntity fileEntity) {
+        return componentFileRepository.existsByFileEntity(fileEntity);
+    }
+
     // 根据名称、父节点及组件查询文件
     public ComponentFileEntity getComponentFileByNameAndParentNodeAndComponent(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity) {
         return componentFileRepository.findByNameAndParentNodeAndComponentEntity(name, parentNode, componentEntity).get();
@@ -114,7 +161,7 @@ public class ComponentFileService {
 
     // 根据id查询组件文件
     public ComponentFileEntity getComponentFileById(String componentFileId) {
-        if (hasComponentFileById(componentFileId)) {
+        if (!hasComponentFileById(componentFileId)) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_ID_NOT_FOUND + componentFileId);
         }
         return componentFileRepository.findById(componentFileId).get();

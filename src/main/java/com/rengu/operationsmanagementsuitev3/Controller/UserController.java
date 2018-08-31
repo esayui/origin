@@ -3,6 +3,7 @@ package com.rengu.operationsmanagementsuitev3.Controller;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
+import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
 import com.rengu.operationsmanagementsuitev3.Service.UserService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +25,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final ProjectService projectService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ProjectService projectService) {
         this.userService = userService;
+        this.projectService = projectService;
     }
 
     // 保存普通用户
@@ -92,12 +95,12 @@ public class UserController {
     // 根据id创建工程
     @PostMapping(value = "/{userId}/project")
     public ResultEntity saveProjectByUser(@PathVariable(value = "userId") String userId, ProjectEntity projectEntity) {
-        return ResultUtils.build(userService.saveProjectByUser(userId, projectEntity));
+        return ResultUtils.build(projectService.saveProjectByUser(projectEntity, userService.getUserById(userId)));
     }
 
     // 根据用户id查询工程
     @GetMapping(value = "/{userId}/projects")
     public ResultEntity getProjectsByDeletedAndUser(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(userService.getProjectsByDeletedAndUser(pageable, userId, deleted));
+        return ResultUtils.build(projectService.getProjectsByDeletedAndUser(pageable, deleted, userService.getUserById(userId)));
     }
 }
