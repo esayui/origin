@@ -25,4 +25,5 @@ public class HeartbeatEntity implements Serializable {
     private double ramTotalSize;
     private double downLoadSpeed;
     private double upLoadSpeed;
+    private int count = 3;
 }

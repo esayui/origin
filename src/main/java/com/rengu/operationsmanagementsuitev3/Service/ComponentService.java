@@ -140,7 +140,7 @@ public class ComponentService {
 
     // 根据Id查询组件
     public ComponentEntity getComponentById(String componentId) {
-        if (hasComponentById(componentId)) {
+        if (!hasComponentById(componentId)) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_ID_NOT_FOUND + componentId);
         }
         return componentRepository.findById(componentId).get();

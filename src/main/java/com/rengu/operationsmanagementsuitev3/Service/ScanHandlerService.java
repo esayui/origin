@@ -1,6 +1,5 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.rengu.operationsmanagementsuitev3.ActiveMQ.ActiveMQMessageConsumer;
 import com.rengu.operationsmanagementsuitev3.Entity.DiskScanResultEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.OrderEntity;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
@@ -11,6 +10,8 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 /**
@@ -23,6 +24,8 @@ import java.util.concurrent.Future;
 @Service
 public class ScanHandlerService {
 
+    public static final Map<String, List<DiskScanResultEntity>> SCAN_DISK_RESULT = new ConcurrentHashMap<>();
+
     @Async
     // 扫描设备磁盘处理线程
     public Future<List<DiskScanResultEntity>> scanDiskHandler(OrderEntity orderEntity) {
@@ -31,8 +34,8 @@ public class ScanHandlerService {
             if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT) {
                 throw new RuntimeException(ApplicationMessages.SCAN_DISK_TIME_OUT);
             }
-            if (ActiveMQMessageConsumer.SCAN_DISK_RESULT.containsKey(orderEntity.getId())) {
-                return new AsyncResult<>(ActiveMQMessageConsumer.SCAN_DISK_RESULT.get(orderEntity.getId()));
+            if (SCAN_DISK_RESULT.containsKey(orderEntity.getId())) {
+                return new AsyncResult<>(SCAN_DISK_RESULT.get(orderEntity.getId()));
             }
         }
     }
