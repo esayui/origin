@@ -15,7 +15,6 @@ import java.io.IOException;
 @Slf4j
 public class JsonUtils {
 
-    private static ObjectMapper objectMapper;
 
     /**
      * 使用泛型方法，把json字符串转换为相应的JavaBean对象。
@@ -28,9 +27,7 @@ public class JsonUtils {
      * @return
      */
     public static <T> T readValue(String jsonStr, Class<T> valueType) throws IOException {
-        if (objectMapper == null) {
-            objectMapper = new ObjectMapper();
-        }
+        ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(jsonStr, valueType);
     }
 
@@ -41,9 +38,7 @@ public class JsonUtils {
      * @return
      */
     public static String toJson(Object object) throws JsonProcessingException {
-        if (objectMapper == null) {
-            objectMapper = new ObjectMapper();
-        }
+        ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(object);
     }
 

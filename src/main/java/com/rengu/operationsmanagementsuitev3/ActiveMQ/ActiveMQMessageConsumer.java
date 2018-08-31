@@ -21,7 +21,6 @@ public class ActiveMQMessageConsumer {
     @JmsListener(destination = "QUEUE.HEARTBEAT")
     public void heartbeatHandler(String message) throws IOException {
         HeartbeatEntity heartbeatEntity = JsonUtils.readValue(message, HeartbeatEntity.class);
-        log.info(heartbeatEntity.toString());
     }
 
     @JmsListener(destination = "QUEUE.DISK_SCAN_RESULT")
