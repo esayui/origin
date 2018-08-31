@@ -6,7 +6,9 @@ import com.rengu.operationsmanagementsuitev3.Entity.FileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -102,6 +106,13 @@ public class ComponentFileService {
         return sourceNode;
     }
 
+    // 根据组件复制组件文件
+    public void copyComponentFileByComponent(ComponentEntity sourceComponent, ComponentEntity targetComponent) {
+        for (ComponentFileEntity componentFileEntity : getComponentFilesByParentNodeAndComponent(null, sourceComponent)) {
+            copyComponentFiles(componentFileEntity, sourceComponent, null, targetComponent);
+        }
+    }
+
     // 复制组件文件
     public void copyComponentFiles(ComponentFileEntity sourceNode, ComponentEntity sourceComponent, ComponentFileEntity targetNode, ComponentEntity targetComponent) {
         ComponentFileEntity copyNode;
@@ -116,7 +127,7 @@ public class ComponentFileService {
             componentFileRepository.save(copyNode);
         }
         // 递归遍历子节点进行复制
-        for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(sourceNode.getId(), sourceComponent)) {
+        for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(copyNode.getId(), sourceComponent)) {
             copyComponentFiles(tempComponentFile, sourceComponent, copyNode, targetComponent);
         }
     }
@@ -209,5 +220,28 @@ public class ComponentFileService {
             name = name + "(" + index + ")";
         }
         return name;
+    }
+
+    // 根据Id导出组件文件
+    public File exportComponentFileById(String componentfileId) throws IOException {
+        ComponentFileEntity componentFileEntity = hasComponentFileById(componentfileId) ? getComponentFileById(componentfileId) : null;
+        // 初始化导出目录
+        File exportDir = new File(FileUtils.getTempDirectoryPath() + File.separator + UUID.randomUUID().toString());
+        exportDir.mkdirs();
+        return exportComponentFiles(componentFileEntity, exportDir);
+    }
+
+    // 导出组件文件
+    public File exportComponentFiles(ComponentFileEntity componentFileEntity, File exportDir) throws IOException {
+        // 检查是否为文件夹
+        if (componentFileEntity.isFolder()) {
+            for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(componentFileEntity.getId(), componentFileEntity.getComponentEntity())) {
+                exportComponentFiles(tempComponentFile, exportDir);
+            }
+        } else {
+            File file = new File(exportDir.getAbsolutePath() + File.separator + FormatUtils.getComponentFileRelativePath(componentFileEntity, ""));
+            FileUtils.copyFile(new File(componentFileEntity.getFileEntity().getLocalPath()), file);
+        }
+        return exportDir;
     }
 }

@@ -26,10 +26,12 @@ import org.springframework.util.StringUtils;
 public class ComponentService {
 
     private final ComponentRepository componentRepository;
+    private final ComponentFileService componentFileService;
 
     @Autowired
-    public ComponentService(ComponentRepository componentRepository) {
+    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService) {
         this.componentRepository = componentRepository;
+        this.componentFileService = componentFileService;
     }
 
     // 根据工程保存组件
@@ -58,6 +60,7 @@ public class ComponentService {
         BeanUtils.copyProperties(componentArgs, componentEntity, "id", "createTime");
         componentEntity.setName(getName(componentArgs.getName(), componentArgs.getVersion(), componentArgs.getProjectEntity()));
         componentRepository.save(componentEntity);
+        componentFileService.copyComponentFileByComponent(componentArgs, componentEntity);
         return componentEntity;
     }
 

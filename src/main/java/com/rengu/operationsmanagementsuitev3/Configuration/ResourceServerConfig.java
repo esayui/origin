@@ -58,12 +58,12 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http.authorizeRequests().antMatchers(HttpMethod.POST, "/users/user").permitAll();
         // 放行swagger2文档页面
         http.authorizeRequests().antMatchers("/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs").permitAll();
-        // 放行测试接口
-        http.authorizeRequests().antMatchers("/tests/**").permitAll();
         // 放行文件上传接口
         http.authorizeRequests().antMatchers("/files/**").permitAll();
         // 放行接口
         http.authorizeRequests().antMatchers("/components/**").permitAll();
+        // 放行接口
+        http.authorizeRequests().antMatchers("/componentfiles/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
     }
 }

@@ -28,4 +28,9 @@ public class ActiveMQMessageConsumer {
     public void diskScanResultHandler(String message) {
         log.info(message);
     }
+
+    @JmsListener(destination = "QUEUE.PROCESS_SCAN_RESULT")
+    public void processScanResultHandler(String message) {
+        log.info(message);
+    }
 }

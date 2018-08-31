@@ -4,11 +4,19 @@ import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
+import com.rengu.operationsmanagementsuitev3.Utils.CompressUtils;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -59,9 +67,20 @@ public class ComponentFileController {
         return ResultUtils.build(componentFileService.getComponentFileById(componentfileId));
     }
 
-//    // 根据Id导出组件文件
-//    @GetMapping(value = "/{componentfileId}/export")
-//    public void exportComponentFileById(@PathVariable(value = "componentfileId") String componentfileId, HttpServletResponse httpServletResponse) throws IOException {
-//        componentFileService.exportComponentFileById(componentfileId, httpServletResponse);
-//    }
+    // 根据Id导出组件文件
+    @GetMapping(value = "/{componentfileId}/export")
+    public void exportComponentFileById(@PathVariable(value = "componentfileId") String componentfileId, HttpServletResponse httpServletResponse) throws IOException {
+        File exportDir = componentFileService.exportComponentFileById(componentfileId);
+        File compressFile = new File(FileUtils.getTempDirectory() + File.separator + System.currentTimeMillis() + ".zip");
+        compressFile.getParentFile().mkdirs();
+        compressFile.createNewFile();
+        CompressUtils.compress(exportDir, compressFile);
+        String mimeType = URLConnection.guessContentTypeFromName(compressFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(compressFile.getName());
+        httpServletResponse.setContentType(mimeType);
+        httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + new String(compressFile.getName().getBytes(StandardCharsets.UTF_8), "ISO8859-1"));
+        httpServletResponse.setContentLengthLong(compressFile.length());
+        // 文件流输出
+        IOUtils.copy(new FileInputStream(compressFile), httpServletResponse.getOutputStream());
+        httpServletResponse.flushBuffer();
+    }
 }

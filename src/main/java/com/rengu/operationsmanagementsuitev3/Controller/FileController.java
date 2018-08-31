@@ -53,6 +53,6 @@ public class FileController {
     // 根据MD5检查文件是否存在
     @GetMapping(value = "/hasmd5")
     public ResultEntity hasFileByMD5(@RequestParam(value = "MD5") String MD5) {
-        return ResultUtils.build(fileService.hasFileByMD5(MD5));
+        return ResultUtils.build(fileService.hasFileByMD5(MD5) ? fileService.getFileByMD5(MD5) : fileService.hasFileByMD5(MD5));
     }
 }
