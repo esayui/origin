@@ -4,9 +4,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
-import com.rengu.operationsmanagementsuitev3.Utils.CompressUtils;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -70,17 +68,13 @@ public class ComponentFileController {
     // 根据Id导出组件文件
     @GetMapping(value = "/{componentfileId}/export")
     public void exportComponentFileById(@PathVariable(value = "componentfileId") String componentfileId, HttpServletResponse httpServletResponse) throws IOException {
-        File exportDir = componentFileService.exportComponentFileById(componentfileId);
-        File compressFile = new File(FileUtils.getTempDirectory() + File.separator + System.currentTimeMillis() + ".zip");
-        compressFile.getParentFile().mkdirs();
-        compressFile.createNewFile();
-        CompressUtils.compress(exportDir, compressFile);
-        String mimeType = URLConnection.guessContentTypeFromName(compressFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(compressFile.getName());
+        File exportFile = componentFileService.exportComponentFileById(componentfileId);
+        String mimeType = URLConnection.guessContentTypeFromName(exportFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(exportFile.getName());
         httpServletResponse.setContentType(mimeType);
-        httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + new String(compressFile.getName().getBytes(StandardCharsets.UTF_8), "ISO8859-1"));
-        httpServletResponse.setContentLengthLong(compressFile.length());
+        httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + new String(exportFile.getName().getBytes(StandardCharsets.UTF_8), "ISO8859-1"));
+        httpServletResponse.setContentLengthLong(exportFile.length());
         // 文件流输出
-        IOUtils.copy(new FileInputStream(compressFile), httpServletResponse.getOutputStream());
+        IOUtils.copy(new FileInputStream(exportFile), httpServletResponse.getOutputStream());
         httpServletResponse.flushBuffer();
     }
 }

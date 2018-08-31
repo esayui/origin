@@ -50,7 +50,8 @@ public class ComponentService {
         }
         componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
         componentEntity.setProjectEntity(projectEntity);
-        return componentRepository.save(componentEntity);
+        componentRepository.save(componentEntity);
+        return componentEntity;
     }
 
     // 根据id复制组件
@@ -111,7 +112,8 @@ public class ComponentService {
         if (isModifiedVersion) {
             componentEntity.setVersion(componentArgs.getVersion());
         }
-        return componentRepository.save(componentEntity);
+        componentRepository.save(componentEntity);
+        return componentEntity;
     }
 
     // 根据组件名称、版本、是否删除及工程查询组件是否存在

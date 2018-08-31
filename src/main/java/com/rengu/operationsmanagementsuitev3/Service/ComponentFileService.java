@@ -6,6 +6,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.FileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import com.rengu.operationsmanagementsuitev3.Utils.CompressUtils;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -53,7 +54,8 @@ public class ComponentFileService {
         componentFileEntity.setFolder(true);
         componentFileEntity.setParentNode(parentNode);
         componentFileEntity.setComponentEntity(componentEntity);
-        return componentFileRepository.save(componentFileEntity);
+        componentFileRepository.save(componentFileEntity);
+        return componentFileEntity;
     }
 
     // 根据组件父节点保存文件
@@ -62,35 +64,37 @@ public class ComponentFileService {
         for (FileMetaEntity fileMetaEntity : fileMetaEntityList) {
             ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
             for (String path : fileMetaEntity.getRelativePath().split("/")) {
-                if (path.equals(fileMetaEntity.getName())) {
-                    // 文件节点，先判断是否存在该节点
-                    if (hasComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity)) {
-                        ComponentFileEntity componentFileEntity = getComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity);
-                        componentFileEntity.setCreateTime(new Date());
-                        componentFileEntity.setName(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
-                        componentFileEntity.setFolder(false);
-                        componentFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
-                        componentFileEntityList.add(componentFileRepository.save(componentFileEntity));
+                if (!StringUtils.isEmpty(path)) {
+                    if (path.equals(fileMetaEntity.getName())) {
+                        // 文件节点，先判断是否存在该节点
+                        if (hasComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity)) {
+                            ComponentFileEntity componentFileEntity = getComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity);
+                            componentFileEntity.setCreateTime(new Date());
+                            componentFileEntity.setName(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
+                            componentFileEntity.setFolder(false);
+                            componentFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
+                            componentFileEntityList.add(componentFileRepository.save(componentFileEntity));
+                        } else {
+                            ComponentFileEntity componentFileEntity = new ComponentFileEntity();
+                            componentFileEntity.setName(StringUtils.isEmpty(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath())) ? "-" : FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
+                            componentFileEntity.setFolder(false);
+                            componentFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
+                            componentFileEntity.setParentNode(parentNode);
+                            componentFileEntity.setComponentEntity(componentEntity);
+                            componentFileEntityList.add(componentFileRepository.save(componentFileEntity));
+                        }
                     } else {
-                        ComponentFileEntity componentFileEntity = new ComponentFileEntity();
-                        componentFileEntity.setName(StringUtils.isEmpty(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath())) ? "-" : FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
-                        componentFileEntity.setFolder(false);
-                        componentFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
-                        componentFileEntity.setParentNode(parentNode);
-                        componentFileEntity.setComponentEntity(componentEntity);
-                        componentFileEntityList.add(componentFileRepository.save(componentFileEntity));
-                    }
-                } else {
-                    // 路径节点，先判断是否存在该节点
-                    if (hasComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity)) {
-                        parentNode = getComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity);
-                    } else {
-                        ComponentFileEntity componentFileEntity = new ComponentFileEntity();
-                        componentFileEntity.setName(path);
-                        componentFileEntity.setFolder(true);
-                        componentFileEntity.setParentNode(parentNode);
-                        componentFileEntity.setComponentEntity(componentEntity);
-                        parentNode = componentFileRepository.save(componentFileEntity);
+                        // 路径节点，先判断是否存在该节点
+                        if (hasComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity)) {
+                            parentNode = getComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity);
+                        } else {
+                            ComponentFileEntity componentFileEntity = new ComponentFileEntity();
+                            componentFileEntity.setName(path);
+                            componentFileEntity.setFolder(true);
+                            componentFileEntity.setParentNode(parentNode);
+                            componentFileEntity.setComponentEntity(componentEntity);
+                            parentNode = componentFileRepository.save(componentFileEntity);
+                        }
                     }
                 }
             }
@@ -138,7 +142,8 @@ public class ComponentFileService {
         ComponentFileEntity targetComponentFile = hasComponentFileById(targetNodeId) ? getComponentFileById(targetNodeId) : null;
         sourceComponentFile.setParentNode(targetComponentFile);
         sourceComponentFile.setComponentEntity(targetComponent);
-        return componentFileRepository.save(sourceComponentFile);
+        componentFileRepository.save(sourceComponentFile);
+        return targetComponentFile;
     }
 
     // 根据Id删除组件文件
@@ -169,7 +174,8 @@ public class ComponentFileService {
             }
             componentFileEntity.setName(FilenameUtils.getBaseName(componentFileArgs.getName()));
         }
-        return componentFileRepository.save(componentFileEntity);
+        componentFileRepository.save(componentFileEntity);
+        return componentFileEntity;
     }
 
     // 根据Id查询组件文件是否存在
@@ -224,11 +230,18 @@ public class ComponentFileService {
 
     // 根据Id导出组件文件
     public File exportComponentFileById(String componentfileId) throws IOException {
-        ComponentFileEntity componentFileEntity = hasComponentFileById(componentfileId) ? getComponentFileById(componentfileId) : null;
-        // 初始化导出目录
-        File exportDir = new File(FileUtils.getTempDirectoryPath() + File.separator + UUID.randomUUID().toString());
-        exportDir.mkdirs();
-        return exportComponentFiles(componentFileEntity, exportDir);
+        ComponentFileEntity componentFileEntity = getComponentFileById(componentfileId);
+        if (componentFileEntity.isFolder()) {
+            // 初始化导出目录
+            File exportDir = new File(FileUtils.getTempDirectoryPath() + File.separator + UUID.randomUUID().toString());
+            exportDir.mkdirs();
+            exportComponentFiles(componentFileEntity, exportDir);
+            return CompressUtils.compress(exportDir, new File(FileUtils.getTempDirectoryPath() + File.separator + System.currentTimeMillis() + ".zip"));
+        } else {
+            File exportFile = new File(FileUtils.getTempDirectoryPath() + File.separator + componentFileEntity.getName() + "." + componentFileEntity.getFileEntity().getType());
+            FileUtils.copyFile(new File(componentFileEntity.getFileEntity().getLocalPath()), exportFile);
+            return exportFile;
+        }
     }
 
     // 导出组件文件
