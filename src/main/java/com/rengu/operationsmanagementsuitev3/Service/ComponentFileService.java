@@ -105,7 +105,7 @@ public class ComponentFileService {
                 }
             }
         }
-        if (componentFileEntityList.isEmpty()) {
+        if (!componentFileEntityList.isEmpty()) {
             componentFileHistoryService.saveComponentFileHistorysByComponent(componentEntity, componentHistoryService.saveComponentHistoryByComponent(componentEntity));
         }
         return componentFileEntityList;

@@ -34,7 +34,7 @@ public class ComponentHistoryController {
 
     // 根据id和父节点查询组件文件
     @GetMapping(value = "/{componentHistoryId}/files")
-    public ResultEntity getComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentHistoryId") String componentHistoryId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId) {
+    public ResultEntity getComponentFileHistorysByParentNodeAndComponentHistory(@PathVariable(value = "componentHistoryId") String componentHistoryId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId) {
         return ResultUtils.build(componentFileHistoryService.getComponentFileHistorysByParentNodeAndComponentHistory(parentNodeId, componentHistoryService.getComponentHistoryById(componentHistoryId)));
     }
 }

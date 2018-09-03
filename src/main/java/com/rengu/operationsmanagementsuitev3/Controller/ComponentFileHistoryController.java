@@ -36,13 +36,13 @@ public class ComponentFileHistoryController {
 
     // 根据Id查询组件文件
     @GetMapping(value = "/{componentFileHistoryId}")
-    public ResultEntity getComponentFileById(@PathVariable(value = "componentFileHistoryId") String componentFileHistoryId) {
+    public ResultEntity getComponentFileHistoryById(@PathVariable(value = "componentFileHistoryId") String componentFileHistoryId) {
         return ResultUtils.build(componentFileHistoryService.getComponentFileHistoryById(componentFileHistoryId));
     }
 
     // 根据Id导出组件文件
     @GetMapping(value = "/{componentFileHistoryId}/export")
-    public void exportComponentFileById(@PathVariable(value = "componentFileHistoryId") String componentFileHistoryId, HttpServletResponse httpServletResponse) throws IOException {
+    public void exportComponentFileHistoryById(@PathVariable(value = "componentFileHistoryId") String componentFileHistoryId, HttpServletResponse httpServletResponse) throws IOException {
         File exportFile = componentFileHistoryService.exportComponentFileHistoryById(componentFileHistoryId);
         String mimeType = URLConnection.guessContentTypeFromName(exportFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(exportFile.getName());
         httpServletResponse.setContentType(mimeType);

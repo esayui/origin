@@ -87,7 +87,7 @@ public class ComponentController {
     // 根据Id查询组件历史
     @GetMapping(value = "/{componentId}/history")
     public ResultEntity getComponentHistoryByComponent(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "componentId") String componentId) {
-        return ResultUtils.build(componentHistoryService.getComponentHistoryByComponent(pageable, componentService.getComponentById(componentId)));
+        return ResultUtils.build(componentHistoryService.getComponentHistorysByComponent(pageable, componentService.getComponentById(componentId)));
     }
 
     // 根据id和父节点Id创建文件夹
