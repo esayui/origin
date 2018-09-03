@@ -40,6 +40,5 @@ public class Swagger2Config {
                 .contact(new Contact("ChangMing Han", "https://github.com/MagnyCopper", "han.changming@qq.com"))
                 .version("0.0.1")
                 .build();
-
     }
 }

@@ -34,12 +34,12 @@ public class ComponentFileHistoryService {
     // 根据组件文件跟节点保存组件文件历史
     public void saveComponentFileHistorysByComponent(ComponentEntity sourceComponent, ComponentHistoryEntity componentHistoryEntity) {
         for (ComponentFileEntity componentFileEntity : componentFileService.getComponentFilesByParentNodeAndComponent(null, sourceComponent)) {
-            copyComponentFileHistorys(componentFileEntity, sourceComponent, null, componentHistoryEntity);
+            saveComponentFileHistorysByComponentFile(componentFileEntity, sourceComponent, null, componentHistoryEntity);
         }
     }
 
     // 从组件文件生成组件文件历史
-    public void copyComponentFileHistorys(ComponentFileEntity sourceNode, ComponentEntity sourceComponent, ComponentFileHistoryEntity targetNode, ComponentHistoryEntity targetComponent) {
+    public void saveComponentFileHistorysByComponentFile(ComponentFileEntity sourceNode, ComponentEntity sourceComponent, ComponentFileHistoryEntity targetNode, ComponentHistoryEntity targetComponent) {
         ComponentFileHistoryEntity copyNode = new ComponentFileHistoryEntity();
         BeanUtils.copyProperties(sourceNode, copyNode, "id", "createTime", "parentNode", "componentEntity");
         copyNode.setParentNode(targetNode);
@@ -47,7 +47,7 @@ public class ComponentFileHistoryService {
         componentFileHistoryRepository.save(copyNode);
         // 递归遍历子节点进行复制
         for (ComponentFileEntity tempComponentFile : componentFileService.getComponentFilesByParentNodeAndComponent(sourceNode.getId(), sourceComponent)) {
-            copyComponentFileHistorys(tempComponentFile, sourceComponent, copyNode, targetComponent);
+            saveComponentFileHistorysByComponentFile(tempComponentFile, sourceComponent, copyNode, targetComponent);
         }
     }
 }
