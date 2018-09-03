@@ -38,7 +38,10 @@ public class ComponentController {
     // 根据id复制组件
     @PostMapping(value = "/{componentId}/copy")
     public ResultEntity copyComponentById(@PathVariable(value = "componentId") String componentId) {
-        return ResultUtils.build(componentService.copyComponentById(componentId));
+        ComponentEntity componentArgs = componentService.getComponentById(componentId);
+        ComponentEntity componentEntity = componentService.copyComponentById(componentArgs);
+        componentFileService.copyComponentFileByComponent(componentArgs, componentEntity);
+        return ResultUtils.build(componentEntity);
     }
 
     // 根据Id删除组件

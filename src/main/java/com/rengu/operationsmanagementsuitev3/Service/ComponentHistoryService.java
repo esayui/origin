@@ -21,12 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class ComponentHistoryService {
 
     private final ComponentHistoryRepository componentHistoryRepository;
-    private final ComponentFileHistoryService componentFileHistoryService;
 
     @Autowired
-    public ComponentHistoryService(ComponentHistoryRepository componentHistoryRepository, ComponentFileHistoryService componentFileHistoryService) {
+    public ComponentHistoryService(ComponentHistoryRepository componentHistoryRepository) {
         this.componentHistoryRepository = componentHistoryRepository;
-        this.componentFileHistoryService = componentFileHistoryService;
     }
 
     // 根据组件保存组件历史
@@ -36,7 +34,6 @@ public class ComponentHistoryService {
         componentHistoryEntity.setTag(System.currentTimeMillis());
         componentHistoryEntity.setComponentEntity(sourceComponent);
         componentHistoryRepository.save(componentHistoryEntity);
-        componentFileHistoryService.saveComponentFileHistorysByComponent(sourceComponent, componentHistoryEntity);
         return componentHistoryEntity;
     }
 }

@@ -27,11 +27,15 @@ public class ComponentService {
 
     private final ComponentRepository componentRepository;
     private final ComponentFileService componentFileService;
+    private final ComponentHistoryService componentHistoryService;
+    private final ComponentFileHistoryService componentFileHistoryService;
 
     @Autowired
-    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService) {
+    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService, ComponentFileHistoryService componentFileHistoryService) {
         this.componentRepository = componentRepository;
         this.componentFileService = componentFileService;
+        this.componentHistoryService = componentHistoryService;
+        this.componentFileHistoryService = componentFileHistoryService;
     }
 
     // 根据工程保存组件
@@ -51,12 +55,12 @@ public class ComponentService {
         componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
         componentEntity.setProjectEntity(projectEntity);
         componentRepository.save(componentEntity);
+        componentFileHistoryService.saveComponentFileHistorysByComponent(componentEntity, componentHistoryService.saveComponentHistoryByComponent(componentEntity));
         return componentEntity;
     }
 
     // 根据id复制组件
-    public ComponentEntity copyComponentById(String componentId) {
-        ComponentEntity componentArgs = getComponentById(componentId);
+    public ComponentEntity copyComponentById(ComponentEntity componentArgs) {
         ComponentEntity componentEntity = new ComponentEntity();
         BeanUtils.copyProperties(componentArgs, componentEntity, "id", "createTime");
         componentEntity.setName(getName(componentArgs.getName(), componentArgs.getVersion(), componentArgs.getProjectEntity()));

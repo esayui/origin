@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileHistoryEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentHistoryEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileHistoryRepository;
+import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +24,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class ComponentFileHistoryService {
 
     private final ComponentFileHistoryRepository componentFileHistoryRepository;
-    private final ComponentFileService componentFileService;
+    private final ComponentFileRepository componentFileRepository;
 
     @Autowired
-    public ComponentFileHistoryService(ComponentFileHistoryRepository componentFileHistoryRepository, ComponentFileService componentFileService) {
+    public ComponentFileHistoryService(ComponentFileHistoryRepository componentFileHistoryRepository, ComponentFileRepository componentFileRepository) {
         this.componentFileHistoryRepository = componentFileHistoryRepository;
-        this.componentFileService = componentFileService;
+        this.componentFileRepository = componentFileRepository;
     }
 
     // 根据组件文件跟节点保存组件文件历史
     public void saveComponentFileHistorysByComponent(ComponentEntity sourceComponent, ComponentHistoryEntity componentHistoryEntity) {
-        for (ComponentFileEntity componentFileEntity : componentFileService.getComponentFilesByParentNodeAndComponent(null, sourceComponent)) {
+        for (ComponentFileEntity componentFileEntity : componentFileRepository.findByParentNodeAndComponentEntity(null, sourceComponent)) {
             saveComponentFileHistorysByComponentFile(componentFileEntity, sourceComponent, null, componentHistoryEntity);
         }
     }
@@ -46,7 +47,7 @@ public class ComponentFileHistoryService {
         copyNode.setComponentHistoryEntity(targetComponent);
         componentFileHistoryRepository.save(copyNode);
         // 递归遍历子节点进行复制
-        for (ComponentFileEntity tempComponentFile : componentFileService.getComponentFilesByParentNodeAndComponent(sourceNode.getId(), sourceComponent)) {
+        for (ComponentFileEntity tempComponentFile : componentFileRepository.findByParentNodeAndComponentEntity(sourceNode, sourceComponent)) {
             saveComponentFileHistorysByComponentFile(tempComponentFile, sourceComponent, copyNode, targetComponent);
         }
     }
