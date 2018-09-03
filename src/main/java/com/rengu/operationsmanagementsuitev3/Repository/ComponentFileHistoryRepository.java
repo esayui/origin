@@ -2,6 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Repository;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileHistoryEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentHistoryEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.FileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +16,8 @@ import java.util.List;
 
 @Repository
 public interface ComponentFileHistoryRepository extends JpaRepository<ComponentFileHistoryEntity, String> {
+
+    boolean existsByFileEntity(FileEntity fileEntity);
 
     List<ComponentFileHistoryEntity> findAllByParentNodeAndComponentHistoryEntity(ComponentFileHistoryEntity parentNode, ComponentHistoryEntity componentHistoryEntity);
 }

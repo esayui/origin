@@ -1,9 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileHistoryEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentHistoryEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileHistoryRepository;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
@@ -63,16 +60,21 @@ public class ComponentFileHistoryService {
     }
 
     // 根据Id判断组件历史文件是否存在
-    public boolean hasComponentFileHistorysById(String componentFileHistoryId) {
+    public boolean hasComponentFileHistoryById(String componentFileHistoryId) {
         if (StringUtils.isEmpty(componentFileHistoryId)) {
             return false;
         }
         return componentFileHistoryRepository.existsById(componentFileHistoryId);
     }
 
+    // 根据引用文件判断是否存在
+    public boolean hasComponentFileHistoryByFile(FileEntity fileEntity) {
+        return componentFileHistoryRepository.existsByFileEntity(fileEntity);
+    }
+
     // 根据id查询组件历史文件
-    public ComponentFileHistoryEntity getComponentFileHistorysById(String componentFileHistoryId) {
-        if (!hasComponentFileHistorysById(componentFileHistoryId)) {
+    public ComponentFileHistoryEntity getComponentFileHistoryById(String componentFileHistoryId) {
+        if (!hasComponentFileHistoryById(componentFileHistoryId)) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_HISTORY_ID_NOT_FOUND + componentFileHistoryId);
         }
         return componentFileHistoryRepository.findById(componentFileHistoryId).get();
@@ -80,13 +82,13 @@ public class ComponentFileHistoryService {
 
     // 根据父节点查询组件文件历史
     public List<ComponentFileHistoryEntity> getComponentFileHistorysByParentNodeAndComponentHistory(String parentNodeId, ComponentHistoryEntity componentHistoryEntity) {
-        ComponentFileHistoryEntity parentNode = hasComponentFileHistorysById(parentNodeId) ? getComponentFileHistorysById(parentNodeId) : null;
+        ComponentFileHistoryEntity parentNode = hasComponentFileHistoryById(parentNodeId) ? getComponentFileHistoryById(parentNodeId) : null;
         return componentFileHistoryRepository.findAllByParentNodeAndComponentHistoryEntity(parentNode, componentHistoryEntity);
     }
 
     // 根据Id导出组件历史文件
     public File exportComponentFileHistoryById(String componentFileHistoryId) throws IOException {
-        ComponentFileHistoryEntity componentFileHistoryEntity = getComponentFileHistorysById(componentFileHistoryId);
+        ComponentFileHistoryEntity componentFileHistoryEntity = getComponentFileHistoryById(componentFileHistoryId);
         if (componentFileHistoryEntity.isFolder()) {
             // 初始化导出目录
             File exportDir = new File(FileUtils.getTempDirectoryPath() + File.separator + UUID.randomUUID().toString());

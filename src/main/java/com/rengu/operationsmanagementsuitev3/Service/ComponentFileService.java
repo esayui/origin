@@ -168,7 +168,7 @@ public class ComponentFileService {
             componentFileRepository.deleteById(componentFileEntity.getId());
         } else {
             // 是文件，检查是否需要删除实际文件
-            if (!hasComponentFileByFile(componentFileEntity.getFileEntity())) {
+            if (!hasComponentFileByFile(componentFileEntity.getFileEntity()) && !componentFileHistoryService.hasComponentFileHistoryByFile(componentFileEntity.getFileEntity())) {
                 fileService.deleteFileById(componentFileEntity.getFileEntity().getId());
             }
             componentFileRepository.deleteById(componentFileEntity.getId());

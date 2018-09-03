@@ -37,7 +37,7 @@ public class ComponentFileHistoryController {
     // 根据Id查询组件文件
     @GetMapping(value = "/{componentFileHistoryId}")
     public ResultEntity getComponentFileById(@PathVariable(value = "componentFileHistoryId") String componentFileHistoryId) {
-        return ResultUtils.build(componentFileHistoryService.getComponentFileHistorysById(componentFileHistoryId));
+        return ResultUtils.build(componentFileHistoryService.getComponentFileHistoryById(componentFileHistoryId));
     }
 
     // 根据Id导出组件文件

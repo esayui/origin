@@ -58,7 +58,7 @@ public class ComponentHistoryService {
     }
 
     // 根据组件查询组件历史
-    public Page<ComponentHistoryEntity> getComponentHistoryByComponent(Pageable pageable, ComponentEntity componentEntity) {
+    public Page<ComponentHistoryEntity> getComponentHistorysByComponent(Pageable pageable, ComponentEntity componentEntity) {
         return componentHistoryRepository.findAllByComponentEntity(pageable, componentEntity);
     }
 }
