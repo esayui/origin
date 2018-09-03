@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
+import com.rengu.operationsmanagementsuitev3.Service.ComponentHistoryService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,13 @@ public class ComponentController {
 
     private final ComponentService componentService;
     private final ComponentFileService componentFileService;
+    private final ComponentHistoryService componentHistoryService;
 
     @Autowired
-    public ComponentController(ComponentService componentService, ComponentFileService componentFileService) {
+    public ComponentController(ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService) {
         this.componentService = componentService;
         this.componentFileService = componentFileService;
+        this.componentHistoryService = componentHistoryService;
     }
 
     // 根据id复制组件
@@ -79,6 +82,12 @@ public class ComponentController {
     @PreAuthorize(value = "hasRole('admin')")
     public ResultEntity getComponents(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResultUtils.build(componentService.getComponents(pageable));
+    }
+
+    // 根据Id查询组件历史
+    @GetMapping(value = "/{componentId}/history")
+    public ResultEntity getComponentHistoryByComponent(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "componentId") String componentId) {
+        return ResultUtils.build(componentHistoryService.getComponentHistoryByComponent(pageable, componentService.getComponentById(componentId)));
     }
 
     // 根据id和父节点Id创建文件夹

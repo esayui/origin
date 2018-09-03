@@ -84,6 +84,16 @@ public class ApplicationMessages {
     public static final String COMPONENT_FILE_ID_NOT_FOUND = "未发现该组件文件Id：";
     public static final String COMPONENT_FILE_ID_EXISTED = "该组件文件Id已存在：";
 
+    // 组件历史相关提示
+    public static final String COMPONENT_HISTORY_ID_ARGS_NOT_FOUND = "组件历史Id参数不存在或不合法";
+    public static final String COMPONENT_HISTORY_ID_NOT_FOUND = "未发现该组件历史Id：";
+    public static final String COMPONENT_HISTORY_ID_EXISTED = "该组件历史Id已存在：";
+
+    // 组件历史文件相关提示
+    public static final String COMPONENT_FILE_HISTORY_ID_ARGS_NOT_FOUND = "组件文件历史Id参数不存在或不合法";
+    public static final String COMPONENT_FILE_HISTORY_ID_NOT_FOUND = "未发现该组件文件历史Id：";
+    public static final String COMPONENT_FILE_HISTORY_ID_EXISTED = "该组件文件历史Id已存在：";
+
     // 扫描相关提示信息
     public static final String SCAN_DISK_TIME_OUT = "获取设备磁盘信息超时";
 }

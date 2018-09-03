@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Utils;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileHistoryEntity;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -45,6 +46,23 @@ public class FormatUtils {
             componentFileEntity = componentFileEntity.getParentNode();
             basePath = File.separatorChar + componentFileEntity.getName() + basePath;
             getComponentFileRelativePath(componentFileEntity, basePath);
+        }
+        return FormatUtils.formatPath(basePath);
+    }
+
+    // 递归拼接path信息
+    public static String getComponentFileHistoryRelativePath(ComponentFileHistoryEntity componentFileHistoryEntity, String basePath) {
+        if (basePath.isEmpty()) {
+            if (componentFileHistoryEntity.isFolder()) {
+                basePath = File.separatorChar + componentFileHistoryEntity.getName() + File.separatorChar;
+            } else {
+                basePath = File.separatorChar + componentFileHistoryEntity.getName() + "." + componentFileHistoryEntity.getFileEntity().getType();
+            }
+        }
+        while (componentFileHistoryEntity.getParentNode() != null) {
+            componentFileHistoryEntity = componentFileHistoryEntity.getParentNode();
+            basePath = File.separatorChar + componentFileHistoryEntity.getName() + basePath;
+            getComponentFileHistoryRelativePath(componentFileHistoryEntity, basePath);
         }
         return FormatUtils.formatPath(basePath);
     }
