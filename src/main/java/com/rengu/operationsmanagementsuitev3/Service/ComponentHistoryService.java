@@ -25,6 +25,8 @@ import org.springframework.util.StringUtils;
 public class ComponentHistoryService {
 
     private final ComponentHistoryRepository componentHistoryRepository;
+    @Autowired
+    private ComponentFileHistoryService componentFileHistoryService;
 
     @Autowired
     public ComponentHistoryService(ComponentHistoryRepository componentHistoryRepository) {
@@ -38,6 +40,7 @@ public class ComponentHistoryService {
         componentHistoryEntity.setTag(System.currentTimeMillis());
         componentHistoryEntity.setComponentEntity(sourceComponent);
         componentHistoryRepository.save(componentHistoryEntity);
+        componentFileHistoryService.saveComponentFileHistorysByComponent(sourceComponent, componentHistoryEntity);
         return componentHistoryEntity;
     }
 

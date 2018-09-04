@@ -28,14 +28,12 @@ public class ComponentService {
     private final ComponentRepository componentRepository;
     private final ComponentFileService componentFileService;
     private final ComponentHistoryService componentHistoryService;
-    private final ComponentFileHistoryService componentFileHistoryService;
 
     @Autowired
-    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService, ComponentFileHistoryService componentFileHistoryService) {
+    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService) {
         this.componentRepository = componentRepository;
         this.componentFileService = componentFileService;
         this.componentHistoryService = componentHistoryService;
-        this.componentFileHistoryService = componentFileHistoryService;
     }
 
     // 根据工程保存组件
@@ -55,7 +53,7 @@ public class ComponentService {
         componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
         componentEntity.setProjectEntity(projectEntity);
         componentRepository.save(componentEntity);
-        componentFileHistoryService.saveComponentFileHistorysByComponent(componentEntity, componentHistoryService.saveComponentHistoryByComponent(componentEntity));
+        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
         return componentEntity;
     }
 
@@ -66,6 +64,7 @@ public class ComponentService {
         componentEntity.setName(getName(componentArgs.getName(), componentArgs.getVersion(), componentArgs.getProjectEntity()));
         componentRepository.save(componentEntity);
         componentFileService.copyComponentFileByComponent(componentArgs, componentEntity);
+        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
         return componentEntity;
     }
 
@@ -117,6 +116,7 @@ public class ComponentService {
             componentEntity.setVersion(componentArgs.getVersion());
         }
         componentRepository.save(componentEntity);
+        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
         return componentEntity;
     }
 

@@ -59,7 +59,7 @@ public class ComponentFileService {
         componentFileEntity.setParentNode(parentNode);
         componentFileEntity.setComponentEntity(componentEntity);
         componentFileRepository.save(componentFileEntity);
-        componentFileHistoryService.saveComponentFileHistorysByComponent(componentEntity, componentHistoryService.saveComponentHistoryByComponent(componentEntity));
+        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
         return componentFileEntity;
     }
 
@@ -106,7 +106,7 @@ public class ComponentFileService {
             }
         }
         if (!componentFileEntityList.isEmpty()) {
-            componentFileHistoryService.saveComponentFileHistorysByComponent(componentEntity, componentHistoryService.saveComponentHistoryByComponent(componentEntity));
+            componentHistoryService.saveComponentHistoryByComponent(componentEntity);
         }
         return componentFileEntityList;
     }
@@ -116,7 +116,7 @@ public class ComponentFileService {
         ComponentFileEntity sourceNode = getComponentFileById(sourceNodeId);
         ComponentFileEntity targetNode = hasComponentFileById(targetNodeId) ? getComponentFileById(targetNodeId) : null;
         copyComponentFiles(sourceNode, sourceNode.getComponentEntity(), targetNode, targetComponent);
-        componentFileHistoryService.saveComponentFileHistorysByComponent(targetComponent, componentHistoryService.saveComponentHistoryByComponent(targetComponent));
+        componentHistoryService.saveComponentHistoryByComponent(targetComponent);
         return sourceNode;
     }
 
@@ -153,7 +153,7 @@ public class ComponentFileService {
         sourceComponentFile.setParentNode(targetComponentFile);
         sourceComponentFile.setComponentEntity(targetComponent);
         componentFileRepository.save(sourceComponentFile);
-        componentFileHistoryService.saveComponentFileHistorysByComponent(targetComponent, componentHistoryService.saveComponentHistoryByComponent(targetComponent));
+        componentHistoryService.saveComponentHistoryByComponent(targetComponent);
         return targetComponentFile;
     }
 
@@ -173,7 +173,7 @@ public class ComponentFileService {
             }
             componentFileRepository.deleteById(componentFileEntity.getId());
         }
-        componentFileHistoryService.saveComponentFileHistorysByComponent(componentFileEntity.getComponentEntity(), componentHistoryService.saveComponentHistoryByComponent(componentFileEntity.getComponentEntity()));
+        componentHistoryService.saveComponentHistoryByComponent(componentFileEntity.getComponentEntity());
         return componentFileEntity;
     }
 
@@ -187,7 +187,7 @@ public class ComponentFileService {
             componentFileEntity.setName(FilenameUtils.getBaseName(componentFileArgs.getName()));
         }
         componentFileRepository.save(componentFileEntity);
-        componentFileHistoryService.saveComponentFileHistorysByComponent(componentFileEntity.getComponentEntity(), componentHistoryService.saveComponentHistoryByComponent(componentFileEntity.getComponentEntity()));
+        componentHistoryService.saveComponentHistoryByComponent(componentFileEntity.getComponentEntity());
         return componentFileEntity;
     }
 

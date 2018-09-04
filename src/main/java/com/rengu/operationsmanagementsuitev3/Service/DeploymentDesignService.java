@@ -1,0 +1,124 @@
+package com.rengu.operationsmanagementsuitev3.Service;
+
+import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
+import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignRepository;
+import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+/**
+ * @program: OperationsManagementSuiteV3
+ * @author: hanchangming
+ * @create: 2018-09-03 17:31
+ **/
+
+@Slf4j
+@Service
+@Transactional
+public class DeploymentDesignService {
+
+    private final DeploymentDesignRepository deploymentDesignRepository;
+
+    @Autowired
+    public DeploymentDesignService(DeploymentDesignRepository deploymentDesignRepository) {
+        this.deploymentDesignRepository = deploymentDesignRepository;
+    }
+
+    // 根据工程保存部署设计
+    public DeploymentDesignEntity saveDeploymentDesignByProject(ProjectEntity projectEntity, DeploymentDesignEntity deploymentDesignEntity) {
+        if (StringUtils.isEmpty(deploymentDesignEntity.getName())) {
+            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_ARGS_NOT_FOUND);
+        }
+        if (hasDeploymentDesignByNameAndDeletedAndProject(deploymentDesignEntity.getName(), false, projectEntity)) {
+            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_EXISTED + deploymentDesignEntity.getName());
+        }
+        deploymentDesignEntity.setProjectEntity(projectEntity);
+        return deploymentDesignRepository.save(deploymentDesignEntity);
+    }
+
+    // 根据id删除部署设计
+    @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
+    public DeploymentDesignEntity deleteDeploymentDesignById(String deploymentDesignId) {
+        DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
+        deploymentDesignEntity.setDeleted(true);
+        return deploymentDesignRepository.save(deploymentDesignEntity);
+    }
+
+    // 根据id撤销删除部署设计
+    @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
+    public DeploymentDesignEntity restoreDeploymentDesignById(String deploymentDesignId) {
+        DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
+        deploymentDesignEntity.setDeleted(false);
+        return deploymentDesignRepository.save(deploymentDesignEntity);
+    }
+
+    // 根据id清除部署设计
+    @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
+    public DeploymentDesignEntity cleanDeploymentDesignById(String deploymentDesignId) {
+        DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
+        deploymentDesignRepository.delete(deploymentDesignEntity);
+        return deploymentDesignEntity;
+    }
+
+    // 根据id修改部署设计
+    @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
+    public DeploymentDesignEntity updateDeploymentDesignById(String deploymentDesignId, DeploymentDesignEntity deploymentDesignArgs) {
+        DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
+        if (!StringUtils.isEmpty(deploymentDesignArgs.getName()) && !deploymentDesignEntity.getName().equals(deploymentDesignArgs.getName())) {
+            if (hasDeploymentDesignByNameAndDeletedAndProject(deploymentDesignArgs.getName(), false, deploymentDesignEntity.getProjectEntity())) {
+                throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_EXISTED + deploymentDesignArgs.getName());
+            }
+            deploymentDesignEntity.setName(deploymentDesignArgs.getName());
+        }
+        if (deploymentDesignArgs.getDescription() != null && !deploymentDesignEntity.getDescription().equals(deploymentDesignArgs.getDescription())) {
+            deploymentDesignEntity.setDescription(deploymentDesignArgs.getDescription());
+        }
+        return deploymentDesignRepository.save(deploymentDesignEntity);
+    }
+
+    // 根据名称、是否删除及工程判断是否存在工程
+    public boolean hasDeploymentDesignByNameAndDeletedAndProject(String name, boolean deleted, ProjectEntity projectEntity) {
+        if (StringUtils.isEmpty(name)) {
+            return false;
+        }
+        return deploymentDesignRepository.existsByNameAndDeletedAndProjectEntity(name, deleted, projectEntity);
+    }
+
+    // 根据Id判断部署设计是否存在
+    public boolean hasDeploymentDesignById(String deploymentDesignId) {
+        if (StringUtils.isEmpty(deploymentDesignId)) {
+            return false;
+        }
+        return deploymentDesignRepository.existsById(deploymentDesignId);
+    }
+
+    // 查询全部部署组件
+    public Page<DeploymentDesignEntity> getDeploymentDesigns(Pageable pageable) {
+        return deploymentDesignRepository.findAll(pageable);
+    }
+
+    // 根据Id查询部署设计
+    public DeploymentDesignEntity getDeploymentDesignById(String deploymentDesignId) {
+        if (!hasDeploymentDesignById(deploymentDesignId)) {
+            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_ID_NOT_FOUND + deploymentDesignId);
+        }
+        return deploymentDesignRepository.findById(deploymentDesignId).get();
+    }
+
+    // 根据是否删除及工程查询部署设计
+    public Page<DeploymentDesignEntity> getDeploymentDesignsByDeletedAndProject(Pageable pageable, boolean deleted, ProjectEntity projectEntity) {
+        return deploymentDesignRepository.findAllByDeletedAndProjectEntity(pageable, deleted, projectEntity);
+    }
+
+    // 根据是否删除及工程查询部署设计数量
+    public long countDeploymentDesignsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
+        return deploymentDesignRepository.countAllByDeletedAndProjectEntity(deleted, projectEntity);
+    }
+}

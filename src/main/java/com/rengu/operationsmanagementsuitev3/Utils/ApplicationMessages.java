@@ -94,6 +94,14 @@ public class ApplicationMessages {
     public static final String COMPONENT_FILE_HISTORY_ID_NOT_FOUND = "未发现该组件文件历史Id：";
     public static final String COMPONENT_FILE_HISTORY_ID_EXISTED = "该组件文件历史Id已存在：";
 
+    // 部署设计相关提示信息
+    public static final String DEPLOYMENT_DESIGN_NAME_ARGS_NOT_FOUND = "部署设计名参数不存在或不合法";
+    public static final String DEPLOYMENT_DESIGN_NAME_NOT_FOUND = "未发现该部署设计名：";
+    public static final String DEPLOYMENT_DESIGN_NAME_EXISTED = "该部署设计名已存在：";
+    public static final String DEPLOYMENT_DESIGN_ID_ARGS_NOT_FOUND = "部署设计Id参数不存在或不合法";
+    public static final String DEPLOYMENT_DESIGN_ID_NOT_FOUND = "未发现该部署设计Id：";
+    public static final String DEPLOYMENT_DESIGN_ID_EXISTED = "该部署设计Id已存在：";
+
     // 扫描相关提示信息
     public static final String SCAN_DISK_TIME_OUT = "获取设备磁盘信息超时";
 }

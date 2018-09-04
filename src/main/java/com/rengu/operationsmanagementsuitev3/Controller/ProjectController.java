@@ -1,10 +1,8 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
+import com.rengu.operationsmanagementsuitev3.Service.DeploymentDesignService;
 import com.rengu.operationsmanagementsuitev3.Service.DeviceService;
 import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
@@ -29,12 +27,14 @@ public class ProjectController {
     private final ProjectService projectService;
     private final DeviceService deviceService;
     private final ComponentService componentService;
+    private final DeploymentDesignService deploymentDesignService;
 
     @Autowired
-    public ProjectController(ProjectService projectService, DeviceService deviceService, ComponentService componentService) {
+    public ProjectController(ProjectService projectService, DeviceService deviceService, ComponentService componentService, DeploymentDesignService deploymentDesignService) {
         this.projectService = projectService;
         this.deviceService = deviceService;
         this.componentService = componentService;
+        this.deploymentDesignService = deploymentDesignService;
     }
 
     // 根据Id删除工程
@@ -108,5 +108,23 @@ public class ProjectController {
     @GetMapping(value = "/{projectId}/componentcounts")
     public ResultEntity countComponentsByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
         return ResultUtils.build(componentService.countComponentsByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
+    }
+
+    // 根据工程Id创建部署设计
+    @PostMapping(value = "/{projectId}/deploymentdesign")
+    public ResultEntity saveDeploymentDesignByProject(@PathVariable(value = "projectId") String projectId, DeploymentDesignEntity deploymentDesignEntity) {
+        return ResultUtils.build(deploymentDesignService.saveDeploymentDesignByProject(projectService.getProjectById(projectId), deploymentDesignEntity));
+    }
+
+    // 根据工程Id查看部署设计
+    @GetMapping(value = "/{projectId}/deploymentdesigns")
+    public ResultEntity getDeploymentDesignsByDeletedAndProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deploymentDesignService.getDeploymentDesignsByDeletedAndProject(pageable, deleted, projectService.getProjectById(projectId)));
+    }
+
+    // 根据工程Id查看部署设计数量
+    @GetMapping(value = "/{projectId}/deploymentdesigncounts")
+    public ResultEntity countDeploymentDesignsByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deploymentDesignService.countDeploymentDesignsByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
     }
 }
