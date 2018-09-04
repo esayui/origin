@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
@@ -25,10 +26,12 @@ import org.springframework.util.StringUtils;
 public class DeploymentDesignService {
 
     private final DeploymentDesignRepository deploymentDesignRepository;
+    private final DeploymentDesignNodeService deploymentDesignNodeService;
 
     @Autowired
-    public DeploymentDesignService(DeploymentDesignRepository deploymentDesignRepository) {
+    public DeploymentDesignService(DeploymentDesignRepository deploymentDesignRepository, DeploymentDesignNodeService deploymentDesignNodeService) {
         this.deploymentDesignRepository = deploymentDesignRepository;
+        this.deploymentDesignNodeService = deploymentDesignNodeService;
     }
 
     // 根据工程保存部署设计
@@ -41,6 +44,25 @@ public class DeploymentDesignService {
         }
         deploymentDesignEntity.setProjectEntity(projectEntity);
         return deploymentDesignRepository.save(deploymentDesignEntity);
+    }
+
+    // 根据Id复制部署设计
+    public DeploymentDesignEntity copyDeploymentDesignById(String deploymentDesignId) {
+        DeploymentDesignEntity deploymentDesignArgs = getDeploymentDesignById(deploymentDesignId);
+        DeploymentDesignEntity deploymentDesignEntity = new DeploymentDesignEntity();
+        BeanUtils.copyProperties(deploymentDesignArgs, deploymentDesignEntity, "id", "createTime", "baseline", "name");
+        deploymentDesignEntity.setName(getName(deploymentDesignArgs.getName(), deploymentDesignArgs.getProjectEntity()));
+        deploymentDesignRepository.save(deploymentDesignEntity);
+        deploymentDesignNodeService.copyDeploymentDesignNodeByDeploymentDesign(deploymentDesignArgs, deploymentDesignEntity);
+        return deploymentDesignEntity;
+    }
+
+    // 根据Id创建基线
+    public DeploymentDesignEntity baselineDeploymentDesignById(String deploymentDesignId) {
+        DeploymentDesignEntity deploymentDesignEntity = copyDeploymentDesignById(deploymentDesignId);
+        deploymentDesignEntity.setBaseline(true);
+        deploymentDesignRepository.save(deploymentDesignEntity);
+        return deploymentDesignEntity;
     }
 
     // 根据id删除部署设计
@@ -120,5 +142,15 @@ public class DeploymentDesignService {
     // 根据是否删除及工程查询部署设计数量
     public long countDeploymentDesignsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
         return deploymentDesignRepository.countAllByDeletedAndProjectEntity(deleted, projectEntity);
+    }
+
+    // 生成不重复的部署设计名称
+    public String getName(String name, ProjectEntity projectEntity) {
+        int index = 0;
+        while (hasDeploymentDesignByNameAndDeletedAndProject(name, false, projectEntity)) {
+            index = index + 1;
+            name = name + "(" + index + ")";
+        }
+        return name;
     }
 }

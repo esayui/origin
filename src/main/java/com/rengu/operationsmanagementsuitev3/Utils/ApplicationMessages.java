@@ -102,6 +102,22 @@ public class ApplicationMessages {
     public static final String DEPLOYMENT_DESIGN_ID_NOT_FOUND = "未发现该部署设计Id：";
     public static final String DEPLOYMENT_DESIGN_ID_EXISTED = "该部署设计Id已存在：";
 
+    // 部署设计节点相关提示信息
+    public static final String DEPLOYMENT_DESIGN_NODE_ID_ARGS_NOT_FOUND = "部署设计节点Id参数不存在或不合法";
+    public static final String DEPLOYMENT_DESIGN_NODE_ID_NOT_FOUND = "未发现该部署设计节点Id：";
+    public static final String DEPLOYMENT_DESIGN_NODE_ID_EXISTED = "该部署设计节点Id已存在：";
+    public static final String DEPLOYMENT_DESIGN_NODE_DEVICE_ARGS_NOT_FOUND = "部署设计节点设备参数不存在或不合法";
+    public static final String DEPLOYMENT_DESIGN_NODE_DEVICE_NOT_FOUND = "未发现该部署设计节点设备：";
+    public static final String DEPLOYMENT_DESIGN_NODE_DEVICE_EXISTED = "该部署设计节点设备已存在：";
+
+    // 部署设计详情相关提示信息
+    public static final String DEPLOYMENT_DESIGN_DETAIL_ID_ARGS_NOT_FOUND = "部署设计详情Id参数不存在或不合法";
+    public static final String DEPLOYMENT_DESIGN_DETAIL_ID_NOT_FOUND = "未发现该部署设计详情Id：";
+    public static final String DEPLOYMENT_DESIGN_DETAIL_ID_EXISTED = "该部署设计详情Id已存在：";
+    public static final String DEPLOYMENT_DESIGN_DETAIL_COMPONENT_ARGS_NOT_FOUND = "部署设计详情组件参数不存在或不合法";
+    public static final String DEPLOYMENT_DESIGN_DETAIL_COMPONENT_NOT_FOUND = "未发现该部署设计详情组件：";
+    public static final String DEPLOYMENT_DESIGN_DETAIL_COMPONENT_EXISTED = "该部署设计详情组件已存在：";
+
     // 扫描相关提示信息
     public static final String SCAN_DISK_TIME_OUT = "获取设备磁盘信息超时";
 }

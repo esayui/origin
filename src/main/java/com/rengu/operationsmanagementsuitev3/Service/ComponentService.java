@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -152,6 +154,11 @@ public class ComponentService {
     // 根据工程查询组件
     public Page<ComponentEntity> getComponentsByDeletedAndProject(Pageable pageable, boolean deleted, ProjectEntity projectEntity) {
         return componentRepository.findByDeletedAndProjectEntity(pageable, deleted, projectEntity);
+    }
+
+    // 根据工程查询组件
+    public List<ComponentEntity> getComponentsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
+        return componentRepository.findByDeletedAndProjectEntity(deleted, projectEntity);
     }
 
     // 根据工程查询组件数量

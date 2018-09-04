@@ -8,6 +8,7 @@ import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentHistoryService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,6 +16,12 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -106,5 +113,18 @@ public class ComponentController {
     @GetMapping(value = "/{componentId}/files")
     public ResultEntity getComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId) {
         return ResultUtils.build(componentFileService.getComponentFilesByParentNodeAndComponent(parentNodeId, componentService.getComponentById(componentId)));
+    }
+
+    // 根据id导出组件文件
+    @GetMapping(value = "/{componentId}/export")
+    public void exportComponentFileByComponent(@PathVariable(value = "componentId") String componentId, HttpServletResponse httpServletResponse) throws IOException {
+        File exportFile = componentFileService.exportComponentFileByComponent(componentService.getComponentById(componentId));
+        String mimeType = URLConnection.guessContentTypeFromName(exportFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(exportFile.getName());
+        httpServletResponse.setContentType(mimeType);
+        httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + new String(exportFile.getName().getBytes(StandardCharsets.UTF_8), "ISO8859-1"));
+        httpServletResponse.setContentLengthLong(exportFile.length());
+        // 文件流输出
+        IOUtils.copy(new FileInputStream(exportFile), httpServletResponse.getOutputStream());
+        httpServletResponse.flushBuffer();
     }
 }

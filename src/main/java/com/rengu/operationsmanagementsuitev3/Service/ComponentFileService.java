@@ -72,8 +72,8 @@ public class ComponentFileService {
                 if (!StringUtils.isEmpty(path)) {
                     if (path.equals(fileMetaEntity.getName())) {
                         // 文件节点，先判断是否存在该节点
-                        if (hasComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity)) {
-                            ComponentFileEntity componentFileEntity = getComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity);
+                        if (hasComponentFileByNameAndParentNodeAndComponent(FilenameUtils.getBaseName(path), parentNode, componentEntity)) {
+                            ComponentFileEntity componentFileEntity = getComponentFileByNameAndParentNodeAndComponent(FilenameUtils.getBaseName(path), parentNode, componentEntity);
                             componentFileEntity.setCreateTime(new Date());
                             componentFileEntity.setName(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
                             componentFileEntity.setFolder(false);
@@ -255,6 +255,17 @@ public class ComponentFileService {
             FileUtils.copyFile(new File(componentFileEntity.getFileEntity().getLocalPath()), exportFile);
             return exportFile;
         }
+    }
+
+    // 根据组件导出组件文件
+    public File exportComponentFileByComponent(ComponentEntity componentEntity) throws IOException {
+        // 初始化导出目录
+        File exportDir = new File(FileUtils.getTempDirectoryPath() + File.separator + UUID.randomUUID().toString());
+        exportDir.mkdirs();
+        for (ComponentFileEntity componentFileEntity : getComponentFilesByParentNodeAndComponent(null, componentEntity)) {
+            exportComponentFiles(componentFileEntity, exportDir);
+        }
+        return CompressUtils.compress(exportDir, new File(FileUtils.getTempDirectoryPath() + File.separator + System.currentTimeMillis() + ".zip"));
     }
 
     // 导出组件文件

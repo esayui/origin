@@ -102,6 +102,17 @@ public class ComponentFileHistoryService {
         }
     }
 
+    // 根据组件导出组件文件
+    public File exportComponentFileHistoryByComponentHistory(ComponentHistoryEntity componentHistoryEntity) throws IOException {
+        // 初始化导出目录
+        File exportDir = new File(FileUtils.getTempDirectoryPath() + File.separator + UUID.randomUUID().toString());
+        exportDir.mkdirs();
+        for (ComponentFileHistoryEntity componentFileHistoryEntity : getComponentFileHistorysByParentNodeAndComponentHistory(null, componentHistoryEntity)) {
+            exportComponentFileHistory(componentFileHistoryEntity, exportDir);
+        }
+        return CompressUtils.compress(exportDir, new File(FileUtils.getTempDirectoryPath() + File.separator + System.currentTimeMillis() + ".zip"));
+    }
+
     // 导出组件历史文件
     public File exportComponentFileHistory(ComponentFileHistoryEntity componentFileHistoryEntity, File exportDir) throws IOException {
         // 检查是否为文件夹

@@ -99,6 +99,12 @@ public class ProjectController {
     }
 
     // 根据Id查询组件
+    @GetMapping(value = "/{projectId}/component")
+    public ResultEntity getComponentsByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(componentService.getComponentsByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
+    }
+
+    // 根据Id查询组件
     @GetMapping(value = "/{projectId}/components")
     public ResultEntity getComponentsByDeletedAndProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
         return ResultUtils.build(componentService.getComponentsByDeletedAndProject(pageable, deleted, projectService.getProjectById(projectId)));
