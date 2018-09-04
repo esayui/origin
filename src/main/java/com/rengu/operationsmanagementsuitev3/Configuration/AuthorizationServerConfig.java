@@ -36,10 +36,14 @@ import java.util.Map;
 @EnableAuthorizationServer
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
+    private final AuthenticationManager authenticationManager;
+    private final UserService userService;
+
     @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private UserService userService;
+    public AuthorizationServerConfig(AuthenticationManager authenticationManager, UserService userService) {
+        this.authenticationManager = authenticationManager;
+        this.userService = userService;
+    }
 
     @Bean
     public TokenStore tokenStore() {
