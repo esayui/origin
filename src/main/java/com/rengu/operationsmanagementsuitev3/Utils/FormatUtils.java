@@ -33,6 +33,15 @@ public class FormatUtils {
         return FilenameUtils.separatorsToUnix(temp);
     }
 
+    // 生成指定长度的字符串
+    public static String getString(String string, int length) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(string);
+        stringBuilder.setLength(length);
+        return stringBuilder.toString();
+    }
+
+
     // 递归拼接path信息
     public static String getComponentFileRelativePath(ComponentFileEntity componentFileEntity, String basePath) {
         if (basePath.isEmpty()) {

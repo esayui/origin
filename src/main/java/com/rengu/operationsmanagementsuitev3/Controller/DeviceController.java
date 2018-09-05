@@ -1,6 +1,5 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.DeviceService;
@@ -12,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -77,13 +77,13 @@ public class DeviceController {
 
     // 获取进程信息
     @GetMapping(value = "/{deviceId}/process")
-    public ResultEntity getProcessById(@PathVariable(value = "deviceId") String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
+    public ResultEntity getProcessById(@PathVariable(value = "deviceId") String deviceId) throws InterruptedException, ExecutionException, TimeoutException, IOException {
         return ResultUtils.build(deviceService.getProcessById(deviceId));
     }
 
     // 获取磁盘信息
     @GetMapping(value = "/{deviceId}/disks")
-    public ResultEntity getDisksById(@PathVariable(value = "deviceId") String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
+    public ResultEntity getDisksById(@PathVariable(value = "deviceId") String deviceId) throws InterruptedException, ExecutionException, TimeoutException, IOException {
         return ResultUtils.build(deviceService.getDisksById(deviceId));
     }
 }

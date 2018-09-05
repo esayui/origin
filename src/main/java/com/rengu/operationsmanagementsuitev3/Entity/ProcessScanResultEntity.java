@@ -19,5 +19,6 @@ public class ProcessScanResultEntity implements Serializable {
     private Date createTime = new Date();
     private String pid;
     private String name;
+    private int priority;
     private double ramUsedSize;
 }

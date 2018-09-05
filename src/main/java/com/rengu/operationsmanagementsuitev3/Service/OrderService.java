@@ -1,16 +1,14 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.OrderEntity;
-import com.rengu.operationsmanagementsuitev3.Utils.JsonUtils;
+import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
+import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.activemq.command.ActiveMQQueue;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.jms.Destination;
+import java.io.IOException;
+import java.net.*;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -22,29 +20,33 @@ import javax.jms.Destination;
 @Service
 public class OrderService {
 
-    private static final String PROCESS_SCAN_TAG = "S105";
-    private static final String DISK_SCAN_TAG = "S106";
+    public static final String PROCESS_SCAN_TAG = "S105";
+    public static final String DISK_SCAN_TAG = "S106";
+    // 客户端返回报问表示
+    public static final String SCAN_RESULT_TAG = "C102";
+    public static final String PROCESS_SCAN_RESULT_TAG = "C105";
+    public static final String DISK_SCAN_RESULT_TAG = "C106";
 
-    private final JmsMessagingTemplate jmsMessagingTemplate;
-
-    @Autowired
-    public OrderService(JmsMessagingTemplate jmsMessagingTemplate) {
-        this.jmsMessagingTemplate = jmsMessagingTemplate;
+    public void sendProcessScanOrderByUDP(DeviceEntity deviceEntity, OrderEntity orderEntity) throws IOException {
+        String tag = FormatUtils.getString(orderEntity.getTag(), 4);
+        String type = FormatUtils.getString("", 1);
+        String uuid = FormatUtils.getString(orderEntity.getId(), 37);
+        sandMessageByUDP(deviceEntity.getHostAddress(), tag + type + uuid);
     }
 
-    public OrderEntity sendProcessScanOrder(DeviceEntity deviceEntity) throws JsonProcessingException {
-        Destination destination = new ActiveMQQueue("QUEUE." + deviceEntity.getHostAddress());
-        OrderEntity orderEntity = new OrderEntity();
-        orderEntity.setTag(PROCESS_SCAN_TAG);
-        jmsMessagingTemplate.convertAndSend(destination, JsonUtils.toJson(orderEntity));
-        return orderEntity;
+    public void sendDiskScanOrderByUDP(DeviceEntity deviceEntity, OrderEntity orderEntity) throws IOException {
+        String tag = FormatUtils.getString(orderEntity.getTag(), 4);
+        String type = FormatUtils.getString("", 1);
+        String uuid = FormatUtils.getString(orderEntity.getId(), 37);
+        sandMessageByUDP(deviceEntity.getHostAddress(), tag + type + uuid);
     }
 
-    public OrderEntity sendDiskScanOrder(DeviceEntity deviceEntity) throws JsonProcessingException {
-        Destination destination = new ActiveMQQueue("QUEUE." + deviceEntity.getHostAddress());
-        OrderEntity orderEntity = new OrderEntity();
-        orderEntity.setTag(DISK_SCAN_TAG);
-        jmsMessagingTemplate.convertAndSend(destination, JsonUtils.toJson(orderEntity));
-        return orderEntity;
+    private void sandMessageByUDP(String hostAdress, String message) throws IOException {
+        DatagramSocket datagramSocket = new DatagramSocket();
+        InetAddress inetAddress = InetAddress.getByName(hostAdress);
+        SocketAddress socketAddress = new InetSocketAddress(inetAddress, ApplicationConfig.UDP_SEND_PORT);
+        DatagramPacket datagramPacket = new DatagramPacket(message.getBytes(), message.length(), socketAddress);
+        datagramSocket.send(datagramPacket);
+        datagramSocket.close();
     }
 }

@@ -1,6 +1,5 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Repository.DeviceRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -172,16 +172,20 @@ public class DeviceService {
     }
 
     // 根据id扫描设备磁盘信息
-    public List<ProcessScanResultEntity> getProcessById(String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
+    public List<ProcessScanResultEntity> getProcessById(String deviceId) throws InterruptedException, ExecutionException, TimeoutException, IOException {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
-        OrderEntity orderEntity = orderService.sendProcessScanOrder(deviceEntity);
-        return scanHandlerService.processScanHandler(orderEntity).get(30, TimeUnit.SECONDS);
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setTag(OrderService.PROCESS_SCAN_TAG);
+        orderService.sendProcessScanOrderByUDP(deviceEntity, orderEntity);
+        return scanHandlerService.processScanHandler(orderEntity).get(15, TimeUnit.SECONDS);
     }
 
     // 根据id扫描设备磁盘信息
-    public List<DiskScanResultEntity> getDisksById(String deviceId) throws InterruptedException, ExecutionException, TimeoutException, JsonProcessingException {
+    public List<DiskScanResultEntity> getDisksById(String deviceId) throws InterruptedException, ExecutionException, TimeoutException, IOException {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
-        OrderEntity orderEntity = orderService.sendDiskScanOrder(deviceEntity);
-        return scanHandlerService.diskScanHandler(orderEntity).get(30, TimeUnit.SECONDS);
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setTag(OrderService.DISK_SCAN_TAG);
+        orderService.sendDiskScanOrderByUDP(deviceEntity, orderEntity);
+        return scanHandlerService.diskScanHandler(orderEntity).get(15, TimeUnit.SECONDS);
     }
 }
