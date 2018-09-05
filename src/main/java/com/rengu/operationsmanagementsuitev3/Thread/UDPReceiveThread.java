@@ -3,7 +3,10 @@ package com.rengu.operationsmanagementsuitev3.Thread;
 import com.rengu.operationsmanagementsuitev3.Entity.HeartbeatEntity;
 import com.rengu.operationsmanagementsuitev3.Service.DeviceService;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
+import com.rengu.operationsmanagementsuitev3.Utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +23,13 @@ import java.net.DatagramSocket;
 @Slf4j
 @Component
 public class UDPReceiveThread {
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    public UDPReceiveThread(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+    }
 
     @Async
     public void UDPMessageReceiver() throws IOException {
@@ -55,10 +65,12 @@ public class UDPReceiveThread {
             heartbeatEntity.setRamFreeSize(freeRAMSize);
             heartbeatEntity.setUpLoadSpeed(upLoadSpeed);
             heartbeatEntity.setDownLoadSpeed(downLoadSpeed);
+            simpMessagingTemplate.convertAndSend("/deviceInfo/" + heartbeatEntity.getHostAddress(), JsonUtils.toJson(heartbeatEntity));
             if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(heartbeatEntity.getHostAddress())) {
                 log.info(heartbeatEntity.getHostAddress() + "----->建立服务器连接。");
             }
             DeviceService.ONLINE_HOST_ADRESS.put(heartbeatEntity.getHostAddress(), heartbeatEntity);
+            simpMessagingTemplate.convertAndSend("/onlineDevice", JsonUtils.toJson(DeviceService.ONLINE_HOST_ADRESS));
         }
     }
 }

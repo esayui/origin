@@ -44,6 +44,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http.authorizeRequests().antMatchers("/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs").permitAll();
         // 放行文件导出接口
         http.authorizeRequests().antMatchers("/components/*/export", "/componentfiles/*/export", "/componenthistorys/*/export", "/componentfilehistorys/*/export").permitAll();
+        // 放行websocket接口
+        http.authorizeRequests().antMatchers("/OMS/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
     }
 }
