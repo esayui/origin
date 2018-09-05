@@ -61,20 +61,23 @@ public class TCPReceiveThread {
             pointer = pointer + 37;
             List<ProcessScanResultEntity> processScanResultEntityList = new ArrayList<>();
             while (pointer + 5 + 128 + 8 + 8 < bytes.length) {
-                String pid = new String(bytes, pointer, 5).trim();
-                pointer = pointer + 5;
-                String name = new String(bytes, pointer, 128).trim();
-                pointer = pointer + 128;
-                String priority = new String(bytes, pointer, 8).trim();
-                pointer = pointer + 8;
-                String ramUsedSize = new String(bytes, pointer, 8).trim();
-                pointer = pointer + 8;
-                ProcessScanResultEntity processScanResultEntity = new ProcessScanResultEntity();
-                processScanResultEntity.setPid(pid);
-                processScanResultEntity.setName(name);
-                processScanResultEntity.setPriority(Integer.parseInt(priority));
-                processScanResultEntity.setRamUsedSize(Double.parseDouble(ramUsedSize));
-                processScanResultEntityList.add(processScanResultEntity);
+                try {
+                    String pid = new String(bytes, pointer, 5).trim();
+                    pointer = pointer + 5;
+                    String name = new String(bytes, pointer, 128).trim();
+                    pointer = pointer + 128;
+                    String priority = new String(bytes, pointer, 8).trim();
+                    pointer = pointer + 8;
+                    double ramUsedSize = Double.parseDouble(new String(bytes, pointer, 8).trim()) / 1024;
+                    pointer = pointer + 8;
+                    ProcessScanResultEntity processScanResultEntity = new ProcessScanResultEntity();
+                    processScanResultEntity.setPid(pid);
+                    processScanResultEntity.setName(name);
+                    processScanResultEntity.setRamUsedSize(ramUsedSize);
+                    processScanResultEntityList.add(processScanResultEntity);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
             }
             ScanHandlerService.PROCESS_SCAN_RESULT.put(id, processScanResultEntityList);
         }
@@ -84,17 +87,21 @@ public class TCPReceiveThread {
             pointer = pointer + 37;
             List<DiskScanResultEntity> diskScanResultEntityList = new ArrayList<>();
             while (pointer + 32 + 12 + 12 <= bytes.length) {
-                String name = new String(bytes, pointer, 32).trim().replace("\\", "/");
-                pointer = pointer + 32;
-                double size = Double.parseDouble(new String(bytes, pointer, 12).trim());
-                pointer = pointer + 12;
-                double usedSize = Double.parseDouble(new String(bytes, pointer, 12).trim());
-                pointer = pointer + 12;
-                DiskScanResultEntity diskScanResultEntity = new DiskScanResultEntity();
-                diskScanResultEntity.setName(name);
-                diskScanResultEntity.setSize(size);
-                diskScanResultEntity.setUsedSize(usedSize);
-                diskScanResultEntityList.add(diskScanResultEntity);
+                try {
+                    String name = new String(bytes, pointer, 32).trim().replace("\\", "/");
+                    pointer = pointer + 32;
+                    double size = Double.parseDouble(new String(bytes, pointer, 12).trim());
+                    pointer = pointer + 12;
+                    double usedSize = Double.parseDouble(new String(bytes, pointer, 12).trim());
+                    pointer = pointer + 12;
+                    DiskScanResultEntity diskScanResultEntity = new DiskScanResultEntity();
+                    diskScanResultEntity.setName(name);
+                    diskScanResultEntity.setSize(size);
+                    diskScanResultEntity.setUsedSize(usedSize);
+                    diskScanResultEntityList.add(diskScanResultEntity);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
             }
             ScanHandlerService.DISK_SCAN_RESULT.put(id, diskScanResultEntityList);
         }

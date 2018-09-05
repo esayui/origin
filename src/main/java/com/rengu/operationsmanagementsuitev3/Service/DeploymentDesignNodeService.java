@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
+import com.rengu.operationsmanagementsuitev3.Entity.DeployMetaEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -29,11 +31,13 @@ public class DeploymentDesignNodeService {
 
     private final DeploymentDesignNodeRepository deploymentDesignNodeRepository;
     private final DeploymentDesignDetailService deploymentDesignDetailService;
+    private final DeployMetaService deployMetaService;
 
     @Autowired
-    public DeploymentDesignNodeService(DeploymentDesignNodeRepository deploymentDesignNodeRepository, DeploymentDesignDetailService deploymentDesignDetailService) {
+    public DeploymentDesignNodeService(DeploymentDesignNodeRepository deploymentDesignNodeRepository, DeploymentDesignDetailService deploymentDesignDetailService, DeployMetaService deployMetaService) {
         this.deploymentDesignNodeRepository = deploymentDesignNodeRepository;
         this.deploymentDesignDetailService = deploymentDesignDetailService;
+        this.deployMetaService = deployMetaService;
     }
 
     // 根据部署设计保存部署节点
@@ -99,5 +103,19 @@ public class DeploymentDesignNodeService {
     // 根据部署设计查询部署设计节点
     public List<DeploymentDesignNodeEntity> getDeploymentDesignNodesByDeploymentDesign(DeploymentDesignEntity deploymentDesignEntity) {
         return deploymentDesignNodeRepository.findAllByDeploymentDesignEntity(deploymentDesignEntity);
+    }
+
+    // 根据部署设计节点部署
+    public void deployDeploymentDesignNodeById(String deploymentDesignNodeId) throws IOException {
+        DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
+        if (deploymentDesignNodeEntity.getDeviceEntity() == null) {
+            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NODE_DEVICE_ARGS_NOT_FOUND);
+        }
+        DeviceEntity deviceEntity = deploymentDesignNodeEntity.getDeviceEntity();
+        if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(deviceEntity.getHostAddress())) {
+            throw new RuntimeException(ApplicationMessages.DEVICE_NOT_ONLINE + deviceEntity.getHostAddress());
+        }
+        List<DeployMetaEntity> deployMetaEntityList = deployMetaService.createDeployMeta(deploymentDesignDetailService.getDeploymentDesignDetailsByDeploymentDesignNode(deploymentDesignNodeEntity));
+        deployMetaService.deployMeta(deviceEntity, deployMetaEntityList);
     }
 }

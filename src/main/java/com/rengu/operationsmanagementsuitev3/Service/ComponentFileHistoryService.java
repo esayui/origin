@@ -86,6 +86,11 @@ public class ComponentFileHistoryService {
         return componentFileHistoryRepository.findAllByParentNodeAndComponentHistoryEntity(parentNode, componentHistoryEntity);
     }
 
+    // 根据组件历史查询组件文件
+    public List<ComponentFileHistoryEntity> getComponentFileHistorysByComponentHistory(ComponentHistoryEntity componentHistoryEntity) {
+        return componentFileHistoryRepository.findAllByComponentHistoryEntity(componentHistoryEntity);
+    }
+
     // 根据Id导出组件历史文件
     public File exportComponentFileHistoryById(String componentFileHistoryId) throws IOException {
         ComponentFileHistoryEntity componentFileHistoryEntity = getComponentFileHistoryById(componentFileHistoryId);

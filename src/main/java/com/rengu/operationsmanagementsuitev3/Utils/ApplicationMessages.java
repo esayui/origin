@@ -49,6 +49,8 @@ public class ApplicationMessages {
     public static final String DEVICE_ID_ARGS_NOT_FOUND = "设备Id参数不存在或不合法";
     public static final String DEVICE_ID_NOT_FOUND = "未发现该设备Id：";
     public static final String DEVICE_ID_EXISTED = "该设备Id已存在：";
+    public static final String DEVICE_NOT_ONLINE = "该设备不在线：";
+    public static final String DEVICE_IS_DEPOLOYING = "该设备正在部署：";
 
     // 组件相关提示信息
     public static final String COMPONENT_NAME_ARGS_NOT_FOUND = "组件名参数不存在或不合法";

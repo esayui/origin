@@ -20,4 +20,6 @@ public interface ComponentFileHistoryRepository extends JpaRepository<ComponentF
     boolean existsByFileEntity(FileEntity fileEntity);
 
     List<ComponentFileHistoryEntity> findAllByParentNodeAndComponentHistoryEntity(ComponentFileHistoryEntity parentNode, ComponentHistoryEntity componentHistoryEntity);
+
+    List<ComponentFileHistoryEntity> findAllByComponentHistoryEntity(ComponentHistoryEntity componentHistoryEntity);
 }
