@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -17,4 +19,8 @@ import org.springframework.stereotype.Repository;
 public interface ComponentHistoryRepository extends JpaRepository<ComponentHistoryEntity, String> {
 
     Page<ComponentHistoryEntity> findAllByComponentEntity(Pageable pageable, ComponentEntity componentEntity);
+
+    List<ComponentHistoryEntity> findAllByComponentEntity(ComponentEntity componentEntity);
+
+    ComponentHistoryEntity findFirstByComponentEntityOrderByTagAsc(ComponentEntity componentEntity);
 }

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -63,5 +65,15 @@ public class ComponentHistoryService {
     // 根据组件查询组件历史
     public Page<ComponentHistoryEntity> getComponentHistorysByComponent(Pageable pageable, ComponentEntity componentEntity) {
         return componentHistoryRepository.findAllByComponentEntity(pageable, componentEntity);
+    }
+
+    // 根据组件查询组件历史
+    public List<ComponentHistoryEntity> getComponentHistorysByComponent(ComponentEntity componentEntity) {
+        return componentHistoryRepository.findAllByComponentEntity(componentEntity);
+    }
+
+    // 根据组件查询组件历史
+    public ComponentHistoryEntity getComponentHistoryByComponent(ComponentEntity componentEntity) {
+        return componentHistoryRepository.findFirstByComponentEntityOrderByTagAsc(componentEntity);
     }
 }
