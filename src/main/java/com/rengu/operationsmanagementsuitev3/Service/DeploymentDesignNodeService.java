@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,7 +135,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据部署设计节点部署
-    public void deployDeploymentDesignNodeById(String deploymentDesignNodeId) {
+    public void deployDeploymentDesignNodeById(String deploymentDesignNodeId) throws IOException {
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
         if (deploymentDesignNodeEntity.getDeviceEntity() == null) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NODE_DEVICE_ARGS_NOT_FOUND);

@@ -26,7 +26,8 @@ public class DeployLogDetailEntity {
     private String hostName;
     private String componentName;
     private String componentVersion;
-    private String targetFilePath;
+    private long componentTag;
+    private String targetPath;
     private boolean complete;
     @ManyToOne
     private DeployLogEntity deployLogEntity;

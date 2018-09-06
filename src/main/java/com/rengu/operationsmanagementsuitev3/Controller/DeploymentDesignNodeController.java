@@ -7,6 +7,8 @@ import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -46,7 +48,7 @@ public class DeploymentDesignNodeController {
 
     // 根据id查询部署设计节点
     @GetMapping(value = "/{deploymentDesignNodeId}/deploy")
-    public void deployDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) {
+    public void deployDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) throws IOException {
         deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeId);
     }
 

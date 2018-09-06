@@ -48,7 +48,7 @@ public class ScanHandlerService {
         long startTime = System.currentTimeMillis();
         while (true) {
             if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT) {
-                throw new RuntimeException(ApplicationMessages.SCAN_DISK_TIME_OUT);
+                throw new RuntimeException(ApplicationMessages.SCAN_PROCESS_TIME_OUT);
             }
             if (PROCESS_SCAN_RESULT.containsKey(orderEntity.getId())) {
                 return new AsyncResult<>(PROCESS_SCAN_RESULT.get(orderEntity.getId()));

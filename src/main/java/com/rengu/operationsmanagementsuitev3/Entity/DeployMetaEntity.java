@@ -20,5 +20,6 @@ public class DeployMetaEntity {
     private Date createTime = new Date();
     private DeviceEntity deviceEntity;
     private ComponentHistoryEntity componentHistoryEntity;
-    private FileEntity fileEntity;
+    private ComponentFileHistoryEntity componentFileHistoryEntity;
+    private String targetPath;
 }

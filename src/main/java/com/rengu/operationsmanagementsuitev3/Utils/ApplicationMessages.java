@@ -120,6 +120,12 @@ public class ApplicationMessages {
     public static final String DEPLOYMENT_DESIGN_DETAIL_COMPONENT_NOT_FOUND = "未发现该部署设计详情组件：";
     public static final String DEPLOYMENT_DESIGN_DETAIL_COMPONENT_EXISTED = "该部署设计详情组件已存在：";
 
+    // 部署日志相关提示信息
+    public static final String DEPLOY_LOG_ID_ARGS_NOT_FOUND = "部署日志Id参数不存在或不合法";
+    public static final String DEPLOY_LOG_ID_NOT_FOUND = "未发现该部署日志Id：";
+    public static final String DEPLOY_LOG_ID_EXISTED = "该部署日志Id已存在：";
+
     // 扫描相关提示信息
     public static final String SCAN_DISK_TIME_OUT = "获取设备磁盘信息超时";
+    public static final String SCAN_PROCESS_TIME_OUT = "获取设备进程信息超时";
 }
