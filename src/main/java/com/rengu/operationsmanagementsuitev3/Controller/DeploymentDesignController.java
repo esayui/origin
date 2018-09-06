@@ -101,4 +101,10 @@ public class DeploymentDesignController {
     public ResultEntity getDeploymentDesignNodesByDeploymentDesign(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "deploymentDesignId") String deploymentDesignId) {
         return ResultUtils.build(deploymentDesignNodeService.getDeploymentDesignNodesByDeploymentDesign(pageable, deploymentDesignService.getDeploymentDesignById(deploymentDesignId)));
     }
+
+    // 根据Id查询部署设计节点
+    @GetMapping(value = "/{deploymentDesignId}/devices")
+    public ResultEntity getDevicesByDeploymentDesign(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) {
+        return ResultUtils.build(deploymentDesignNodeService.getDevicesByDeploymentDesign(deploymentDesignService.getDeploymentDesignById(deploymentDesignId)));
+    }
 }
