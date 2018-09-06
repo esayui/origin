@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.DeploymentDesignNodeService;
 import com.rengu.operationsmanagementsuitev3.Service.DeploymentDesignService;
+import com.rengu.operationsmanagementsuitev3.Service.DeviceService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +26,13 @@ public class DeploymentDesignController {
 
     private final DeploymentDesignService deploymentDesignService;
     private final DeploymentDesignNodeService deploymentDesignNodeService;
+    private final DeviceService deviceService;
 
     @Autowired
-    public DeploymentDesignController(DeploymentDesignService deploymentDesignService, DeploymentDesignNodeService deploymentDesignNodeService) {
+    public DeploymentDesignController(DeploymentDesignService deploymentDesignService, DeploymentDesignNodeService deploymentDesignNodeService, DeviceService deviceService) {
         this.deploymentDesignService = deploymentDesignService;
         this.deploymentDesignNodeService = deploymentDesignNodeService;
+        this.deviceService = deviceService;
     }
 
     // 根据Id复制部署设计
@@ -85,6 +88,12 @@ public class DeploymentDesignController {
     @PostMapping(value = "/{deploymentDesignId}/deploymentdesignnode")
     public ResultEntity saveDeploymentDesignNodeByDeploymentDesign(@PathVariable(value = "deploymentDesignId") String deploymentDesignId, DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
         return ResultUtils.build(deploymentDesignNodeService.saveDeploymentDesignNodeByDeploymentDesign(deploymentDesignService.getDeploymentDesignById(deploymentDesignId), deploymentDesignNodeEntity));
+    }
+
+    // 根据Id和设备建立部署设计节点
+    @PostMapping(value = "/{deploymentDesignId}/device/{deviceId}/deploymentdesignnode")
+    public ResultEntity saveDeploymentDesignNodeByDeploymentDesignAndDevice(@PathVariable(value = "deploymentDesignId") String deploymentDesignId, @PathVariable(value = "deviceId") String deviceId, DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
+        return ResultUtils.build(deploymentDesignNodeService.saveDeploymentDesignNodeByDeploymentDesignAndDevice(deploymentDesignService.getDeploymentDesignById(deploymentDesignId), deploymentDesignNodeEntity, deviceService.getDeviceById(deviceId)));
     }
 
     // 根据Id查询部署设计节点

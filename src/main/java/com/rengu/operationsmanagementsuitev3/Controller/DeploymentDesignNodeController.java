@@ -53,6 +53,12 @@ public class DeploymentDesignNodeController {
         deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeId);
     }
 
+    // 根据id解绑设备
+    @PatchMapping(value = "/{deploymentDesignNodeId}/unbind")
+    public ResultEntity unbindDeviceById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) {
+        return ResultUtils.build(deploymentDesignNodeService.unbindDeviceById(deploymentDesignNodeId));
+    }
+
     // 根据Id挂载设备
     @PatchMapping(value = "/{deploymentDesignNodeId}/device/{deviceId}/bind")
     public ResultEntity bindDeviceById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @PathVariable(value = "deviceId") String deviceId) {

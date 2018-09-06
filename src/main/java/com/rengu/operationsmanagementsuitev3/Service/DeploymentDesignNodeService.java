@@ -46,6 +46,16 @@ public class DeploymentDesignNodeService {
         return deploymentDesignNodeRepository.save(deploymentDesignNodeEntity);
     }
 
+    // 根据Id和设备建立部署设计节点
+    public DeploymentDesignNodeEntity saveDeploymentDesignNodeByDeploymentDesignAndDevice(DeploymentDesignEntity deploymentDesignEntity, DeploymentDesignNodeEntity deploymentDesignNodeEntity, DeviceEntity deviceEntity) {
+        if (hasDeploymentDesignNodeByDeviceAndDeploymentDesign(deviceEntity, deploymentDesignNodeEntity.getDeploymentDesignEntity())) {
+            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NODE_DEVICE_EXISTED + deviceEntity.getHostAddress());
+        }
+        deploymentDesignNodeEntity.setDeviceEntity(deviceEntity);
+        deploymentDesignNodeEntity.setDeploymentDesignEntity(deploymentDesignEntity);
+        return deploymentDesignNodeRepository.save(deploymentDesignNodeEntity);
+    }
+
     // 根据部署设计复制部署设计节点
     public void copyDeploymentDesignNodeByDeploymentDesign(DeploymentDesignEntity sourceDeploymentDesign, DeploymentDesignEntity targetDeploymentDesign) {
         for (DeploymentDesignNodeEntity deploymentDesignNodeArgs : getDeploymentDesignNodesByDeploymentDesign(sourceDeploymentDesign)) {
@@ -71,6 +81,13 @@ public class DeploymentDesignNodeService {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NODE_DEVICE_EXISTED + deviceEntity.getHostAddress());
         }
         deploymentDesignNodeEntity.setDeviceEntity(deviceEntity);
+        return deploymentDesignNodeRepository.save(deploymentDesignNodeEntity);
+    }
+
+    // 根据Id解绑设备
+    public DeploymentDesignNodeEntity unbindDeviceById(String deploymentDesignNodeId) {
+        DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
+        deploymentDesignNodeEntity.setDeviceEntity(null);
         return deploymentDesignNodeRepository.save(deploymentDesignNodeEntity);
     }
 
