@@ -1,7 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentHistoryEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignDetailEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.*;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
@@ -70,34 +69,34 @@ public class DeploymentDesignNodeController {
 
     // 根据Id建立部署设计详情
     @PostMapping(value = "/{deploymentDesignNodeId}/deploymentdesigndetailbycomponenthistory")
-    public ResultEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @RequestParam(value = "componentHistoryId") String componentHistoryId, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
-        return ResultUtils.build(deploymentDesignDetailService.saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), componentHistoryService.getComponentHistoryById(componentHistoryId), deploymentDesignDetailEntity));
+    public ResultEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @RequestParam(value = "componentHistoryId") String componentHistoryId) {
+        return ResultUtils.build(deploymentDesignDetailService.saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), componentHistoryService.getComponentHistoryById(componentHistoryId)));
     }
 
     // 根据Id建立部署设计详情
     @PostMapping(value = "/{deploymentDesignNodeId}/deploymentdesigndetailbycomponent")
-    public ResultEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponent(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @RequestParam(value = "componentId") String componentId, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
-        return ResultUtils.build(deploymentDesignDetailService.saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), componentHistoryService.getComponentHistoryByComponent(componentService.getComponentById(componentId)), deploymentDesignDetailEntity));
+    public ResultEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponent(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @RequestParam(value = "componentId") String componentId) {
+        return ResultUtils.build(deploymentDesignDetailService.saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), componentHistoryService.getComponentHistoryByComponent(componentService.getComponentById(componentId))));
     }
 
     // 根据Id建立部署设计详情
     @PostMapping(value = "/{deploymentDesignNodeId}/deploymentdesigndetailbycomponenthistorys")
-    public ResultEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @RequestParam(value = "componentHistoryIds") String[] componentHistoryIds, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
+    public ResultEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @RequestParam(value = "componentHistoryIds") String[] componentHistoryIds) {
         List<ComponentHistoryEntity> componentHistoryEntityList = new ArrayList<>();
         for (String componentHistoryId : componentHistoryIds) {
             componentHistoryEntityList.add(componentHistoryService.getComponentHistoryById(componentHistoryId));
         }
-        return ResultUtils.build(deploymentDesignDetailService.saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), componentHistoryEntityList, deploymentDesignDetailEntity));
+        return ResultUtils.build(deploymentDesignDetailService.saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), componentHistoryEntityList));
     }
 
     // 根据Id建立部署设计详情
     @PostMapping(value = "/{deploymentDesignNodeId}/deploymentdesigndetailbycomponents")
-    public ResultEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponents(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @RequestParam(value = "componentIds") String[] componentIds, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
+    public ResultEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponents(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, @RequestParam(value = "componentIds") String[] componentIds) {
         List<ComponentHistoryEntity> componentHistoryEntityList = new ArrayList<>();
         for (String componentId : componentIds) {
             componentHistoryEntityList.add(componentHistoryService.getComponentHistoryByComponent(componentService.getComponentById(componentId)));
         }
-        return ResultUtils.build(deploymentDesignDetailService.saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), componentHistoryEntityList, deploymentDesignDetailEntity));
+        return ResultUtils.build(deploymentDesignDetailService.saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), componentHistoryEntityList));
     }
 
     // 根据Id查询部署设计详情

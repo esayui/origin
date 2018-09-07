@@ -41,10 +41,11 @@ public class DeploymentDesignDetailService {
     }
 
     // 根据组件历史和部署设计节点保存部署设计详情
-    public DeploymentDesignDetailEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(DeploymentDesignNodeEntity deploymentDesignNodeEntity, ComponentHistoryEntity componentHistoryEntity, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
+    public DeploymentDesignDetailEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(DeploymentDesignNodeEntity deploymentDesignNodeEntity, ComponentHistoryEntity componentHistoryEntity) {
         if (hasDeploymentDesignDetailByDeploymentDesignNodeAndComponent(deploymentDesignNodeEntity, componentHistoryEntity.getComponentEntity())) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_DETAIL_COMPONENT_EXISTED + componentHistoryEntity.getComponentEntity().getName() + "-" + componentHistoryEntity.getComponentEntity().getVersion());
         }
+        DeploymentDesignDetailEntity deploymentDesignDetailEntity = new DeploymentDesignDetailEntity();
         deploymentDesignDetailEntity.setDeploymentDesignNodeEntity(deploymentDesignNodeEntity);
         deploymentDesignDetailEntity.setComponentHistoryEntity(componentHistoryEntity);
         deploymentDesignDetailEntity.setComponentEntity(componentHistoryEntity.getComponentEntity());
@@ -53,10 +54,10 @@ public class DeploymentDesignDetailService {
     }
 
     // 根据组件历史和部署设计节点保存部署设计详情
-    public List<DeploymentDesignDetailEntity> saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(DeploymentDesignNodeEntity deploymentDesignNodeEntity, List<ComponentHistoryEntity> componentHistoryEntityList, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
+    public List<DeploymentDesignDetailEntity> saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(DeploymentDesignNodeEntity deploymentDesignNodeEntity, List<ComponentHistoryEntity> componentHistoryEntityList) {
         List<DeploymentDesignDetailEntity> deploymentDesignDetailEntityList = new ArrayList<>();
         for (ComponentHistoryEntity componentHistoryEntity : componentHistoryEntityList) {
-            deploymentDesignDetailEntityList.add(saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(deploymentDesignNodeEntity, componentHistoryEntity, deploymentDesignDetailEntity));
+            deploymentDesignDetailEntityList.add(saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(deploymentDesignNodeEntity, componentHistoryEntity));
         }
         return deploymentDesignDetailEntityList;
     }
