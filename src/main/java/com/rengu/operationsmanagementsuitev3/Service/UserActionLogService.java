@@ -24,12 +24,21 @@ public class UserActionLogService {
     public static final int ERROR_OBJECT = 0;
     public static final int USER_OBJECT = 1;
     public static final int PROJECT_OBJECT = 2;
+    public static final int DEVICE_OBJECT = 3;
+    public static final int COMPONENT_OBJECT = 4;
+    public static final int DEPLOYMENT_DESIGN_OBJECT = 5;
+    public static final int DEPLOYMENT_DESIGN_NODE_OBJECT = 6;
 
     // 操作类别
     public static final int ERROR_TYPE = 0;
     public static final int CREATE_TYPE = 1;
     public static final int DELETE_TYPE = 2;
     public static final int UPDATE_TYPE = 3;
+    public static final int RESTORE_TYPE = 4;
+    public static final int CLEAN_TYPE = 5;
+    public static final int COPY_TYPE = 6;
+    public static final int SCAN_TYPE = 7;
+    public static final int EXPORT_TYPE = 7;
 
     @Autowired
     private UserActionLogRepository userActionLogRepository;

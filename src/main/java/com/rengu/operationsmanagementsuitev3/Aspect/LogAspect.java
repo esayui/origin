@@ -1,5 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Aspect;
 
+import com.rengu.operationsmanagementsuitev3.Controller.ComponentController;
+import com.rengu.operationsmanagementsuitev3.Controller.DeviceController;
 import com.rengu.operationsmanagementsuitev3.Controller.ProjectController;
 import com.rengu.operationsmanagementsuitev3.Controller.UserController;
 import com.rengu.operationsmanagementsuitev3.Entity.*;
@@ -81,6 +83,13 @@ public class LogAspect {
                         description = "用户：" + username + "，根据Id删除用户：" + userEntity.getUsername();
                         break;
                     }
+                    case "updatePasswordById": {
+                        UserEntity userEntity = (UserEntity) result.getData();
+                        object = UserActionLogService.USER_OBJECT;
+                        type = UserActionLogService.UPDATE_TYPE;
+                        description = "用户：" + username + "，根据Id修改用户密码：" + userEntity.getUsername();
+                        break;
+                    }
                     case "userUpgradeById": {
                         UserEntity userEntity = (UserEntity) result.getData();
                         object = UserActionLogService.USER_OBJECT;
@@ -113,6 +122,149 @@ public class LogAspect {
                         object = UserActionLogService.PROJECT_OBJECT;
                         type = UserActionLogService.DELETE_TYPE;
                         description = "用户：" + username + "，删除工程：" + projectEntity.getName();
+                        break;
+                    }
+                    case "restoreProjectById": {
+                        ProjectEntity projectEntity = (ProjectEntity) result.getData();
+                        object = UserActionLogService.PROJECT_OBJECT;
+                        type = UserActionLogService.RESTORE_TYPE;
+                        description = "用户：" + username + "，撤销删除工程：" + projectEntity.getName();
+                        break;
+                    }
+                    case "cleanProjectById": {
+                        ProjectEntity projectEntity = (ProjectEntity) result.getData();
+                        object = UserActionLogService.PROJECT_OBJECT;
+                        type = UserActionLogService.CLEAN_TYPE;
+                        description = "用户：" + username + "，清除工程：" + projectEntity.getName();
+                        break;
+                    }
+                    case "updateProjectById": {
+                        ProjectEntity projectEntity = (ProjectEntity) result.getData();
+                        object = UserActionLogService.PROJECT_OBJECT;
+                        type = UserActionLogService.UPDATE_TYPE;
+                        description = "用户：" + username + "，修改工程：" + projectEntity.getName() + "信息。";
+                        break;
+                    }
+                    case "saveDeviceByProject": {
+                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+                        object = UserActionLogService.DEVICE_OBJECT;
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，保存设备：" + deviceEntity.getName();
+                        break;
+                    }
+                    case "saveComponentByProject": {
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，保存组件：" + componentEntity.getName();
+                        break;
+                    }
+                    case "saveDeploymentDesignByProject": {
+                        DeploymentDesignEntity deploymentDesignEntity = (DeploymentDesignEntity) result.getData();
+                        object = UserActionLogService.DEPLOYMENT_DESIGN_OBJECT;
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，保存部署设计：" + deploymentDesignEntity.getName();
+                        break;
+                    }
+                    default:
+                }
+            }
+            // 设备接口
+            if (joinPoint.getTarget().getClass().equals(DeviceController.class)) {
+                switch (joinPoint.getSignature().getName()) {
+                    case "copyDeviceById": {
+                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+                        object = UserActionLogService.DEVICE_OBJECT;
+                        type = UserActionLogService.COPY_TYPE;
+                        description = "用户：" + username + "，复制设备：" + deviceEntity.getName();
+                        break;
+                    }
+                    case "deleteDeviceById": {
+                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+                        object = UserActionLogService.DEVICE_OBJECT;
+                        type = UserActionLogService.DELETE_TYPE;
+                        description = "用户：" + username + "，删除设备：" + deviceEntity.getName();
+                        break;
+                    }
+                    case "restoreDeviceById": {
+                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+                        object = UserActionLogService.DEVICE_OBJECT;
+                        type = UserActionLogService.RESTORE_TYPE;
+                        description = "用户：" + username + "，撤销删除设备：" + deviceEntity.getName();
+                        break;
+                    }
+                    case "cleanDeviceById": {
+                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+                        object = UserActionLogService.DEVICE_OBJECT;
+                        type = UserActionLogService.CLEAN_TYPE;
+                        description = "用户：" + username + "，清除设备：" + deviceEntity.getName();
+                        break;
+                    }
+                    case "updateDeviceById": {
+                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+                        object = UserActionLogService.DEVICE_OBJECT;
+                        type = UserActionLogService.UPDATE_TYPE;
+                        description = "用户：" + username + "，更新设备：" + deviceEntity.getName() + "信息。";
+                        break;
+                    }
+                    case "getProcessById": {
+                        object = UserActionLogService.DEVICE_OBJECT;
+                        type = UserActionLogService.SCAN_TYPE;
+                        description = "用户：" + username + "，获取设备进程信息";
+                        break;
+                    }
+                    case "getDisksById": {
+                        object = UserActionLogService.DEVICE_OBJECT;
+                        type = UserActionLogService.SCAN_TYPE;
+                        description = "用户：" + username + "，获取设备磁盘信息";
+                        break;
+                    }
+                    default:
+                }
+            }
+            // 组件接口
+            if (joinPoint.getTarget().getClass().equals(ComponentController.class)) {
+                switch (joinPoint.getSignature().getName()) {
+                    case "copyComponentById": {
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.COPY_TYPE;
+                        description = "用户：" + username + "，复制组件：" + componentEntity.getName();
+                        break;
+                    }
+                    case "deleteComponentById": {
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.DELETE_TYPE;
+                        description = "用户：" + username + "，删除组件：" + componentEntity.getName();
+                        break;
+                    }
+                    case "restoreComponentById": {
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.RESTORE_TYPE;
+                        description = "用户：" + username + "，撤销删除组件：" + componentEntity.getName();
+                        break;
+                    }
+                    case "cleanComponentById": {
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.CLEAN_TYPE;
+                        description = "用户：" + username + "，清除组件：" + componentEntity.getName();
+                        break;
+                    }
+                    case "updateComponentById": {
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.UPDATE_TYPE;
+                        description = "用户：" + username + "，更新组件：" + componentEntity.getName() + "信息";
+                        break;
+                    }
+                    case "exportComponentFileByComponent": {
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.EXPORT_TYPE;
+                        description = "用户：" + username + "，下载组件：" + componentEntity.getName() + "文件";
                         break;
                     }
                     default:

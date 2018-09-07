@@ -49,7 +49,7 @@ public class DeploymentDesignNodeController {
         return ResultUtils.build(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId));
     }
 
-    // 根据id查询部署设计节点
+    // 根据id部署部署设计节点
     @GetMapping(value = "/{deploymentDesignNodeId}/deploy")
     public void deployDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) throws IOException {
         deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeId);
