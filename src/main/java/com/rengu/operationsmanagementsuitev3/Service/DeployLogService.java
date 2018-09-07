@@ -6,6 +6,8 @@ import com.rengu.operationsmanagementsuitev3.Repository.DeployLogRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,10 +32,12 @@ public class DeployLogService {
         this.deployLogRepository = deployLogRepository;
     }
 
+    @CacheEvict(value = "DeployLog_Cache", allEntries = true)
     public DeployLogEntity saveDeployLog(DeployLogEntity deployLogEntity) {
         return deployLogRepository.save(deployLogEntity);
     }
 
+    @CacheEvict(value = "DeployLog_Cache", allEntries = true)
     public DeployLogEntity deleteDeployLogById(String deployLogId) {
         DeployLogEntity deployLogEntity = getDeployLogById(deployLogId);
         deployLogRepository.delete(deployLogEntity);
@@ -47,6 +51,7 @@ public class DeployLogService {
         return deployLogRepository.existsById(deployLogId);
     }
 
+    @Cacheable(value = "DeployLog_Cache", key = "#deployLogId")
     public DeployLogEntity getDeployLogById(String deployLogId) {
         if (!hasDeployLogById(deployLogId)) {
             throw new RuntimeException(ApplicationMessages.DEPLOY_LOG_ID_NOT_FOUND + deployLogId);

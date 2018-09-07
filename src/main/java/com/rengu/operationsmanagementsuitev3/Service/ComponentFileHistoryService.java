@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -47,6 +49,7 @@ public class ComponentFileHistoryService {
     }
 
     // 从组件文件生成组件文件历史
+    @CacheEvict(value = "ComponentFileHistory_Cache", allEntries = true)
     public void saveComponentFileHistorysByComponentFile(ComponentFileEntity sourceNode, ComponentEntity sourceComponent, ComponentFileHistoryEntity targetNode, ComponentHistoryEntity targetComponent) {
         ComponentFileHistoryEntity copyNode = new ComponentFileHistoryEntity();
         BeanUtils.copyProperties(sourceNode, copyNode, "id", "createTime", "parentNode", "componentEntity");
@@ -73,6 +76,7 @@ public class ComponentFileHistoryService {
     }
 
     // 根据id查询组件历史文件
+    @Cacheable(value = "ComponentFileHistory_Cache", key = "#componentFileHistoryId")
     public ComponentFileHistoryEntity getComponentFileHistoryById(String componentFileHistoryId) {
         if (!hasComponentFileHistoryById(componentFileHistoryId)) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_HISTORY_ID_NOT_FOUND + componentFileHistoryId);
@@ -81,12 +85,14 @@ public class ComponentFileHistoryService {
     }
 
     // 根据父节点查询组件文件历史
+    @Cacheable(value = "ComponentFileHistory_Cache", key = "#methodName + #parentNodeId + #componentHistoryEntity.getId()")
     public List<ComponentFileHistoryEntity> getComponentFileHistorysByParentNodeAndComponentHistory(String parentNodeId, ComponentHistoryEntity componentHistoryEntity) {
         ComponentFileHistoryEntity parentNode = hasComponentFileHistoryById(parentNodeId) ? getComponentFileHistoryById(parentNodeId) : null;
         return componentFileHistoryRepository.findAllByParentNodeAndComponentHistoryEntity(parentNode, componentHistoryEntity);
     }
 
     // 根据组件历史查询组件文件
+    @Cacheable(value = "ComponentFileHistory_Cache", key = "#methodName + #componentHistoryEntity.getId()")
     public List<ComponentFileHistoryEntity> getComponentFileHistorysByComponentHistory(ComponentHistoryEntity componentHistoryEntity) {
         return componentFileHistoryRepository.findAllByComponentHistoryEntity(componentHistoryEntity);
     }

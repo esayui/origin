@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class DeploymentDesignService {
     }
 
     // 根据工程保存部署设计
+    @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
     public DeploymentDesignEntity saveDeploymentDesignByProject(ProjectEntity projectEntity, DeploymentDesignEntity deploymentDesignEntity) {
         if (StringUtils.isEmpty(deploymentDesignEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_ARGS_NOT_FOUND);
@@ -47,6 +49,7 @@ public class DeploymentDesignService {
     }
 
     // 根据Id复制部署设计
+    @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
     public DeploymentDesignEntity copyDeploymentDesignById(String deploymentDesignId) {
         DeploymentDesignEntity deploymentDesignArgs = getDeploymentDesignById(deploymentDesignId);
         DeploymentDesignEntity deploymentDesignEntity = new DeploymentDesignEntity();
@@ -58,6 +61,7 @@ public class DeploymentDesignService {
     }
 
     // 根据Id创建基线
+    @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
     public DeploymentDesignEntity baselineDeploymentDesignById(String deploymentDesignId) {
         DeploymentDesignEntity deploymentDesignEntity = copyDeploymentDesignById(deploymentDesignId);
         deploymentDesignEntity.setBaseline(true);
@@ -127,6 +131,7 @@ public class DeploymentDesignService {
     }
 
     // 根据Id查询部署设计
+    @Cacheable(value = "DeploymentDesign_Cache", key = "#deploymentDesignId")
     public DeploymentDesignEntity getDeploymentDesignById(String deploymentDesignId) {
         if (!hasDeploymentDesignById(deploymentDesignId)) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_ID_NOT_FOUND + deploymentDesignId);

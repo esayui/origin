@@ -34,6 +34,7 @@ public class ProjectService {
     }
 
     // 根据用户创建工程
+    @CacheEvict(value = "Project_Cache", allEntries = true)
     public ProjectEntity saveProjectByUser(ProjectEntity projectEntity, UserEntity userEntity) {
         if (StringUtils.isEmpty(projectEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.PROJECT_NAME_ARGS_NOT_FOUND);

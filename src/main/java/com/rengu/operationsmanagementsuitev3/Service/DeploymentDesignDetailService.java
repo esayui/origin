@@ -7,6 +7,8 @@ import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -41,6 +43,7 @@ public class DeploymentDesignDetailService {
     }
 
     // 根据组件历史和部署设计节点保存部署设计详情
+    @CacheEvict(value = "DeploymentDesignDetail_Cache", allEntries = true)
     public DeploymentDesignDetailEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(DeploymentDesignNodeEntity deploymentDesignNodeEntity, ComponentHistoryEntity componentHistoryEntity) {
         if (hasDeploymentDesignDetailByDeploymentDesignNodeAndComponent(deploymentDesignNodeEntity, componentHistoryEntity.getComponentEntity())) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_DETAIL_COMPONENT_EXISTED + componentHistoryEntity.getComponentEntity().getName() + "-" + componentHistoryEntity.getComponentEntity().getVersion());
@@ -54,6 +57,7 @@ public class DeploymentDesignDetailService {
     }
 
     // 根据组件历史和部署设计节点保存部署设计详情
+    @CacheEvict(value = "DeploymentDesignDetail_Cache", allEntries = true)
     public List<DeploymentDesignDetailEntity> saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(DeploymentDesignNodeEntity deploymentDesignNodeEntity, List<ComponentHistoryEntity> componentHistoryEntityList) {
         List<DeploymentDesignDetailEntity> deploymentDesignDetailEntityList = new ArrayList<>();
         for (ComponentHistoryEntity componentHistoryEntity : componentHistoryEntityList) {
@@ -63,6 +67,7 @@ public class DeploymentDesignDetailService {
     }
 
     // 根据部署设计节点复制部署设计详情
+    @CacheEvict(value = "DeploymentDesignDetail_Cache", allEntries = true)
     public void copyDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity sourceDeploymentDesignNode, DeploymentDesignNodeEntity targetDeploymentDesignNode) {
         for (DeploymentDesignDetailEntity deploymentDesignDetailArgs : getDeploymentDesignDetailsByDeploymentDesignNode(sourceDeploymentDesignNode)) {
             DeploymentDesignDetailEntity deploymentDesignDetailEntity = new DeploymentDesignDetailEntity();
@@ -74,6 +79,7 @@ public class DeploymentDesignDetailService {
     }
 
     // 根据Id删除部署设计详情
+    @CacheEvict(value = "DeploymentDesignDetail_Cache", allEntries = true)
     public DeploymentDesignDetailEntity deleteDeploymentDesignDetailById(String deploymentDesignDetailId) {
         DeploymentDesignDetailEntity deploymentDesignDetailEntity = getDeploymentDesignDetailById(deploymentDesignDetailId);
         deploymentDesignDetailRepository.delete(deploymentDesignDetailEntity);
@@ -94,6 +100,7 @@ public class DeploymentDesignDetailService {
     }
 
     // 根据Id查询部署设计详情
+    @Cacheable(value = "DeploymentDesignDetail_Cache", key = "#deploymentDesignDetailId")
     public DeploymentDesignDetailEntity getDeploymentDesignDetailById(String deploymentDesignDetailId) {
         if (!hasDeploymentDesignDetailById(deploymentDesignDetailId)) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_DETAIL_ID_NOT_FOUND + deploymentDesignDetailId);
@@ -102,6 +109,7 @@ public class DeploymentDesignDetailService {
     }
 
     // 根据部署设计节点查询部署设计详情
+    @Cacheable(value = "DeploymentDesignDetail_Cache", key = "#deploymentDesignNodeEntity.getId()")
     public List<DeploymentDesignDetailEntity> getDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
         return deploymentDesignDetailRepository.findAllByDeploymentDesignNodeEntity(deploymentDesignNodeEntity);
     }

@@ -13,6 +13,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -49,6 +51,7 @@ public class ComponentFileService {
     }
 
     // 根据组件父节点创建文件夹
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public ComponentFileEntity saveComponentFileByParentNodeAndComponent(ComponentEntity componentEntity, String parentNodeId, ComponentFileEntity componentFileEntity) {
         ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
         if (StringUtils.isEmpty(componentFileEntity.getName())) {
@@ -64,6 +67,7 @@ public class ComponentFileService {
     }
 
     // 根据组件父节点保存文件
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(ComponentEntity componentEntity, String parentNodeId, List<FileMetaEntity> fileMetaEntityList) {
         List<ComponentFileEntity> componentFileEntityList = new ArrayList<>();
         for (FileMetaEntity fileMetaEntity : fileMetaEntityList) {
@@ -112,6 +116,7 @@ public class ComponentFileService {
     }
 
     // 根据Id复制组件文件
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public ComponentFileEntity copyComponentFileById(String sourceNodeId, String targetNodeId, ComponentEntity targetComponent) {
         ComponentFileEntity sourceNode = getComponentFileById(sourceNodeId);
         ComponentFileEntity targetNode = hasComponentFileById(targetNodeId) ? getComponentFileById(targetNodeId) : null;
@@ -128,6 +133,7 @@ public class ComponentFileService {
     }
 
     // 复制组件文件
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public void copyComponentFiles(ComponentFileEntity sourceNode, ComponentEntity sourceComponent, ComponentFileEntity targetNode, ComponentEntity targetComponent) {
         ComponentFileEntity copyNode;
         // 目标路径下是否有同名节点
@@ -147,6 +153,7 @@ public class ComponentFileService {
     }
 
     // 根据Id移动组件文件
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public ComponentFileEntity moveComponentFileById(String sourceNodeId, String targetNodeId, ComponentEntity targetComponent) {
         ComponentFileEntity sourceComponentFile = getComponentFileById(sourceNodeId);
         ComponentFileEntity targetComponentFile = hasComponentFileById(targetNodeId) ? getComponentFileById(targetNodeId) : null;
@@ -158,6 +165,7 @@ public class ComponentFileService {
     }
 
     // 根据Id删除组件文件
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public ComponentFileEntity deleteComponentFileById(String componentfileId) throws IOException {
         ComponentFileEntity componentFileEntity = getComponentFileById(componentfileId);
         if (componentFileEntity.isFolder()) {
@@ -178,6 +186,7 @@ public class ComponentFileService {
     }
 
     // 根据Id修改组件文件
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public ComponentFileEntity updateComponentFileById(String componentfileId, ComponentFileEntity componentFileArgs) {
         ComponentFileEntity componentFileEntity = getComponentFileById(componentfileId);
         if (!StringUtils.isEmpty(componentFileArgs.getName()) && !componentFileEntity.getName().equals(FilenameUtils.getBaseName(componentFileArgs.getName()))) {
@@ -218,6 +227,7 @@ public class ComponentFileService {
     }
 
     // 根据id查询组件文件
+    @Cacheable(value = "ComponentFile_Cache", key = "#componentFileId")
     public ComponentFileEntity getComponentFileById(String componentFileId) {
         if (!hasComponentFileById(componentFileId)) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_ID_NOT_FOUND + componentFileId);
@@ -226,6 +236,7 @@ public class ComponentFileService {
     }
 
     // 查询父节点和组件查询组件文件
+    @Cacheable(value = "ComponentFile_Cache", key = "#methodName +#parentNodeId + #componentEntity.getId()")
     public List<ComponentFileEntity> getComponentFilesByParentNodeAndComponent(String parentNodeId, ComponentEntity componentEntity) {
         ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
         return componentFileRepository.findByParentNodeAndComponentEntity(parentNode, componentEntity);

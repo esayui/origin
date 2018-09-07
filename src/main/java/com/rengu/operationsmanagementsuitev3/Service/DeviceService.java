@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class DeviceService {
     }
 
     // 根据工程创建设备
+    @CacheEvict(value = "Device_Cache", allEntries = true)
     public DeviceEntity saveDeviceByProject(ProjectEntity projectEntity, DeviceEntity deviceEntity) {
         if (StringUtils.isEmpty(deviceEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.DEVICE_NAME_ARGS_NOT_FOUND);
@@ -67,6 +69,7 @@ public class DeviceService {
     }
 
     // 根据Id复制设备
+    @CacheEvict(value = "Device_Cache", allEntries = true)
     public DeviceEntity copyDeviceById(String deviceId) {
         DeviceEntity deviceArgs = getDeviceById(deviceId);
         DeviceEntity deviceEntity = new DeviceEntity();
@@ -84,6 +87,7 @@ public class DeviceService {
     }
 
     // 根据Id撤销删除设备
+    @CacheEvict(value = "Device_Cache", allEntries = true)
     public DeviceEntity restoreDeviceById(String deviceId) {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
         deviceEntity.setDeleted(false);
@@ -141,6 +145,7 @@ public class DeviceService {
     }
 
     // 根据Id查询设备
+    @Cacheable(value = "Device_Cache", key = "#deviceId")
     public DeviceEntity getDeviceById(String deviceId) {
         if (!hasDeviceById(deviceId)) {
             throw new RuntimeException(ApplicationMessages.DEVICE_ID_NOT_FOUND + deviceId);

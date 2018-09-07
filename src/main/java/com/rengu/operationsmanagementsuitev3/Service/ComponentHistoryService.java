@@ -7,6 +7,8 @@ import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class ComponentHistoryService {
     }
 
     // 根据组件保存组件历史
+    @CacheEvict(value = "ComponentHistory_Cache", allEntries = true)
     public ComponentHistoryEntity saveComponentHistoryByComponent(ComponentEntity sourceComponent) {
         ComponentHistoryEntity componentHistoryEntity = new ComponentHistoryEntity();
         BeanUtils.copyProperties(sourceComponent, componentHistoryEntity, "id");
@@ -55,6 +58,7 @@ public class ComponentHistoryService {
     }
 
     //根据Id查询组件历史
+    @Cacheable(value = "ComponentHistory_Cache", key = "#componentHistoryId")
     public ComponentHistoryEntity getComponentHistoryById(String componentHistoryId) {
         if (!hasComponentHistoryById(componentHistoryId)) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_HISTORY_ID_NOT_FOUND + componentHistoryId);
@@ -68,11 +72,13 @@ public class ComponentHistoryService {
     }
 
     // 根据组件查询组件历史
+    @Cacheable(value = "ComponentHistory_Cache", key = "#componentEntity.getId()")
     public List<ComponentHistoryEntity> getComponentHistorysByComponent(ComponentEntity componentEntity) {
         return componentHistoryRepository.findAllByComponentEntity(componentEntity);
     }
 
     // 根据组件查询组件历史
+    @Cacheable(value = "ComponentHistory_Cache", key = "#methodName + #componentEntity.getId()")
     public ComponentHistoryEntity getComponentHistoryByComponent(ComponentEntity componentEntity) {
         return componentHistoryRepository.findFirstByComponentEntityOrderByTagDesc(componentEntity);
     }

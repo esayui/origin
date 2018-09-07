@@ -9,6 +9,8 @@ import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -46,12 +48,14 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据部署设计保存部署节点
+    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public DeploymentDesignNodeEntity saveDeploymentDesignNodeByDeploymentDesign(DeploymentDesignEntity deploymentDesignEntity, DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
         deploymentDesignNodeEntity.setDeploymentDesignEntity(deploymentDesignEntity);
         return deploymentDesignNodeRepository.save(deploymentDesignNodeEntity);
     }
 
     // 根据Id和设备建立部署设计节点
+    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public DeploymentDesignNodeEntity saveDeploymentDesignNodeByDeploymentDesignAndDevice(DeploymentDesignEntity deploymentDesignEntity, DeploymentDesignNodeEntity deploymentDesignNodeEntity, DeviceEntity deviceEntity) {
         if (hasDeploymentDesignNodeByDeviceAndDeploymentDesign(deviceEntity, deploymentDesignNodeEntity.getDeploymentDesignEntity())) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NODE_DEVICE_EXISTED + deviceEntity.getHostAddress());
@@ -62,6 +66,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据部署设计复制部署设计节点
+    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public void copyDeploymentDesignNodeByDeploymentDesign(DeploymentDesignEntity sourceDeploymentDesign, DeploymentDesignEntity targetDeploymentDesign) {
         for (DeploymentDesignNodeEntity deploymentDesignNodeArgs : getDeploymentDesignNodesByDeploymentDesign(sourceDeploymentDesign)) {
             DeploymentDesignNodeEntity deploymentDesignNodeEntity = new DeploymentDesignNodeEntity();
@@ -73,6 +78,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据Id删除部署设计节点
+    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public DeploymentDesignNodeEntity deleteDeploymentDesignNodeById(String deploymentDesignNodeId) {
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
         deploymentDesignNodeRepository.delete(deploymentDesignNodeEntity);
@@ -80,6 +86,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据Id绑定设备
+    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public DeploymentDesignNodeEntity bindDeviceById(String deploymentDesignNodeId, DeviceEntity deviceEntity) {
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
         if (hasDeploymentDesignNodeByDeviceAndDeploymentDesign(deviceEntity, deploymentDesignNodeEntity.getDeploymentDesignEntity())) {
@@ -90,6 +97,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据Id解绑设备
+    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public DeploymentDesignNodeEntity unbindDeviceById(String deploymentDesignNodeId) {
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
         deploymentDesignNodeEntity.setDeviceEntity(null);
@@ -110,6 +118,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据id查询部署设计节点
+    @Cacheable(value = "DeploymentDesignNode_Cache", key = "#deploymentDesignNodeId")
     public DeploymentDesignNodeEntity getDeploymentDesignNodeById(String deploymentDesignNodeId) {
         if (!hasDeploymentDesignNodeById(deploymentDesignNodeId)) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NODE_ID_NOT_FOUND + deploymentDesignNodeId);
@@ -123,6 +132,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据部署设计查询部署设计节点
+    @Cacheable(value = "DeploymentDesignNode_Cache", key = "#deploymentDesignEntity.getId()")
     public List<DeploymentDesignNodeEntity> getDeploymentDesignNodesByDeploymentDesign(DeploymentDesignEntity deploymentDesignEntity) {
         return deploymentDesignNodeRepository.findAllByDeploymentDesignEntity(deploymentDesignEntity);
     }

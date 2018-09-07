@@ -8,6 +8,8 @@ import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class ComponentService {
     }
 
     // 根据工程保存组件
+    @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity saveComponentByProject(ProjectEntity projectEntity, ComponentEntity componentEntity) {
         if (StringUtils.isEmpty(componentEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_ARGS_NOT_FOUND);
@@ -60,6 +63,7 @@ public class ComponentService {
     }
 
     // 根据id复制组件
+    @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity copyComponentById(ComponentEntity componentArgs) {
         ComponentEntity componentEntity = new ComponentEntity();
         BeanUtils.copyProperties(componentArgs, componentEntity, "id", "createTime");
@@ -71,6 +75,7 @@ public class ComponentService {
     }
 
     // 根据Id删除组件
+    @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity deleteComponentById(String componentId) {
         ComponentEntity componentEntity = getComponentById(componentId);
         componentEntity.setDeleted(true);
@@ -78,6 +83,7 @@ public class ComponentService {
     }
 
     // 根据Id撤销删除组件
+    @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity restoreComponentById(String componentId) {
         ComponentEntity componentEntity = getComponentById(componentId);
         componentEntity.setDeleted(false);
@@ -85,6 +91,7 @@ public class ComponentService {
     }
 
     // 根据Id清除组件
+    @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity cleanComponentById(String componentId) {
         ComponentEntity componentEntity = getComponentById(componentId);
         componentRepository.delete(componentEntity);
@@ -92,6 +99,7 @@ public class ComponentService {
     }
 
     // 根据Id修改组件
+    @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity updateComponentById(String componentId, ComponentEntity componentArgs) {
         boolean isModifiedName = false;
         boolean isModifiedVersion = false;
@@ -144,6 +152,7 @@ public class ComponentService {
     }
 
     // 根据Id查询组件
+    @Cacheable(value = " Component_Cache", key = "#componentId")
     public ComponentEntity getComponentById(String componentId) {
         if (!hasComponentById(componentId)) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_ID_NOT_FOUND + componentId);
@@ -157,6 +166,7 @@ public class ComponentService {
     }
 
     // 根据工程查询组件
+    @Cacheable(value = " Component_Cache", key = "#deleted + #projectEntity.getId()")
     public List<ComponentEntity> getComponentsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
         return componentRepository.findByDeletedAndProjectEntity(deleted, projectEntity);
     }

@@ -3,6 +3,7 @@ package com.rengu.operationsmanagementsuitev3.Entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +15,7 @@ import java.util.UUID;
  **/
 
 @Data
-public class DeploymentDesignScanResultEntity {
+public class DeploymentDesignScanResultEntity implements Serializable {
 
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

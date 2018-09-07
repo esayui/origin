@@ -11,6 +11,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,7 @@ public class FileService {
     }
 
     // 保存文件信息
+    @CacheEvict(value = "File_Cache", allEntries = true)
     public FileEntity saveFile(File file) throws IOException {
         FileEntity fileEntity = new FileEntity();
         String MD5 = DigestUtils.md5Hex(new FileInputStream(file));
@@ -64,6 +67,7 @@ public class FileService {
     }
 
     // 根据Id删除文件
+    @CacheEvict(value = "File_Cache", allEntries = true)
     public FileEntity deleteFileById(String fileId) throws IOException {
         FileEntity fileEntity = getFileById(fileId);
         FileUtils.forceDeleteOnExit(new File(fileEntity.getLocalPath()));
@@ -94,6 +98,7 @@ public class FileService {
     }
 
     // 根据Id查询文件
+    @Cacheable(value = "File_Cache", key = "#fileId")
     public FileEntity getFileById(String fileId) {
         if (!hasFileById(fileId)) {
             throw new RuntimeException(ApplicationMessages.FILE_ID_NOT_FOUND + fileId);
@@ -102,6 +107,7 @@ public class FileService {
     }
 
     // 根据MD5查询文件
+    @Cacheable(value = "File_Cache", key = "#MD5")
     public FileEntity getFileByMD5(String MD5) {
         if (!hasFileByMD5(MD5)) {
             throw new RuntimeException(ApplicationMessages.FILE_MD5_NOT_FOUND + MD5);
