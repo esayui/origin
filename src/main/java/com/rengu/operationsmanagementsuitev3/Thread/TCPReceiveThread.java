@@ -2,9 +2,11 @@ package com.rengu.operationsmanagementsuitev3.Thread;
 
 import com.rengu.operationsmanagementsuitev3.Entity.DiskScanResultEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProcessScanResultEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.ScanResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.OrderService;
 import com.rengu.operationsmanagementsuitev3.Service.ScanHandlerService;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
+import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.scheduling.annotation.Async;
@@ -104,6 +106,29 @@ public class TCPReceiveThread {
                 }
             }
             ScanHandlerService.DISK_SCAN_RESULT.put(id, diskScanResultEntityList);
+        }
+        // 组件设备扫描信息
+        if (messageType.equals(OrderService.DEPLOY_DESIGN_SCAN_RESULT_TAG)) {
+            String id = new String(bytes, pointer, 36).trim();
+            pointer = pointer + 36;
+            String deploymentDesignNodeId = new String(bytes, pointer, 36).trim();
+            pointer = pointer + 36;
+            String deploymentDesignDetailId = new String(bytes, pointer, 36).trim();
+            pointer = pointer + 36;
+            List<ScanResultEntity> scanResultEntityList = new ArrayList<>();
+            while (pointer + 256 + 34 <= bytes.length) {
+                String targetPath = new String(bytes, pointer, 256).trim();
+                pointer = pointer + 256;
+                String md5 = new String(bytes, pointer, 34).trim();
+                pointer = pointer + 34;
+                ScanResultEntity scanResultEntity = new ScanResultEntity();
+                scanResultEntity.setDeploymentDesignNodeId(deploymentDesignNodeId);
+                scanResultEntity.setDeploymentDesignDetailId(deploymentDesignDetailId);
+                scanResultEntity.setTargetPath(FormatUtils.formatPath(targetPath));
+                scanResultEntity.setMd5(md5);
+                scanResultEntityList.add(scanResultEntity);
+            }
+            ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.put(id, scanResultEntityList);
         }
     }
 }

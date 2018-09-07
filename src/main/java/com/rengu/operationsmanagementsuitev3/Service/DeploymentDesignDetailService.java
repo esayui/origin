@@ -1,10 +1,8 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentHistoryEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignDetailEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignDetailRepository;
+import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -13,8 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -28,10 +30,14 @@ import java.util.List;
 public class DeploymentDesignDetailService {
 
     private final DeploymentDesignDetailRepository deploymentDesignDetailRepository;
+    private final OrderService orderService;
+    private final ScanHandlerService scanHandlerService;
 
     @Autowired
-    public DeploymentDesignDetailService(DeploymentDesignDetailRepository deploymentDesignDetailRepository) {
+    public DeploymentDesignDetailService(DeploymentDesignDetailRepository deploymentDesignDetailRepository, OrderService orderService, ScanHandlerService scanHandlerService) {
         this.deploymentDesignDetailRepository = deploymentDesignDetailRepository;
+        this.orderService = orderService;
+        this.scanHandlerService = scanHandlerService;
     }
 
     // 根据组件历史和部署设计节点保存部署设计详情
@@ -97,5 +103,47 @@ public class DeploymentDesignDetailService {
     // 根据部署设计节点查询部署设计详情
     public List<DeploymentDesignDetailEntity> getDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
         return deploymentDesignDetailRepository.findAllByDeploymentDesignNodeEntity(deploymentDesignNodeEntity);
+    }
+
+    public List<DeploymentDesignScanResultEntity> scanDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity, String[] extensions) throws InterruptedException, ExecutionException, IOException {
+        List<DeploymentDesignDetailEntity> deploymentDesignDetailEntityList = getDeploymentDesignDetailsByDeploymentDesignNode(deploymentDesignNodeEntity);
+        List<DeploymentDesignScanResultEntity> deploymentDesignScanResultEntityList = new ArrayList<>();
+        for (DeploymentDesignDetailEntity deploymentDesignDetailEntity : deploymentDesignDetailEntityList) {
+            deploymentDesignScanResultEntityList.add(scanDeploymentDesignDetailsById(deploymentDesignDetailEntity.getId(), extensions));
+        }
+        return deploymentDesignScanResultEntityList;
+    }
+
+    public DeploymentDesignScanResultEntity scanDeploymentDesignDetailsById(String deploymentDesignDetailId, String[] extensions) throws IOException, ExecutionException, InterruptedException {
+        DeploymentDesignDetailEntity deploymentDesignDetailEntity = getDeploymentDesignDetailById(deploymentDesignDetailId);
+        DeploymentDesignNodeEntity deploymentDesignNodeEntity = deploymentDesignDetailEntity.getDeploymentDesignNodeEntity();
+        if (deploymentDesignNodeEntity.getDeviceEntity() == null) {
+            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NODE_DEVICE_ARGS_NOT_FOUND);
+        }
+        DeviceEntity deviceEntity = deploymentDesignNodeEntity.getDeviceEntity();
+        if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(deviceEntity.getHostAddress())) {
+            throw new RuntimeException(ApplicationMessages.DEVICE_NOT_ONLINE + deviceEntity.getHostAddress());
+        }
+        OrderEntity orderEntity = new OrderEntity();
+        if (extensions == null || extensions.length == 0) {
+            orderEntity.setTag(OrderService.DEPLOY_DESIGN_SCAN);
+        } else {
+            orderEntity.setTag(OrderService.DEPLOY_DESIGN_SCAN_WITH_EXTENSIONS);
+            orderEntity.setExtension(Arrays.toString(extensions).replace("[", "").replace("]", "").replaceAll("\\s*", ""));
+        }
+        orderEntity.setDeploymentDesignNodeId(deploymentDesignNodeEntity.getId());
+        orderEntity.setDeploymentDesignDetailId(deploymentDesignDetailEntity.getId());
+        orderEntity.setTargetPath(deviceEntity.getDeployPath() + deploymentDesignDetailEntity.getComponentHistoryEntity().getRelativePath());
+        orderService.sendDeployDesignScanOrderByUDP(deviceEntity, orderEntity);
+        Future<DeploymentDesignScanResultEntity> result = scanHandlerService.deploymentDesignScanHandler(orderEntity, deploymentDesignDetailEntity);
+        long startTime = System.currentTimeMillis();
+        while (true) {
+            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 10) {
+                throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
+            }
+            if (result.isDone()) {
+                return result.get();
+            }
+        }
     }
 }

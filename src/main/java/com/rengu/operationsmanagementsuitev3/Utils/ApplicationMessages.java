@@ -128,4 +128,5 @@ public class ApplicationMessages {
     // 扫描相关提示信息
     public static final String SCAN_DISK_TIME_OUT = "获取设备磁盘信息超时";
     public static final String SCAN_PROCESS_TIME_OUT = "获取设备进程信息超时";
+    public static final String SCAN_DEPLOY_DESIGN_TIME_OUT = "获取部署状态信息超时";
 }

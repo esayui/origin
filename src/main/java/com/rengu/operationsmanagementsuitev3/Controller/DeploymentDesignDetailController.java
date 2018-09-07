@@ -4,10 +4,10 @@ import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.DeploymentDesignDetailService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -29,5 +29,11 @@ public class DeploymentDesignDetailController {
     @DeleteMapping(value = "/{deploymentDesignDetailId}")
     public ResultEntity deleteDeploymentDesignDetailById(@PathVariable(value = "deploymentDesignDetailId") String deploymentDesignDetailId) {
         return ResultUtils.build(deploymentDesignDetailService.deleteDeploymentDesignDetailById(deploymentDesignDetailId));
+    }
+
+    // 根据部署设计Id及设备Id进行扫描
+    @GetMapping(value = "/{deploymentDesignDetailId}/scan")
+    public ResultEntity scanDeploymentDesignDetailsByDeploymentDesignAndDevice(@PathVariable(value = "deploymentDesignDetailId") String deploymentDesignDetailId, @RequestParam(value = "extensions", required = false, defaultValue = "") String... extensions) throws InterruptedException, ExecutionException, IOException {
+        return ResultUtils.build(deploymentDesignDetailService.scanDeploymentDesignDetailsById(deploymentDesignDetailId, extensions));
     }
 }

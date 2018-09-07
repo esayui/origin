@@ -33,12 +33,16 @@ public class DeploymentDesignNodeService {
     private final DeploymentDesignNodeRepository deploymentDesignNodeRepository;
     private final DeploymentDesignDetailService deploymentDesignDetailService;
     private final DeployMetaService deployMetaService;
+    private final OrderService orderService;
+    private final ScanHandlerService scanHandlerService;
 
     @Autowired
-    public DeploymentDesignNodeService(DeploymentDesignNodeRepository deploymentDesignNodeRepository, DeploymentDesignDetailService deploymentDesignDetailService, DeployMetaService deployMetaService) {
+    public DeploymentDesignNodeService(DeploymentDesignNodeRepository deploymentDesignNodeRepository, DeploymentDesignDetailService deploymentDesignDetailService, DeployMetaService deployMetaService, OrderService orderService, ScanHandlerService scanHandlerService) {
         this.deploymentDesignNodeRepository = deploymentDesignNodeRepository;
         this.deploymentDesignDetailService = deploymentDesignDetailService;
         this.deployMetaService = deployMetaService;
+        this.orderService = orderService;
+        this.scanHandlerService = scanHandlerService;
     }
 
     // 根据部署设计保存部署节点
