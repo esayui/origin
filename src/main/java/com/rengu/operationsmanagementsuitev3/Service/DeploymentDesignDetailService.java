@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,6 +44,15 @@ public class DeploymentDesignDetailService {
         deploymentDesignDetailEntity.setComponentEntity(componentHistoryEntity.getComponentEntity());
         deploymentDesignDetailEntity.setDeploymentDesignEntity(deploymentDesignNodeEntity.getDeploymentDesignEntity());
         return deploymentDesignDetailRepository.save(deploymentDesignDetailEntity);
+    }
+
+    // 根据组件历史和部署设计节点保存部署设计详情
+    public List<DeploymentDesignDetailEntity> saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistorys(DeploymentDesignNodeEntity deploymentDesignNodeEntity, List<ComponentHistoryEntity> componentHistoryEntityList, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
+        List<DeploymentDesignDetailEntity> deploymentDesignDetailEntityList = new ArrayList<>();
+        for (ComponentHistoryEntity componentHistoryEntity : componentHistoryEntityList) {
+            deploymentDesignDetailEntityList.add(saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(deploymentDesignNodeEntity, componentHistoryEntity, deploymentDesignDetailEntity));
+        }
+        return deploymentDesignDetailEntityList;
     }
 
     // 根据部署设计节点复制部署设计详情

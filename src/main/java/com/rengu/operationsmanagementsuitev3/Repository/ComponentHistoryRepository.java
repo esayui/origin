@@ -22,5 +22,5 @@ public interface ComponentHistoryRepository extends JpaRepository<ComponentHisto
 
     List<ComponentHistoryEntity> findAllByComponentEntity(ComponentEntity componentEntity);
 
-    ComponentHistoryEntity findFirstByComponentEntityOrderByTagAsc(ComponentEntity componentEntity);
+    ComponentHistoryEntity findFirstByComponentEntityOrderByTagDesc(ComponentEntity componentEntity);
 }

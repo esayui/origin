@@ -74,6 +74,6 @@ public class ComponentHistoryService {
 
     // 根据组件查询组件历史
     public ComponentHistoryEntity getComponentHistoryByComponent(ComponentEntity componentEntity) {
-        return componentHistoryRepository.findFirstByComponentEntityOrderByTagAsc(componentEntity);
+        return componentHistoryRepository.findFirstByComponentEntityOrderByTagDesc(componentEntity);
     }
 }
