@@ -42,7 +42,7 @@ public class DeploymentDesignController {
     }
 
     // 根据Id建立基线
-    @DeleteMapping(value = "/{deploymentDesignId}/baseline")
+    @PostMapping(value = "/{deploymentDesignId}/baseline")
     public ResultEntity baselineDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) {
         return ResultUtils.build(deploymentDesignService.baselineDeploymentDesignById(deploymentDesignId));
     }
