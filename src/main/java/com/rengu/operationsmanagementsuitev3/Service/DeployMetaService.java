@@ -74,7 +74,7 @@ public class DeployMetaService {
             // 建立TCP连接
             socket = new Socket(deviceEntity.getHostAddress(), ApplicationConfig.TCP_DEPLOY_PORT);
             socket.setTcpNoDelay(true);
-            socket.setSoTimeout(1000 * 2);
+            socket.setSoTimeout(1000 * 1);
             // 获取输入输出流
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
@@ -159,19 +159,21 @@ public class DeployMetaService {
             outputStream.close();
             inputStream.close();
             socket.close();
-            DeviceService.ONLINE_HOST_ADRESS.remove(deviceEntity.getHostAddress());
+            DEPLOYING_DEVICE.remove(deviceEntity.getHostAddress());
             deployLogService.saveDeployLog(deployLogEntity);
             deployLogDetailService.saveDeployLogDetails(deployLogDetailEntityList);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            // 发送部署结束标志
-            outputStream.write("DeployEnd".getBytes());
-            outputStream.flush();
-            outputStream.close();
-            inputStream.close();
-            socket.close();
-            DeviceService.ONLINE_HOST_ADRESS.remove(deviceEntity.getHostAddress());
+            if (!socket.isClosed()) {
+                // 发送部署结束标志
+                outputStream.write("DeployEnd".getBytes());
+                outputStream.flush();
+                outputStream.close();
+                inputStream.close();
+                socket.close();
+                DEPLOYING_DEVICE.remove(deviceEntity.getHostAddress());
+            }
         }
     }
 }

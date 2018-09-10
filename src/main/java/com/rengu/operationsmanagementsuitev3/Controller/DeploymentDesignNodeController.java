@@ -50,7 +50,7 @@ public class DeploymentDesignNodeController {
     }
 
     // 根据id部署部署设计节点
-    @GetMapping(value = "/{deploymentDesignNodeId}/deploy")
+    @PutMapping(value = "/{deploymentDesignNodeId}/deploy")
     public void deployDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) throws IOException {
         deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeId);
     }
