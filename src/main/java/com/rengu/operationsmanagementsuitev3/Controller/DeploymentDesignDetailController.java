@@ -34,6 +34,6 @@ public class DeploymentDesignDetailController {
     // 根据部署设计Id及设备Id进行扫描
     @GetMapping(value = "/{deploymentDesignDetailId}/scan")
     public ResultEntity scanDeploymentDesignDetailsByDeploymentDesignAndDevice(@PathVariable(value = "deploymentDesignDetailId") String deploymentDesignDetailId, @RequestParam(value = "extensions", required = false, defaultValue = "") String... extensions) throws InterruptedException, ExecutionException, IOException {
-        return ResultUtils.build(deploymentDesignDetailService.scanDeploymentDesignDetailsById(deploymentDesignDetailId, extensions));
+        return ResultUtils.build(deploymentDesignDetailService.scanDeploymentDesignDetailsById(deploymentDesignDetailId, extensions, ""));
     }
 }

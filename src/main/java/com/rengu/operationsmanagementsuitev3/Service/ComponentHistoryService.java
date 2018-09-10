@@ -41,7 +41,7 @@ public class ComponentHistoryService {
     @CacheEvict(value = "ComponentHistory_Cache", allEntries = true)
     public ComponentHistoryEntity saveComponentHistoryByComponent(ComponentEntity sourceComponent) {
         ComponentHistoryEntity componentHistoryEntity = new ComponentHistoryEntity();
-        BeanUtils.copyProperties(sourceComponent, componentHistoryEntity, "id");
+        BeanUtils.copyProperties(sourceComponent, componentHistoryEntity, "id", "createTime");
         componentHistoryEntity.setTag(System.currentTimeMillis());
         componentHistoryEntity.setComponentEntity(sourceComponent);
         componentHistoryRepository.save(componentHistoryEntity);

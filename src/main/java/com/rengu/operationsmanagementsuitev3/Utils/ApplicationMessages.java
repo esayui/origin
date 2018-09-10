@@ -120,6 +120,11 @@ public class ApplicationMessages {
     public static final String DEPLOYMENT_DESIGN_DETAIL_COMPONENT_NOT_FOUND = "未发现该部署设计详情组件：";
     public static final String DEPLOYMENT_DESIGN_DETAIL_COMPONENT_EXISTED = "该部署设计详情组件已存在：";
 
+    // 部署设计扫结果相关提示信息
+    public static final String DEPLOYMENT_DESIGN_SCAN_RESULT_ORDER_ID_ARGS_NOT_FOUND = "部署设计扫描结果订单号参数不存在或不合法";
+    public static final String DEPLOYMENT_DESIGN_SCAN_RESULT_ORDER_ID_NOT_FOUND = "未发现该部署设计扫描结果订单号：";
+    public static final String DEPLOYMENT_DESIGN_SCAN_RESULT_ORDER_ID_EXISTED = "部署设计扫描结果订单号已存在：";
+
     // 部署日志相关提示信息
     public static final String DEPLOY_LOG_ID_ARGS_NOT_FOUND = "部署日志Id参数不存在或不合法";
     public static final String DEPLOY_LOG_ID_NOT_FOUND = "未发现该部署日志Id：";

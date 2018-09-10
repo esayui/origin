@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -34,12 +35,14 @@ public class DeploymentDesignDetailService {
     private final DeploymentDesignDetailRepository deploymentDesignDetailRepository;
     private final OrderService orderService;
     private final ScanHandlerService scanHandlerService;
+    private final DeploymentDesignScanResultService deploymentDesignScanResultService;
 
     @Autowired
-    public DeploymentDesignDetailService(DeploymentDesignDetailRepository deploymentDesignDetailRepository, OrderService orderService, ScanHandlerService scanHandlerService) {
+    public DeploymentDesignDetailService(DeploymentDesignDetailRepository deploymentDesignDetailRepository, OrderService orderService, ScanHandlerService scanHandlerService, DeploymentDesignScanResultService deploymentDesignScanResultService) {
         this.deploymentDesignDetailRepository = deploymentDesignDetailRepository;
         this.orderService = orderService;
         this.scanHandlerService = scanHandlerService;
+        this.deploymentDesignScanResultService = deploymentDesignScanResultService;
     }
 
     // 根据组件历史和部署设计节点保存部署设计详情
@@ -117,13 +120,14 @@ public class DeploymentDesignDetailService {
     public List<DeploymentDesignScanResultEntity> scanDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity, String[] extensions) throws InterruptedException, ExecutionException, IOException {
         List<DeploymentDesignDetailEntity> deploymentDesignDetailEntityList = getDeploymentDesignDetailsByDeploymentDesignNode(deploymentDesignNodeEntity);
         List<DeploymentDesignScanResultEntity> deploymentDesignScanResultEntityList = new ArrayList<>();
+        String orderId = UUID.randomUUID().toString();
         for (DeploymentDesignDetailEntity deploymentDesignDetailEntity : deploymentDesignDetailEntityList) {
-            deploymentDesignScanResultEntityList.add(scanDeploymentDesignDetailsById(deploymentDesignDetailEntity.getId(), extensions));
+            deploymentDesignScanResultEntityList.add(scanDeploymentDesignDetailsById(deploymentDesignDetailEntity.getId(), extensions, orderId));
         }
         return deploymentDesignScanResultEntityList;
     }
 
-    public DeploymentDesignScanResultEntity scanDeploymentDesignDetailsById(String deploymentDesignDetailId, String[] extensions) throws IOException, ExecutionException, InterruptedException {
+    public DeploymentDesignScanResultEntity scanDeploymentDesignDetailsById(String deploymentDesignDetailId, String[] extensions, String orderId) throws IOException, ExecutionException, InterruptedException {
         DeploymentDesignDetailEntity deploymentDesignDetailEntity = getDeploymentDesignDetailById(deploymentDesignDetailId);
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = deploymentDesignDetailEntity.getDeploymentDesignNodeEntity();
         if (deploymentDesignNodeEntity.getDeviceEntity() == null) {
@@ -151,7 +155,12 @@ public class DeploymentDesignDetailService {
                 throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
             }
             if (result.isDone()) {
-                return result.get();
+                DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = result.get();
+                if (StringUtils.isEmpty(orderId)) {
+                    orderId = UUID.randomUUID().toString();
+                }
+                deploymentDesignScanResultEntity.setOrderId(orderId);
+                return deploymentDesignScanResultService.saveDeploymentDesignScanResult(deploymentDesignScanResultEntity);
             }
         }
     }

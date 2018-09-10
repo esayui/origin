@@ -3,6 +3,8 @@ package com.rengu.operationsmanagementsuitev3.Entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
@@ -14,13 +16,14 @@ import java.util.UUID;
  **/
 
 @Data
-public class ScanResultEntity implements Serializable {
+@Entity
+public class DeploymentDesignScanResultDetailEntity implements Serializable {
 
+    @Id
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
-    private String deploymentDesignNodeId;
-    private String deploymentDesignDetailId;
+    private int type;
     private String targetPath;
     private String md5;
 }

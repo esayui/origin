@@ -27,9 +27,14 @@ import java.util.concurrent.Future;
 @Service
 public class ScanHandlerService {
 
+    public static final int SCAN_TYPE_CORRECT = 0;
+    public static final int SCAN_TYPE_MODIFYED = 1;
+    public static final int SCAN_TYPE_UNKNOWN = 2;
+    public static final int SCAN_TYPE_MISSING = 3;
+
     public static final Map<String, List<DiskScanResultEntity>> DISK_SCAN_RESULT = new ConcurrentHashMap<>();
     public static final Map<String, List<ProcessScanResultEntity>> PROCESS_SCAN_RESULT = new ConcurrentHashMap<>();
-    public static final Map<String, List<ScanResultEntity>> DEPLOY_DESIGN_SCAN_RESULT = new ConcurrentHashMap<>();
+    public static final Map<String, List<DeploymentDesignScanResultDetailEntity>> DEPLOY_DESIGN_SCAN_RESULT = new ConcurrentHashMap<>();
 
     private final ComponentFileHistoryService componentFileHistoryService;
 
@@ -74,30 +79,28 @@ public class ScanHandlerService {
                 throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
             }
             if (DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {
-                List<ScanResultEntity> scanResultEntityList = DEPLOY_DESIGN_SCAN_RESULT.get(orderEntity.getId());
-                DeploymentDesignNodeEntity deploymentDesignNodeEntity = deploymentDesignDetailEntity.getDeploymentDesignNodeEntity();
+                List<DeploymentDesignScanResultDetailEntity> deploymentDesignScanResultDetailEntityList = DEPLOY_DESIGN_SCAN_RESULT.get(orderEntity.getId());
                 ComponentHistoryEntity componentHistoryEntity = deploymentDesignDetailEntity.getComponentHistoryEntity();
                 String targetPath = orderEntity.getTargetPath();
                 // 初始化结果列表
-                List<ScanResultEntity> correctFiles = new ArrayList<>();
-                List<ScanResultEntity> modifyedFiles = new ArrayList<>();
-                List<ScanResultEntity> unknownFiles = new ArrayList<>();
-                List<ScanResultEntity> missingFiles = new ArrayList<>();
-                for (ScanResultEntity scanResultEntity : scanResultEntityList) {
+                List<DeploymentDesignScanResultDetailEntity> resultList = new ArrayList<>();
+                for (DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity : deploymentDesignScanResultDetailEntityList) {
                     boolean hasFile = false;
-                    String relativePath = scanResultEntity.getTargetPath().replace(targetPath, "");
+                    String relativePath = deploymentDesignScanResultDetailEntity.getTargetPath().replace(targetPath, "");
                     for (ComponentFileHistoryEntity componentFileHistoryEntity : componentFileHistoryService.getComponentFileHistorysByComponentHistory(componentHistoryEntity)) {
                         if (!componentFileHistoryEntity.isFolder()) {
                             if (relativePath.equals(FormatUtils.getComponentFileHistoryRelativePath(componentFileHistoryEntity, ""))) {
                                 hasFile = true;
                                 // 路径相同
-                                if (scanResultEntity.getMd5().equals(componentFileHistoryEntity.getFileEntity().getMD5())) {
+                                if (deploymentDesignScanResultDetailEntity.getMd5().equals(componentFileHistoryEntity.getFileEntity().getMD5())) {
                                     // MD5相同
-                                    correctFiles.add(scanResultEntity);
+                                    deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_CORRECT);
+                                    resultList.add(deploymentDesignScanResultDetailEntity);
                                     break;
                                 } else {
                                     // MD5变化
-                                    modifyedFiles.add(scanResultEntity);
+                                    deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_MODIFYED);
+                                    resultList.add(deploymentDesignScanResultDetailEntity);
                                     break;
                                 }
                             }
@@ -105,7 +108,8 @@ public class ScanHandlerService {
                     }
                     // 未知文件
                     if (!hasFile) {
-                        unknownFiles.add(scanResultEntity);
+                        deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_UNKNOWN);
+                        resultList.add(deploymentDesignScanResultDetailEntity);
                     }
                 }
                 // 生成缺失文件
@@ -116,8 +120,8 @@ public class ScanHandlerService {
                     if (componentFileHistoryEntity.isFolder()) {
                         componentFileHistoryEntityIterator.remove();
                     } else {
-                        for (ScanResultEntity scanResultEntity : scanResultEntityList) {
-                            String relativePath = scanResultEntity.getTargetPath().replace(targetPath, "");
+                        for (DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity : deploymentDesignScanResultDetailEntityList) {
+                            String relativePath = deploymentDesignScanResultDetailEntity.getTargetPath().replace(targetPath, "");
                             // 路径相同，文件发现，移除
                             if (FormatUtils.getComponentFileHistoryRelativePath(componentFileHistoryEntity, "").equals(relativePath)) {
                                 componentFileHistoryEntityIterator.remove();
@@ -128,19 +132,15 @@ public class ScanHandlerService {
                 }
                 // 生成缺失文件结果
                 for (ComponentFileHistoryEntity componentFileHistoryEntity : componentFileHistoryEntityList) {
-                    ScanResultEntity scanResultEntity = new ScanResultEntity();
-                    scanResultEntity.setDeploymentDesignNodeId(deploymentDesignNodeEntity.getId());
-                    scanResultEntity.setDeploymentDesignDetailId(deploymentDesignDetailEntity.getId());
-                    scanResultEntity.setTargetPath(FormatUtils.formatPath(orderEntity.getTargetPath() + FormatUtils.getComponentFileHistoryRelativePath(componentFileHistoryEntity, "")));
-                    scanResultEntity.setMd5(componentFileHistoryEntity.getFileEntity().getMD5());
-                    missingFiles.add(scanResultEntity);
+                    DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity = new DeploymentDesignScanResultDetailEntity();
+                    deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_MISSING);
+                    deploymentDesignScanResultDetailEntity.setTargetPath(FormatUtils.formatPath(orderEntity.getTargetPath() + FormatUtils.getComponentFileHistoryRelativePath(componentFileHistoryEntity, "")));
+                    deploymentDesignScanResultDetailEntity.setMd5(componentFileHistoryEntity.getFileEntity().getMD5());
+                    resultList.add(deploymentDesignScanResultDetailEntity);
                 }
                 DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = new DeploymentDesignScanResultEntity();
                 deploymentDesignScanResultEntity.setDeploymentDesignDetailEntity(deploymentDesignDetailEntity);
-                deploymentDesignScanResultEntity.setCorrectFiles(correctFiles);
-                deploymentDesignScanResultEntity.setModifyedFiles(modifyedFiles);
-                deploymentDesignScanResultEntity.setUnknownFiles(unknownFiles);
-                deploymentDesignScanResultEntity.setMissingFiles(missingFiles);
+                deploymentDesignScanResultEntity.setResult(resultList);
                 return new AsyncResult<>(deploymentDesignScanResultEntity);
             }
         }

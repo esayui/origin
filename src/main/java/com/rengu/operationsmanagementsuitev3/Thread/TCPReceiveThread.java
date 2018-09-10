@@ -1,8 +1,8 @@
 package com.rengu.operationsmanagementsuitev3.Thread;
 
+import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignScanResultDetailEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DiskScanResultEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProcessScanResultEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ScanResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.OrderService;
 import com.rengu.operationsmanagementsuitev3.Service.ScanHandlerService;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
@@ -119,20 +119,18 @@ public class TCPReceiveThread {
             pointer = pointer + 36;
             String deploymentDesignDetailId = new String(bytes, pointer, 36).trim();
             pointer = pointer + 36;
-            List<ScanResultEntity> scanResultEntityList = new ArrayList<>();
+            List<DeploymentDesignScanResultDetailEntity> deploymentDesignScanResultDetailEntityList = new ArrayList<>();
             while (pointer + 256 + 34 <= bytes.length) {
                 String targetPath = new String(bytes, pointer, 256).trim();
                 pointer = pointer + 256;
                 String md5 = new String(bytes, pointer, 34).trim();
                 pointer = pointer + 34;
-                ScanResultEntity scanResultEntity = new ScanResultEntity();
-                scanResultEntity.setDeploymentDesignNodeId(deploymentDesignNodeId);
-                scanResultEntity.setDeploymentDesignDetailId(deploymentDesignDetailId);
-                scanResultEntity.setTargetPath(FormatUtils.formatPath(targetPath));
-                scanResultEntity.setMd5(md5);
-                scanResultEntityList.add(scanResultEntity);
+                DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity = new DeploymentDesignScanResultDetailEntity();
+                deploymentDesignScanResultDetailEntity.setTargetPath(FormatUtils.formatPath(targetPath));
+                deploymentDesignScanResultDetailEntity.setMd5(md5);
+                deploymentDesignScanResultDetailEntityList.add(deploymentDesignScanResultDetailEntity);
             }
-            ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.put(id, scanResultEntityList);
+            ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.put(id, deploymentDesignScanResultDetailEntityList);
         }
     }
 }
