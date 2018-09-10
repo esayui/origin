@@ -32,11 +32,15 @@ public class TCPReceiveThread {
 
     // TCP报文接受进程
     @Async
-    public void TCPMessageReceiver() throws IOException {
-        log.info("启动客户端TCP报文监听线程，监听端口：" + ApplicationConfig.TCP_RECEIVE_PORT);
-        ServerSocket serverSocket = new ServerSocket(ApplicationConfig.TCP_RECEIVE_PORT);
-        while (true) {
-            socketHandler(serverSocket.accept());
+    public void TCPMessageReceiver() {
+        try {
+            log.info("启动客户端TCP报文监听线程，监听端口：" + ApplicationConfig.TCP_RECEIVE_PORT);
+            ServerSocket serverSocket = new ServerSocket(ApplicationConfig.TCP_RECEIVE_PORT);
+            while (true) {
+                socketHandler(serverSocket.accept());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
