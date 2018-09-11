@@ -102,7 +102,7 @@ public class DeployMetaService {
                 // 1、发送文件开始标志
                 outputStream.write("fileRecvStart".getBytes());
                 // 2、发送部署路径
-                outputStream.write(FormatUtils.getString(deployMetaEntity.getTargetPath(), 255).getBytes());
+                outputStream.write(FormatUtils.getString(targetPath, 255).getBytes());
                 // 3、接受路径回复确认
                 long startTime = System.currentTimeMillis();
                 while (true) {

@@ -22,5 +22,4 @@ public class DeployMetaEntity implements Serializable {
     private DeviceEntity deviceEntity;
     private ComponentHistoryEntity componentHistoryEntity;
     private ComponentFileHistoryEntity componentFileHistoryEntity;
-    private String targetPath;
 }
