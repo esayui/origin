@@ -8,6 +8,7 @@ import com.rengu.operationsmanagementsuitev3.Service.ScanHandlerService;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -51,6 +52,8 @@ public class TCPReceiveThread {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             IOUtils.copy(inputStream, byteArrayOutputStream);
             bytesHandler(byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             socket.shutdownOutput();
             socket.close();
@@ -126,6 +129,7 @@ public class TCPReceiveThread {
                 String md5 = new String(bytes, pointer, 34).trim();
                 pointer = pointer + 34;
                 DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity = new DeploymentDesignScanResultDetailEntity();
+                deploymentDesignScanResultDetailEntity.setName(FilenameUtils.getBaseName(targetPath));
                 deploymentDesignScanResultDetailEntity.setTargetPath(FormatUtils.formatPath(targetPath));
                 deploymentDesignScanResultDetailEntity.setMd5(md5);
                 deploymentDesignScanResultDetailEntityList.add(deploymentDesignScanResultDetailEntity);

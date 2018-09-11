@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -135,6 +136,7 @@ public class ScanHandlerService {
                     DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity = new DeploymentDesignScanResultDetailEntity();
                     deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_MISSING);
                     deploymentDesignScanResultDetailEntity.setTargetPath(FormatUtils.formatPath(orderEntity.getTargetPath() + FormatUtils.getComponentFileHistoryRelativePath(componentFileHistoryEntity, "")));
+                    deploymentDesignScanResultDetailEntity.setName(FilenameUtils.getBaseName(deploymentDesignScanResultDetailEntity.getTargetPath()));
                     deploymentDesignScanResultDetailEntity.setMd5(componentFileHistoryEntity.getFileEntity().getMD5());
                     resultList.add(deploymentDesignScanResultDetailEntity);
                 }

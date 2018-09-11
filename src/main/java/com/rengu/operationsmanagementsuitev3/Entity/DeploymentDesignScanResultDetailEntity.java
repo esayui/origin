@@ -24,6 +24,7 @@ public class DeploymentDesignScanResultDetailEntity implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
     private int type;
+    private String name;
     private String targetPath;
     private String md5;
 }

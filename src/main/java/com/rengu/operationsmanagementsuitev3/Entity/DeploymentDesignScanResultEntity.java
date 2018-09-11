@@ -3,9 +3,7 @@ package com.rengu.operationsmanagementsuitev3.Entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +24,8 @@ public class DeploymentDesignScanResultEntity implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
     private String orderId;
+    @ManyToOne
     private DeploymentDesignDetailEntity deploymentDesignDetailEntity;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<DeploymentDesignScanResultDetailEntity> result;
 }
