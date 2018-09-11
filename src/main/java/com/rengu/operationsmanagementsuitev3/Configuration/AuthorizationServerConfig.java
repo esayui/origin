@@ -64,8 +64,8 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .authorizedGrantTypes("authorization_code", "client_credentials", "refresh_token", "password", "implicit")
                 .secret(new BCryptPasswordEncoder().encode("OAUTH_CLIENT_SECRET"))
                 .scopes("SCOPES")
-                .accessTokenValiditySeconds(60 * 60)
-                .refreshTokenValiditySeconds(60 * 90);
+                .accessTokenValiditySeconds(60 * 60 * 6)
+                .refreshTokenValiditySeconds(60 * 60 * 9);
     }
 
     @Override
