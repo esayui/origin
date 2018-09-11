@@ -136,7 +136,7 @@ public class ScanHandlerService {
                     DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity = new DeploymentDesignScanResultDetailEntity();
                     deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_MISSING);
                     deploymentDesignScanResultDetailEntity.setTargetPath(FormatUtils.formatPath(orderEntity.getTargetPath() + FormatUtils.getComponentFileHistoryRelativePath(componentFileHistoryEntity, "")));
-                    deploymentDesignScanResultDetailEntity.setName(FilenameUtils.getBaseName(deploymentDesignScanResultDetailEntity.getTargetPath()));
+                    deploymentDesignScanResultDetailEntity.setName(FilenameUtils.getName(deploymentDesignScanResultDetailEntity.getTargetPath()));
                     deploymentDesignScanResultDetailEntity.setMd5(componentFileHistoryEntity.getFileEntity().getMD5());
                     resultList.add(deploymentDesignScanResultDetailEntity);
                 }

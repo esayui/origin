@@ -129,7 +129,7 @@ public class TCPReceiveThread {
                 String md5 = new String(bytes, pointer, 34).trim();
                 pointer = pointer + 34;
                 DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity = new DeploymentDesignScanResultDetailEntity();
-                deploymentDesignScanResultDetailEntity.setName(FilenameUtils.getBaseName(targetPath));
+                deploymentDesignScanResultDetailEntity.setName(FilenameUtils.getName(targetPath));
                 deploymentDesignScanResultDetailEntity.setTargetPath(FormatUtils.formatPath(targetPath));
                 deploymentDesignScanResultDetailEntity.setMd5(md5);
                 deploymentDesignScanResultDetailEntityList.add(deploymentDesignScanResultDetailEntity);
