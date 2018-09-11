@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignScanResu
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -40,6 +41,7 @@ public class DeploymentDesignScanResultService {
         return deploymentDesignScanResultRepository.existsByOrderId(orderId);
     }
 
+    @Cacheable(value = "Deployment_Design_Scan_Result_Cache", key = "#orderId")
     public List<DeploymentDesignScanResultEntity> getDeploymentDesignScanResultsByOrderId(String orderId) {
         if (!hasDeploymentDesignScanResultByOrderId(orderId)) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_SCAN_RESULT_ORDER_ID_NOT_FOUND + orderId);
