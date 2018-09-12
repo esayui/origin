@@ -86,7 +86,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据Id绑定设备
-    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
+    @CacheEvict(value = {"DeploymentDesignNode_Cache", "DeploymentDesignDetail_Cache"}, allEntries = true)
     public DeploymentDesignNodeEntity bindDeviceById(String deploymentDesignNodeId, DeviceEntity deviceEntity) {
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
         if (hasDeploymentDesignNodeByDeviceAndDeploymentDesign(deviceEntity, deploymentDesignNodeEntity.getDeploymentDesignEntity())) {
@@ -97,7 +97,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据Id解绑设备
-    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
+    @CacheEvict(value = {"DeploymentDesignNode_Cache", "DeploymentDesignDetail_Cache"}, allEntries = true)
     public DeploymentDesignNodeEntity unbindDeviceById(String deploymentDesignNodeId) {
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
         deploymentDesignNodeEntity.setDeviceEntity(null);
