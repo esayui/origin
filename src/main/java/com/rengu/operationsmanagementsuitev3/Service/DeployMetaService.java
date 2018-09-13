@@ -6,7 +6,6 @@ import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,7 @@ public class DeployMetaService {
     public static final int DEPLOYING_ERROR = 0;
     public static final int DEPLOYING_SUCCEED = 1;
     public static final int DEPLOY_FINISHED = 2;
+    public static final int DEPLOYING = 3;
 
     private final ComponentFileHistoryService componentFileHistoryService;
     private final DeployLogService deployLogService;
@@ -132,12 +132,18 @@ public class DeployMetaService {
                     }
                 }
                 // 4、发送实体文件(判断文件还是文件夹)
-                long start = System.currentTimeMillis();
-                IOUtils.copy(new FileInputStream(deployMetaEntity.getComponentFileHistoryEntity().getFileEntity().getLocalPath()), outputStream);
-                outputStream.flush();
-                double time = (double) (System.currentTimeMillis() - (start - 1)) / 1000;
-                double size = (double) deployMetaEntity.getComponentFileHistoryEntity().getFileEntity().getSize() / 1024;
-                speed = size / time;
+                FileInputStream fileInputStream = new FileInputStream(deployMetaEntity.getComponentFileHistoryEntity().getFileEntity().getLocalPath());
+                byte[] buffer = new byte[102400];
+                int readSize = 0;
+                while (-1 != (readSize = fileInputStream.read(buffer))) {
+                    long start = System.currentTimeMillis();
+                    outputStream.write(buffer);
+                    double time = (double) (System.currentTimeMillis() - (start - 1)) / 1000;
+                    double size = (double) readSize / 1024;
+                    speed = size / time;
+                    progress = progress + 0.001;
+                    simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING, FilenameUtils.getName(targetPath) + "-部署中"));
+                }
                 // 5、发送文件结束标志
 //                outputStream.write("fileRecvEnd".getBytes());
 //                outputStream.flush();
