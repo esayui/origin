@@ -40,12 +40,14 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
     private final OrderService orderService;
     private final ScanHandlerService scanHandlerService;
+    private final DeploymentDesignNodeService deploymentDesignNodeService;
 
     @Autowired
-    public DeviceService(DeviceRepository deviceRepository, OrderService orderService, ScanHandlerService scanHandlerService) {
+    public DeviceService(DeviceRepository deviceRepository, OrderService orderService, ScanHandlerService scanHandlerService, DeploymentDesignNodeService deploymentDesignNodeService) {
         this.deviceRepository = deviceRepository;
         this.orderService = orderService;
         this.scanHandlerService = scanHandlerService;
+        this.deploymentDesignNodeService = deploymentDesignNodeService;
     }
 
     // 根据工程创建设备
@@ -98,6 +100,7 @@ public class DeviceService {
     @CacheEvict(value = "Device_Cache", allEntries = true)
     public DeviceEntity cleanDeviceById(String deviceId) {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
+        deploymentDesignNodeService.deleteDeploymentDesignNodeByDevice(deviceEntity);
         deviceRepository.delete(deviceEntity);
         return deviceEntity;
     }
@@ -161,6 +164,11 @@ public class DeviceService {
     // 根据是否删除及工程查询设备
     public Page<DeviceEntity> getDevicesByDeletedAndProject(Pageable pageable, boolean deleted, ProjectEntity projectEntity) {
         return deviceRepository.findByDeletedAndProjectEntity(pageable, deleted, projectEntity);
+    }
+
+    // 根据是否删除及工程查询设备
+    public List<DeviceEntity> getDevicesByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
+        return deviceRepository.findByDeletedAndProjectEntity(deleted, projectEntity);
     }
 
     // 根据是否删除及工程查询设备数量

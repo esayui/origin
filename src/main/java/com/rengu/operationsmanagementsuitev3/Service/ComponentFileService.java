@@ -185,6 +185,22 @@ public class ComponentFileService {
         return componentFileEntity;
     }
 
+    // 根据Id删除组件文件
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
+    public List<ComponentFileEntity> deleteComponentFileByComponent(ComponentEntity componentEntity) throws IOException {
+        List<ComponentFileEntity> componentFileEntityList = getComponentFilesByComponent(componentEntity);
+        for (ComponentFileEntity componentFileEntity : componentFileEntityList) {
+            if (componentFileEntity.getFileEntity() != null) {
+                FileEntity fileEntity = componentFileEntity.getFileEntity();
+                if (!hasComponentFileByFile(fileEntity) && !componentFileHistoryService.hasComponentFileHistoryByFile(fileEntity)) {
+                    fileService.deleteFileById(fileEntity.getId());
+                }
+            }
+            componentFileRepository.delete(componentFileEntity);
+        }
+        return componentFileEntityList;
+    }
+
     // 根据Id修改组件文件
     @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public ComponentFileEntity updateComponentFileById(String componentfileId, ComponentFileEntity componentFileArgs) {
@@ -240,6 +256,11 @@ public class ComponentFileService {
     public List<ComponentFileEntity> getComponentFilesByParentNodeAndComponent(String parentNodeId, ComponentEntity componentEntity) {
         ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
         return componentFileRepository.findByParentNodeAndComponentEntity(parentNode, componentEntity);
+    }
+
+    @Cacheable(value = "ComponentFile_Cache", key = "#componentEntity.getId()")
+    public List<ComponentFileEntity> getComponentFilesByComponent(ComponentEntity componentEntity) {
+        return componentFileRepository.findAllByComponentEntity(componentEntity);
     }
 
     // 获取不重复的文件/文件夹名

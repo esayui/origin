@@ -68,7 +68,7 @@ public class ComponentController {
 
     // 根据id清除组件
     @DeleteMapping(value = "/{componentId}/clean")
-    public ResultEntity cleanComponentById(@PathVariable(value = "componentId") String componentId) {
+    public ResultEntity cleanComponentById(@PathVariable(value = "componentId") String componentId) throws IOException {
         return ResultUtils.build(componentService.cleanComponentById(componentId));
     }
 

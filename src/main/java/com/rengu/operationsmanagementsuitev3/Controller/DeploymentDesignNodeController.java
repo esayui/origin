@@ -23,18 +23,18 @@ import java.util.concurrent.ExecutionException;
 public class DeploymentDesignNodeController {
 
     private final DeploymentDesignNodeService deploymentDesignNodeService;
-    private final DeviceService deviceService;
-    private final ComponentHistoryService componentHistoryService;
     private final DeploymentDesignDetailService deploymentDesignDetailService;
+    private final DeviceService deviceService;
     private final ComponentService componentService;
+    private final ComponentHistoryService componentHistoryService;
 
     @Autowired
-    public DeploymentDesignNodeController(DeploymentDesignNodeService deploymentDesignNodeService, DeviceService deviceService, ComponentHistoryService componentHistoryService, DeploymentDesignDetailService deploymentDesignDetailService, ComponentService componentService) {
+    public DeploymentDesignNodeController(DeploymentDesignNodeService deploymentDesignNodeService, DeploymentDesignDetailService deploymentDesignDetailService, DeviceService deviceService, ComponentService componentService, ComponentHistoryService componentHistoryService) {
         this.deploymentDesignNodeService = deploymentDesignNodeService;
-        this.deviceService = deviceService;
-        this.componentHistoryService = componentHistoryService;
         this.deploymentDesignDetailService = deploymentDesignDetailService;
+        this.deviceService = deviceService;
         this.componentService = componentService;
+        this.componentHistoryService = componentHistoryService;
     }
 
     // 根据Id删除部署设计节点

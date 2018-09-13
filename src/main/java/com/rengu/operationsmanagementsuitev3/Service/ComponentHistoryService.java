@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -29,12 +30,12 @@ import java.util.List;
 public class ComponentHistoryService {
 
     private final ComponentHistoryRepository componentHistoryRepository;
-    @Autowired
-    private ComponentFileHistoryService componentFileHistoryService;
+    private final ComponentFileHistoryService componentFileHistoryService;
 
     @Autowired
-    public ComponentHistoryService(ComponentHistoryRepository componentHistoryRepository) {
+    public ComponentHistoryService(ComponentHistoryRepository componentHistoryRepository, ComponentFileHistoryService componentFileHistoryService) {
         this.componentHistoryRepository = componentHistoryRepository;
+        this.componentFileHistoryService = componentFileHistoryService;
     }
 
     // 根据组件保存组件历史
@@ -47,6 +48,23 @@ public class ComponentHistoryService {
         componentHistoryRepository.save(componentHistoryEntity);
         componentFileHistoryService.saveComponentFileHistorysByComponent(sourceComponent, componentHistoryEntity);
         return componentHistoryEntity;
+    }
+
+    @CacheEvict(value = "ComponentHistory_Cache", allEntries = true)
+    public ComponentHistoryEntity deleteComponentHistoryById(String componentHistoryId) throws IOException {
+        ComponentHistoryEntity componentHistoryEntity = getComponentHistoryById(componentHistoryId);
+        componentFileHistoryService.deleteComponentFileByComponentHistory(componentHistoryEntity);
+        componentHistoryRepository.delete(componentHistoryEntity);
+        return componentHistoryEntity;
+    }
+
+    @CacheEvict(value = "ComponentHistory_Cache", allEntries = true)
+    public List<ComponentHistoryEntity> deleteComponentHistoryByComponent(ComponentEntity componentEntity) throws IOException {
+        List<ComponentHistoryEntity> componentHistoryEntityList = getComponentHistorysByComponent(componentEntity);
+        for (ComponentHistoryEntity componentHistoryEntity : componentHistoryEntityList) {
+            deleteComponentHistoryById(componentHistoryEntity.getId());
+        }
+        return componentHistoryEntityList;
     }
 
     // 根据Id查询组件历史是否存在

@@ -24,4 +24,6 @@ public interface DeploymentDesignNodeRepository extends JpaRepository<Deployment
     Page<DeploymentDesignNodeEntity> findAllByDeploymentDesignEntity(Pageable pageable, DeploymentDesignEntity deploymentDesignEntity);
 
     List<DeploymentDesignNodeEntity> findAllByDeploymentDesignEntity(DeploymentDesignEntity deploymentDesignEntity);
+
+    List<DeploymentDesignNodeEntity> findAllByDeviceEntity(DeviceEntity deviceEntity);
 }

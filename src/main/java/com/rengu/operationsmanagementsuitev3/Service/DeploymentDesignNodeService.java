@@ -33,18 +33,14 @@ import java.util.List;
 public class DeploymentDesignNodeService {
 
     private final DeploymentDesignNodeRepository deploymentDesignNodeRepository;
-    private final DeploymentDesignDetailService deploymentDesignDetailService;
     private final DeployMetaService deployMetaService;
-    private final OrderService orderService;
-    private final ScanHandlerService scanHandlerService;
+    private final DeploymentDesignDetailService deploymentDesignDetailService;
 
     @Autowired
-    public DeploymentDesignNodeService(DeploymentDesignNodeRepository deploymentDesignNodeRepository, DeploymentDesignDetailService deploymentDesignDetailService, DeployMetaService deployMetaService, OrderService orderService, ScanHandlerService scanHandlerService) {
+    public DeploymentDesignNodeService(DeploymentDesignNodeRepository deploymentDesignNodeRepository, DeployMetaService deployMetaService, DeploymentDesignDetailService deploymentDesignDetailService) {
         this.deploymentDesignNodeRepository = deploymentDesignNodeRepository;
-        this.deploymentDesignDetailService = deploymentDesignDetailService;
         this.deployMetaService = deployMetaService;
-        this.orderService = orderService;
-        this.scanHandlerService = scanHandlerService;
+        this.deploymentDesignDetailService = deploymentDesignDetailService;
     }
 
     // 根据部署设计保存部署节点
@@ -81,8 +77,30 @@ public class DeploymentDesignNodeService {
     @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public DeploymentDesignNodeEntity deleteDeploymentDesignNodeById(String deploymentDesignNodeId) {
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
+        deploymentDesignDetailService.deleteDeploymentDesignDetailByDeploymentDesignNode(deploymentDesignNodeEntity);
         deploymentDesignNodeRepository.delete(deploymentDesignNodeEntity);
         return deploymentDesignNodeEntity;
+    }
+
+    // 根据Id删除部署设计节点
+    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
+    public List<DeploymentDesignNodeEntity> deleteDeploymentDesignNodeByDeploymentDesign(DeploymentDesignEntity deploymentDesignEntity) {
+        List<DeploymentDesignNodeEntity> deploymentDesignNodeEntityList = getDeploymentDesignNodesByDeploymentDesign(deploymentDesignEntity);
+        for (DeploymentDesignNodeEntity deploymentDesignNodeEntity : deploymentDesignNodeEntityList) {
+            deleteDeploymentDesignNodeById(deploymentDesignNodeEntity.getId());
+        }
+        return deploymentDesignNodeEntityList;
+    }
+
+    // 根据Id删除部署设计节点
+    @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
+    public List<DeploymentDesignNodeEntity> deleteDeploymentDesignNodeByDevice(DeviceEntity deviceEntity) {
+        List<DeploymentDesignNodeEntity> deploymentDesignNodeEntityList = getDeploymentDesignNodesByDevice(deviceEntity);
+        for (DeploymentDesignNodeEntity deploymentDesignNodeEntity : deploymentDesignNodeEntityList) {
+            deploymentDesignNodeEntity.setDeviceEntity(null);
+            deploymentDesignNodeRepository.save(deploymentDesignNodeEntity);
+        }
+        return deploymentDesignNodeEntityList;
     }
 
     // 根据Id绑定设备
@@ -135,6 +153,12 @@ public class DeploymentDesignNodeService {
     @Cacheable(value = "DeploymentDesignNode_Cache", key = "#deploymentDesignEntity.getId()")
     public List<DeploymentDesignNodeEntity> getDeploymentDesignNodesByDeploymentDesign(DeploymentDesignEntity deploymentDesignEntity) {
         return deploymentDesignNodeRepository.findAllByDeploymentDesignEntity(deploymentDesignEntity);
+    }
+
+    // 根据部署设计查询部署设计节点
+    @Cacheable(value = "DeploymentDesignNode_Cache", key = "#deviceEntity.getId()")
+    public List<DeploymentDesignNodeEntity> getDeploymentDesignNodesByDevice(DeviceEntity deviceEntity) {
+        return deploymentDesignNodeRepository.findAllByDeviceEntity(deviceEntity);
     }
 
     // 根据部署设计查询设备

@@ -85,8 +85,29 @@ public class DeploymentDesignDetailService {
     @CacheEvict(value = "DeploymentDesignDetail_Cache", allEntries = true)
     public DeploymentDesignDetailEntity deleteDeploymentDesignDetailById(String deploymentDesignDetailId) {
         DeploymentDesignDetailEntity deploymentDesignDetailEntity = getDeploymentDesignDetailById(deploymentDesignDetailId);
+        deploymentDesignScanResultService.deleteDeploymentDesignScanResultByDeploymentDesignDetail(deploymentDesignDetailEntity);
         deploymentDesignDetailRepository.delete(deploymentDesignDetailEntity);
         return deploymentDesignDetailEntity;
+    }
+
+    // 根据Id删除部署设计详情
+    @CacheEvict(value = "DeploymentDesignDetail_Cache", allEntries = true)
+    public List<DeploymentDesignDetailEntity> deleteDeploymentDesignDetailByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
+        List<DeploymentDesignDetailEntity> deploymentDesignDetailEntityList = getDeploymentDesignDetailsByDeploymentDesignNode(deploymentDesignNodeEntity);
+        for (DeploymentDesignDetailEntity deploymentDesignDetailEntity : deploymentDesignDetailEntityList) {
+            deleteDeploymentDesignDetailById(deploymentDesignDetailEntity.getId());
+        }
+        return deploymentDesignDetailEntityList;
+    }
+
+    // 根据Id删除部署设计详情
+    @CacheEvict(value = "DeploymentDesignDetail_Cache", allEntries = true)
+    public List<DeploymentDesignDetailEntity> deleteDeploymentDesignDetailByComponent(ComponentEntity componentEntity) {
+        List<DeploymentDesignDetailEntity> deploymentDesignDetailEntityList = getDeploymentDesignDetailsByComponentEntity(componentEntity);
+        for (DeploymentDesignDetailEntity deploymentDesignDetailEntity : deploymentDesignDetailEntityList) {
+            deleteDeploymentDesignDetailById(deploymentDesignDetailEntity.getId());
+        }
+        return deploymentDesignDetailEntityList;
     }
 
     // 根据组件和部署设计节点判断是否存在
@@ -115,6 +136,12 @@ public class DeploymentDesignDetailService {
     @Cacheable(value = "DeploymentDesignDetail_Cache", key = "#deploymentDesignNodeEntity.getId()")
     public List<DeploymentDesignDetailEntity> getDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
         return deploymentDesignDetailRepository.findAllByDeploymentDesignNodeEntity(deploymentDesignNodeEntity);
+    }
+
+    // 根据部署设计节点查询部署设计详情
+    @Cacheable(value = "DeploymentDesignDetail_Cache", key = "#componentEntity.getId()")
+    public List<DeploymentDesignDetailEntity> getDeploymentDesignDetailsByComponentEntity(ComponentEntity componentEntity) {
+        return deploymentDesignDetailRepository.findAllByComponentEntity(componentEntity);
     }
 
     public List<DeploymentDesignScanResultEntity> scanDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity, String[] extensions) throws InterruptedException, ExecutionException, IOException {

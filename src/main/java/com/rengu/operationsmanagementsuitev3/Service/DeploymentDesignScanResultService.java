@@ -1,10 +1,12 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
+import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignDetailEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignScanResultEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignScanResultRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,11 +36,42 @@ public class DeploymentDesignScanResultService {
         return deploymentDesignScanResultRepository.save(deploymentDesignScanResultEntity);
     }
 
+    @CacheEvict(value = "Deployment_Design_Scan_Result_Cache", allEntries = true)
+    public DeploymentDesignScanResultEntity deleteDeploymentDesignScanResultById(String deploymentDesignScanResultId) {
+        DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = getDeploymentDesignScanResultsById(deploymentDesignScanResultId);
+        deploymentDesignScanResultRepository.delete(deploymentDesignScanResultEntity);
+        return deploymentDesignScanResultEntity;
+    }
+
+    @CacheEvict(value = "Deployment_Design_Scan_Result_Cache", allEntries = true)
+    public List<DeploymentDesignScanResultEntity> deleteDeploymentDesignScanResultByDeploymentDesignDetail(DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
+        List<DeploymentDesignScanResultEntity> deploymentDesignScanResultEntityList = getDeploymentDesignScanResultsByDeploymentDesignDetail(deploymentDesignDetailEntity);
+        for (DeploymentDesignScanResultEntity deploymentDesignScanResultEntity : deploymentDesignScanResultEntityList) {
+            deleteDeploymentDesignScanResultById(deploymentDesignScanResultEntity.getId());
+        }
+        return deploymentDesignScanResultEntityList;
+    }
+
+    public boolean hasDeploymentDesignScanResultById(String deploymentDesignScanResultId) {
+        if (StringUtils.isEmpty(deploymentDesignScanResultId)) {
+            return false;
+        }
+        return deploymentDesignScanResultRepository.existsById(deploymentDesignScanResultId);
+    }
+
     public boolean hasDeploymentDesignScanResultByOrderId(String orderId) {
         if (StringUtils.isEmpty(orderId)) {
             return false;
         }
         return deploymentDesignScanResultRepository.existsByOrderId(orderId);
+    }
+
+    @Cacheable(value = "Deployment_Design_Scan_Result_Cache", key = "#deploymentDesignScanResultId")
+    public DeploymentDesignScanResultEntity getDeploymentDesignScanResultsById(String deploymentDesignScanResultId) {
+        if (!hasDeploymentDesignScanResultById(deploymentDesignScanResultId)) {
+            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_SCAN_RESULT_ID_NOT_FOUND + deploymentDesignScanResultId);
+        }
+        return deploymentDesignScanResultRepository.findById(deploymentDesignScanResultId).get();
     }
 
     @Cacheable(value = "Deployment_Design_Scan_Result_Cache", key = "#orderId")
@@ -47,5 +80,10 @@ public class DeploymentDesignScanResultService {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_SCAN_RESULT_ORDER_ID_NOT_FOUND + orderId);
         }
         return deploymentDesignScanResultRepository.findAllByOrderId(orderId);
+    }
+
+    @Cacheable(value = "Deployment_Design_Scan_Result_Cache", key = "#deploymentDesignDetailEntity.getId()")
+    public List<DeploymentDesignScanResultEntity> getDeploymentDesignScanResultsByDeploymentDesignDetail(DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
+        return deploymentDesignScanResultRepository.findAllByDeploymentDesignDetailEntity(deploymentDesignDetailEntity);
     }
 }

@@ -89,6 +89,7 @@ public class DeploymentDesignService {
     @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
     public DeploymentDesignEntity cleanDeploymentDesignById(String deploymentDesignId) {
         DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
+        deploymentDesignNodeService.deleteDeploymentDesignNodeByDeploymentDesign(deploymentDesignEntity);
         deploymentDesignRepository.delete(deploymentDesignEntity);
         return deploymentDesignEntity;
     }

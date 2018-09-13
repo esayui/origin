@@ -20,4 +20,6 @@ public interface DeploymentDesignDetailRepository extends JpaRepository<Deployme
     boolean existsByDeploymentDesignNodeEntityAndComponentEntity(DeploymentDesignNodeEntity deploymentDesignNodeEntity, ComponentEntity componentEntity);
 
     List<DeploymentDesignDetailEntity> findAllByDeploymentDesignNodeEntity(DeploymentDesignNodeEntity deploymentDesignNodeEntity);
+
+    List<DeploymentDesignDetailEntity> findAllByComponentEntity(ComponentEntity componentEntity);
 }

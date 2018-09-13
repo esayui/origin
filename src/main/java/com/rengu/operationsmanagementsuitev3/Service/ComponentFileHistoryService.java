@@ -34,11 +34,13 @@ public class ComponentFileHistoryService {
 
     private final ComponentFileHistoryRepository componentFileHistoryRepository;
     private final ComponentFileRepository componentFileRepository;
+    private final FileService fileService;
 
     @Autowired
-    public ComponentFileHistoryService(ComponentFileHistoryRepository componentFileHistoryRepository, ComponentFileRepository componentFileRepository) {
+    public ComponentFileHistoryService(ComponentFileHistoryRepository componentFileHistoryRepository, ComponentFileRepository componentFileRepository, FileService fileService) {
         this.componentFileHistoryRepository = componentFileHistoryRepository;
         this.componentFileRepository = componentFileRepository;
+        this.fileService = fileService;
     }
 
     // 根据组件文件跟节点保存组件文件历史
@@ -60,6 +62,22 @@ public class ComponentFileHistoryService {
         for (ComponentFileEntity tempComponentFile : componentFileRepository.findByParentNodeAndComponentEntity(sourceNode, sourceComponent)) {
             saveComponentFileHistorysByComponentFile(tempComponentFile, sourceComponent, copyNode, targetComponent);
         }
+    }
+
+    // 根据Id删除组件文件
+    @CacheEvict(value = "ComponentFileHistory_Cache", allEntries = true)
+    public List<ComponentFileHistoryEntity> deleteComponentFileByComponentHistory(ComponentHistoryEntity componentHistoryEntity) throws IOException {
+        List<ComponentFileHistoryEntity> componentFileHistoryEntityList = getComponentFileHistorysByComponentHistory(componentHistoryEntity);
+        for (ComponentFileHistoryEntity componentFileHistoryEntity : componentFileHistoryEntityList) {
+            if (componentFileHistoryEntity.getFileEntity() != null) {
+                FileEntity fileEntity = componentFileHistoryEntity.getFileEntity();
+                if (!hasComponentFileHistoryByFile(fileEntity) && !componentFileRepository.existsByFileEntity(fileEntity)) {
+                    fileService.deleteFileById(fileEntity.getId());
+                }
+            }
+            componentFileHistoryRepository.delete(componentFileHistoryEntity);
+        }
+        return componentFileHistoryEntityList;
     }
 
     // 根据Id判断组件历史文件是否存在

@@ -1,10 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
 import com.rengu.operationsmanagementsuitev3.Entity.*;
-import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
-import com.rengu.operationsmanagementsuitev3.Service.DeploymentDesignService;
-import com.rengu.operationsmanagementsuitev3.Service.DeviceService;
-import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
+import com.rengu.operationsmanagementsuitev3.Service.*;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -28,13 +25,15 @@ public class ProjectController {
     private final DeviceService deviceService;
     private final ComponentService componentService;
     private final DeploymentDesignService deploymentDesignService;
+    private final DeployLogService deployLogService;
 
     @Autowired
-    public ProjectController(ProjectService projectService, DeviceService deviceService, ComponentService componentService, DeploymentDesignService deploymentDesignService) {
+    public ProjectController(ProjectService projectService, DeviceService deviceService, ComponentService componentService, DeploymentDesignService deploymentDesignService, DeployLogService deployLogService) {
         this.projectService = projectService;
         this.deviceService = deviceService;
         this.componentService = componentService;
         this.deploymentDesignService = deploymentDesignService;
+        this.deployLogService = deployLogService;
     }
 
     // 根据Id删除工程
@@ -78,6 +77,12 @@ public class ProjectController {
     @PostMapping(value = "/{projectId}/device")
     public ResultEntity saveDeviceByProject(@PathVariable(value = "projectId") String projectId, DeviceEntity deviceEntity) {
         return ResultUtils.build(deviceService.saveDeviceByProject(projectService.getProjectById(projectId), deviceEntity));
+    }
+
+    // 根据Id查询设备
+    @GetMapping(value = "/{projectId}/device")
+    public ResultEntity getDevicesByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deviceService.getDevicesByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
     }
 
     // 根据Id查询设备
@@ -132,5 +137,10 @@ public class ProjectController {
     @GetMapping(value = "/{projectId}/deploymentdesigncounts")
     public ResultEntity countDeploymentDesignsByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
         return ResultUtils.build(deploymentDesignService.countDeploymentDesignsByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
+    }
+
+    @GetMapping(value = "/{projectId}/deploylogs")
+    public ResultEntity getDeployLogsByProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId) {
+        return ResultUtils.build(deployLogService.getDeployLogsByProject(pageable, projectService.getProjectById(projectId)));
     }
 }

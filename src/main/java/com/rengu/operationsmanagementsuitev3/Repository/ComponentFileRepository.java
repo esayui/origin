@@ -25,4 +25,6 @@ public interface ComponentFileRepository extends JpaRepository<ComponentFileEnti
     Optional<ComponentFileEntity> findByNameAndParentNodeAndComponentEntity(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity);
 
     List<ComponentFileEntity> findByParentNodeAndComponentEntity(ComponentFileEntity parentNode, ComponentEntity componentEntity);
+
+    List<ComponentFileEntity> findAllByComponentEntity(ComponentEntity componentEntity);
 }

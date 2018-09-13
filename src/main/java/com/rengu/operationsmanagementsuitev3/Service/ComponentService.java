@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -32,6 +33,8 @@ public class ComponentService {
     private final ComponentRepository componentRepository;
     private final ComponentFileService componentFileService;
     private final ComponentHistoryService componentHistoryService;
+    @Autowired
+    private DeploymentDesignDetailService deploymentDesignDetailService;
 
     @Autowired
     public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService) {
@@ -92,8 +95,11 @@ public class ComponentService {
 
     // 根据Id清除组件
     @CacheEvict(value = " Component_Cache", allEntries = true)
-    public ComponentEntity cleanComponentById(String componentId) {
+    public ComponentEntity cleanComponentById(String componentId) throws IOException {
         ComponentEntity componentEntity = getComponentById(componentId);
+        deploymentDesignDetailService.deleteDeploymentDesignDetailByComponent(componentEntity);
+        componentHistoryService.deleteComponentHistoryByComponent(componentEntity);
+        componentFileService.deleteComponentFileByComponent(componentEntity);
         componentRepository.delete(componentEntity);
         return componentEntity;
     }
