@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -27,10 +29,18 @@ import org.springframework.util.StringUtils;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final DeviceService deviceService;
+    private final ComponentService componentService;
+    private final DeploymentDesignService deploymentDesignService;
+    private final DeployLogService deployLogService;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, DeviceService deviceService, ComponentService componentService, DeploymentDesignService deploymentDesignService, DeployLogService deployLogService) {
         this.projectRepository = projectRepository;
+        this.deviceService = deviceService;
+        this.componentService = componentService;
+        this.deploymentDesignService = deploymentDesignService;
+        this.deployLogService = deployLogService;
     }
 
     // 根据用户创建工程
@@ -64,8 +74,12 @@ public class ProjectService {
 
     // 根据Id彻底删除工程
     @CacheEvict(value = "Project_Cache", allEntries = true)
-    public ProjectEntity cleanProjectById(String projectId) {
+    public ProjectEntity cleanProjectById(String projectId) throws IOException {
         ProjectEntity projectEntity = getProjectById(projectId);
+        deployLogService.deleteDeployLogByProject(projectEntity);
+        deviceService.deleteDeviceByProject(projectEntity);
+        componentService.deleteComponentByProject(projectEntity);
+        deploymentDesignService.deleteDeploymentDesignByProject(projectEntity);
         projectRepository.delete(projectEntity);
         return projectEntity;
     }

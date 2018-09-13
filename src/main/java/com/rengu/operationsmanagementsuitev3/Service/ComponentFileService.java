@@ -168,19 +168,7 @@ public class ComponentFileService {
     @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public ComponentFileEntity deleteComponentFileById(String componentfileId) throws IOException {
         ComponentFileEntity componentFileEntity = getComponentFileById(componentfileId);
-        if (componentFileEntity.isFolder()) {
-            // 是文件夹, 获取子文件遍历递归
-            for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(componentFileEntity.getId(), componentFileEntity.getComponentEntity())) {
-                deleteComponentFileById(tempComponentFile.getId());
-            }
-            componentFileRepository.deleteById(componentFileEntity.getId());
-        } else {
-            // 是文件，检查是否需要删除实际文件
-            if (!hasComponentFileByFile(componentFileEntity.getFileEntity()) && !componentFileHistoryService.hasComponentFileHistoryByFile(componentFileEntity.getFileEntity())) {
-                fileService.deleteFileById(componentFileEntity.getFileEntity().getId());
-            }
-            componentFileRepository.deleteById(componentFileEntity.getId());
-        }
+        deleteComponentFile(componentFileEntity);
         componentHistoryService.saveComponentHistoryByComponent(componentFileEntity.getComponentEntity());
         return componentFileEntity;
     }
@@ -188,17 +176,32 @@ public class ComponentFileService {
     // 根据Id删除组件文件
     @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
     public List<ComponentFileEntity> deleteComponentFileByComponent(ComponentEntity componentEntity) throws IOException {
-        List<ComponentFileEntity> componentFileEntityList = getComponentFilesByComponent(componentEntity);
+        List<ComponentFileEntity> componentFileEntityList = getComponentFilesByParentNodeAndComponent(null, componentEntity);
         for (ComponentFileEntity componentFileEntity : componentFileEntityList) {
-            if (componentFileEntity.getFileEntity() != null) {
-                FileEntity fileEntity = componentFileEntity.getFileEntity();
-                if (!hasComponentFileByFile(fileEntity) && !componentFileHistoryService.hasComponentFileHistoryByFile(fileEntity)) {
-                    fileService.deleteFileById(fileEntity.getId());
-                }
-            }
-            componentFileRepository.delete(componentFileEntity);
+            deleteComponentFile(componentFileEntity);
         }
         return componentFileEntityList;
+    }
+
+    @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
+    public ComponentFileEntity deleteComponentFile(ComponentFileEntity componentFileEntity) throws IOException {
+        if (componentFileEntity.isFolder()) {
+            // 是文件夹, 获取子文件遍历递归
+            for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(componentFileEntity.getId(), componentFileEntity.getComponentEntity())) {
+                deleteComponentFile(tempComponentFile);
+            }
+            if (hasComponentFileById(componentFileEntity.getId())) {
+
+            }
+            componentFileRepository.deleteById(componentFileEntity.getId());
+        } else {
+            componentFileRepository.deleteById(componentFileEntity.getId());
+            // 是文件，检查是否需要删除实际文件
+            if (!hasComponentFileByFile(componentFileEntity.getFileEntity()) && !componentFileHistoryService.hasComponentFileHistoryByFile(componentFileEntity.getFileEntity())) {
+                fileService.deleteFileById(componentFileEntity.getFileEntity().getId());
+            }
+        }
+        return componentFileEntity;
     }
 
     // 根据Id修改组件文件

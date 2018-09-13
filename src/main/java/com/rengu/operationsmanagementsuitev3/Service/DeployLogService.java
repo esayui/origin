@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 /**
  * @program: operations-management-suite-v3
  * @author: hanch
@@ -26,10 +28,12 @@ import org.springframework.util.StringUtils;
 public class DeployLogService {
 
     private final DeployLogRepository deployLogRepository;
+    private final DeployLogDetailService deployLogDetailService;
 
     @Autowired
-    public DeployLogService(DeployLogRepository deployLogRepository) {
+    public DeployLogService(DeployLogRepository deployLogRepository, DeployLogDetailService deployLogDetailService) {
         this.deployLogRepository = deployLogRepository;
+        this.deployLogDetailService = deployLogDetailService;
     }
 
     @CacheEvict(value = "DeployLog_Cache", allEntries = true)
@@ -40,8 +44,18 @@ public class DeployLogService {
     @CacheEvict(value = "DeployLog_Cache", allEntries = true)
     public DeployLogEntity deleteDeployLogById(String deployLogId) {
         DeployLogEntity deployLogEntity = getDeployLogById(deployLogId);
+        deployLogDetailService.deleteDeployLogDetailsByDeployLog(deployLogEntity);
         deployLogRepository.delete(deployLogEntity);
         return deployLogEntity;
+    }
+
+    @CacheEvict(value = "DeployLog_Cache", allEntries = true)
+    public List<DeployLogEntity> deleteDeployLogByProject(ProjectEntity projectEntity) {
+        List<DeployLogEntity> deployLogEntityList = getDeployLogsByProject(projectEntity);
+        for (DeployLogEntity deployLogEntity : deployLogEntityList) {
+            deleteDeployLogById(deployLogEntity.getId());
+        }
+        return deployLogEntityList;
     }
 
     public boolean hasDeployLogById(String deployLogId) {
@@ -61,6 +75,10 @@ public class DeployLogService {
 
     public Page<DeployLogEntity> getDeployLogsByProject(Pageable pageable, ProjectEntity projectEntity) {
         return deployLogRepository.findAllByProjectEntity(pageable, projectEntity);
+    }
+
+    public List<DeployLogEntity> getDeployLogsByProject(ProjectEntity projectEntity) {
+        return deployLogRepository.findAllByProjectEntity(projectEntity);
     }
 
     public Page<DeployLogEntity> getDeployLogs(Pageable pageable) {

@@ -90,7 +90,6 @@ public class ComponentHistoryService {
     }
 
     // 根据组件查询组件历史
-    @Cacheable(value = "ComponentHistory_Cache", key = "#componentEntity.getId()")
     public List<ComponentHistoryEntity> getComponentHistorysByComponent(ComponentEntity componentEntity) {
         return componentHistoryRepository.findAllByComponentEntity(componentEntity);
     }

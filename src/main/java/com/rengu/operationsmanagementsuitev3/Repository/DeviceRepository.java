@@ -24,5 +24,7 @@ public interface DeviceRepository extends JpaRepository<DeviceEntity, String> {
 
     List<DeviceEntity> findByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
 
+    List<DeviceEntity> findAllByProjectEntity(ProjectEntity projectEntity);
+
     long countByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
 }

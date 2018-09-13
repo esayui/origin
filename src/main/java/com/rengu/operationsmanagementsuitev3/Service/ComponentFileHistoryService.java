@@ -64,18 +64,31 @@ public class ComponentFileHistoryService {
         }
     }
 
+    @CacheEvict(value = "ComponentFileHistory_Cache", allEntries = true)
+    public ComponentFileHistoryEntity deleteComponentFileHistory(ComponentFileHistoryEntity componentFileHistoryEntity) throws IOException {
+        if (componentFileHistoryEntity.isFolder()) {
+            // 是文件夹, 获取子文件遍历递归
+            for (ComponentFileHistoryEntity tempComponentFileHistory : getComponentFileHistorysByParentNodeAndComponentHistory(componentFileHistoryEntity.getId(), componentFileHistoryEntity.getComponentHistoryEntity())) {
+                deleteComponentFileHistory(tempComponentFileHistory);
+            }
+            componentFileHistoryRepository.deleteById(componentFileHistoryEntity.getId());
+        } else {
+            componentFileHistoryRepository.deleteById(componentFileHistoryEntity.getId());
+            // 是文件，检查是否需要删除实际文件
+            if (!hasComponentFileHistoryByFile(componentFileHistoryEntity.getFileEntity()) && !componentFileRepository.existsByFileEntity(componentFileHistoryEntity.getFileEntity())) {
+                fileService.deleteFileById(componentFileHistoryEntity.getFileEntity().getId());
+            }
+        }
+        return componentFileHistoryEntity;
+    }
+
+
     // 根据Id删除组件文件
     @CacheEvict(value = "ComponentFileHistory_Cache", allEntries = true)
     public List<ComponentFileHistoryEntity> deleteComponentFileByComponentHistory(ComponentHistoryEntity componentHistoryEntity) throws IOException {
-        List<ComponentFileHistoryEntity> componentFileHistoryEntityList = getComponentFileHistorysByComponentHistory(componentHistoryEntity);
+        List<ComponentFileHistoryEntity> componentFileHistoryEntityList = getComponentFileHistorysByParentNodeAndComponentHistory(null, componentHistoryEntity);
         for (ComponentFileHistoryEntity componentFileHistoryEntity : componentFileHistoryEntityList) {
-            if (componentFileHistoryEntity.getFileEntity() != null) {
-                FileEntity fileEntity = componentFileHistoryEntity.getFileEntity();
-                if (!hasComponentFileHistoryByFile(fileEntity) && !componentFileRepository.existsByFileEntity(fileEntity)) {
-                    fileService.deleteFileById(fileEntity.getId());
-                }
-            }
-            componentFileHistoryRepository.delete(componentFileHistoryEntity);
+            deleteComponentFileHistory(componentFileHistoryEntity);
         }
         return componentFileHistoryEntityList;
     }

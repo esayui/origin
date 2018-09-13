@@ -10,6 +10,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -50,7 +52,7 @@ public class ProjectController {
 
     // 根据Id彻底删除工程
     @DeleteMapping(value = "/{projectId}/clean")
-    public ResultEntity cleanProjectById(@PathVariable(value = "projectId") String projectId) {
+    public ResultEntity cleanProjectById(@PathVariable(value = "projectId") String projectId) throws IOException {
         return ResultUtils.build(projectService.cleanProjectById(projectId));
     }
 

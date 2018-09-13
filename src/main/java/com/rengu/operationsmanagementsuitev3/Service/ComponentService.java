@@ -104,6 +104,14 @@ public class ComponentService {
         return componentEntity;
     }
 
+    public List<ComponentEntity> deleteComponentByProject(ProjectEntity projectEntity) throws IOException {
+        List<ComponentEntity> componentEntityList = getComponentsByProject(projectEntity);
+        for (ComponentEntity componentEntity : componentEntityList) {
+            cleanComponentById(componentEntity.getId());
+        }
+        return componentEntityList;
+    }
+
     // 根据Id修改组件
     @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity updateComponentById(String componentId, ComponentEntity componentArgs) {
@@ -169,6 +177,11 @@ public class ComponentService {
     // 根据工程查询组件
     public Page<ComponentEntity> getComponentsByDeletedAndProject(Pageable pageable, boolean deleted, ProjectEntity projectEntity) {
         return componentRepository.findByDeletedAndProjectEntity(pageable, deleted, projectEntity);
+    }
+
+    // 根据工程查询组件
+    public List<ComponentEntity> getComponentsByProject(ProjectEntity projectEntity) {
+        return componentRepository.findAllByProjectEntity(projectEntity);
     }
 
     // 根据工程查询组件

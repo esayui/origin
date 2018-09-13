@@ -133,6 +133,11 @@ public class ApplicationMessages {
     public static final String DEPLOY_LOG_ID_NOT_FOUND = "未发现该部署日志Id：";
     public static final String DEPLOY_LOG_ID_EXISTED = "该部署日志Id已存在：";
 
+    // 部署日志详情相关提示信息
+    public static final String DEPLOY_LOG_DETAIL_ID_ARGS_NOT_FOUND = "部署日志详情Id参数不存在或不合法";
+    public static final String DEPLOY_LOG_DETAIL_ID_NOT_FOUND = "未发现该部署日志详情Id：";
+    public static final String DEPLOY_LOG_DETAIL_ID_EXISTED = "该部署日志详情Id已存在：";
+
     // 扫描相关提示信息
     public static final String SCAN_DISK_TIME_OUT = "获取设备磁盘信息超时";
     public static final String SCAN_PROCESS_TIME_OUT = "获取设备进程信息超时";

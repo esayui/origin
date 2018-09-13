@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -94,6 +96,14 @@ public class DeploymentDesignService {
         return deploymentDesignEntity;
     }
 
+    public List<DeploymentDesignEntity> deleteDeploymentDesignByProject(ProjectEntity projectEntity) {
+        List<DeploymentDesignEntity> deploymentDesignEntityList = getDeploymentDesignsByProject(projectEntity);
+        for (DeploymentDesignEntity deploymentDesignEntity : deploymentDesignEntityList) {
+            cleanDeploymentDesignById(deploymentDesignEntity.getId());
+        }
+        return deploymentDesignEntityList;
+    }
+
     // 根据id修改部署设计
     @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
     public DeploymentDesignEntity updateDeploymentDesignById(String deploymentDesignId, DeploymentDesignEntity deploymentDesignArgs) {
@@ -143,6 +153,16 @@ public class DeploymentDesignService {
     // 根据是否删除及工程查询部署设计
     public Page<DeploymentDesignEntity> getDeploymentDesignsByDeletedAndProject(Pageable pageable, boolean deleted, ProjectEntity projectEntity) {
         return deploymentDesignRepository.findAllByDeletedAndProjectEntity(pageable, deleted, projectEntity);
+    }
+
+    // 根据是否删除及工程查询部署设计
+    public List<DeploymentDesignEntity> getDeploymentDesignsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
+        return deploymentDesignRepository.findAllByDeletedAndProjectEntity(deleted, projectEntity);
+    }
+
+    // 根据是否删除及工程查询部署设计
+    public List<DeploymentDesignEntity> getDeploymentDesignsByProject(ProjectEntity projectEntity) {
+        return deploymentDesignRepository.findAllByProjectEntity(projectEntity);
     }
 
     // 根据是否删除及工程查询部署设计数量

@@ -88,6 +88,15 @@ public class DeviceService {
         return deviceRepository.save(deviceEntity);
     }
 
+    @CacheEvict(value = "Device_Cache", allEntries = true)
+    public List<DeviceEntity> deleteDeviceByProject(ProjectEntity projectEntity) {
+        List<DeviceEntity> deviceEntityList = getDevicesByProject(projectEntity);
+        for (DeviceEntity deviceEntity : deviceEntityList) {
+            cleanDeviceById(deviceEntity.getId());
+        }
+        return deviceEntityList;
+    }
+
     // 根据Id撤销删除设备
     @CacheEvict(value = "Device_Cache", allEntries = true)
     public DeviceEntity restoreDeviceById(String deviceId) {
@@ -159,6 +168,10 @@ public class DeviceService {
     // 查询所有设备
     public Page<DeviceEntity> getDevices(Pageable pageable) {
         return deviceRepository.findAll(pageable);
+    }
+
+    public List<DeviceEntity> getDevicesByProject(ProjectEntity projectEntity) {
+        return deviceRepository.findAllByProjectEntity(projectEntity);
     }
 
     // 根据是否删除及工程查询设备

@@ -24,5 +24,7 @@ public interface ComponentRepository extends JpaRepository<ComponentEntity, Stri
 
     List<ComponentEntity> findByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
 
+    List<ComponentEntity> findAllByProjectEntity(ProjectEntity projectEntity);
+
     long countByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
 }

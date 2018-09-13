@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -19,6 +21,10 @@ public interface DeploymentDesignRepository extends JpaRepository<DeploymentDesi
     boolean existsByNameAndDeletedAndProjectEntity(String name, boolean deleted, ProjectEntity projectEntity);
 
     Page<DeploymentDesignEntity> findAllByDeletedAndProjectEntity(Pageable pageable, boolean deleted, ProjectEntity projectEntity);
+
+    List<DeploymentDesignEntity> findAllByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
+
+    List<DeploymentDesignEntity> findAllByProjectEntity(ProjectEntity projectEntity);
 
     long countAllByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
 }
