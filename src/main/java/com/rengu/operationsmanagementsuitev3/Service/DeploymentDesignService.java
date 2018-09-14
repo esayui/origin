@@ -175,7 +175,7 @@ public class DeploymentDesignService {
         int index = 0;
         while (hasDeploymentDesignByNameAndDeletedAndProject(name, false, projectEntity)) {
             index = index + 1;
-            name = name + "(" + index + ")";
+            name = name + "-" + index;
         }
         return name;
     }

@@ -147,7 +147,7 @@ public class ComponentFileService {
             componentFileRepository.save(copyNode);
         }
         // 递归遍历子节点进行复制
-        for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(copyNode.getId(), sourceComponent)) {
+        for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(sourceNode.getId(), sourceComponent)) {
             copyComponentFiles(tempComponentFile, sourceComponent, copyNode, targetComponent);
         }
     }

@@ -200,7 +200,7 @@ public class ComponentService {
         int index = 0;
         while (hasComponentByNameAndVersionAndDeletedAndProject(name, version, false, projectEntity)) {
             index = index + 1;
-            name = name + "(" + index + ")";
+            name = name + "-" + index;
         }
         return name;
     }
