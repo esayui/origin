@@ -154,11 +154,18 @@ public class ComponentFileService {
 
     // 根据Id移动组件文件
     @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
-    public ComponentFileEntity moveComponentFileById(String sourceNodeId, String targetNodeId, ComponentEntity targetComponent) {
+    public ComponentFileEntity moveComponentFileById(String sourceNodeId, String targetNodeId, ComponentEntity targetComponent) throws IOException {
         ComponentFileEntity sourceComponentFile = getComponentFileById(sourceNodeId);
         ComponentFileEntity targetComponentFile = hasComponentFileById(targetNodeId) ? getComponentFileById(targetNodeId) : null;
-        sourceComponentFile.setParentNode(targetComponentFile);
-        sourceComponentFile.setComponentEntity(targetComponent);
+        if (!hasComponentFileByNameAndParentNodeAndComponent(sourceComponentFile.getName(), targetComponentFile, targetComponent)) {
+            sourceComponentFile.setParentNode(targetComponentFile);
+            sourceComponentFile.setComponentEntity(targetComponent);
+        } else {
+            ComponentFileEntity target = getComponentFileByNameAndParentNodeAndComponent(sourceComponentFile.getName(), targetComponentFile, targetComponent);
+            deleteComponentFile(target);
+            sourceComponentFile.setParentNode(targetComponentFile);
+            sourceComponentFile.setComponentEntity(targetComponent);
+        }
         componentFileRepository.save(sourceComponentFile);
         componentHistoryService.saveComponentHistoryByComponent(targetComponent);
         return targetComponentFile;
@@ -189,9 +196,6 @@ public class ComponentFileService {
             // 是文件夹, 获取子文件遍历递归
             for (ComponentFileEntity tempComponentFile : getComponentFilesByParentNodeAndComponent(componentFileEntity.getId(), componentFileEntity.getComponentEntity())) {
                 deleteComponentFile(tempComponentFile);
-            }
-            if (hasComponentFileById(componentFileEntity.getId())) {
-
             }
             componentFileRepository.deleteById(componentFileEntity.getId());
         } else {

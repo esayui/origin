@@ -43,7 +43,7 @@ public class ComponentFileController {
 
     // 根据Id移动组件文件
     @PatchMapping(value = "/{sourceNodeId}/move")
-    public ResultEntity moveComponentFileById(@PathVariable(value = "sourceNodeId") String sourceNodeId, @RequestParam(value = "targetComponentId") String targetComponentId, @RequestParam(value = "targetNodeId", required = false, defaultValue = "") String targetNodeId) {
+    public ResultEntity moveComponentFileById(@PathVariable(value = "sourceNodeId") String sourceNodeId, @RequestParam(value = "targetComponentId") String targetComponentId, @RequestParam(value = "targetNodeId", required = false, defaultValue = "") String targetNodeId) throws IOException {
         return ResultUtils.build(componentFileService.moveComponentFileById(sourceNodeId, targetNodeId, componentService.getComponentById(targetComponentId)));
     }
 

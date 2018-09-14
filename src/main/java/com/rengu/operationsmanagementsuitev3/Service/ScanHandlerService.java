@@ -86,6 +86,7 @@ public class ScanHandlerService {
                 // 初始化结果列表
                 List<DeploymentDesignScanResultDetailEntity> resultList = new ArrayList<>();
                 for (DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity : deploymentDesignScanResultDetailEntityList) {
+                    log.info("开始处理：" + deploymentDesignScanResultDetailEntity.getTargetPath());
                     boolean hasFile = false;
                     String relativePath = deploymentDesignScanResultDetailEntity.getTargetPath().replace(targetPath, "");
                     for (ComponentFileHistoryEntity componentFileHistoryEntity : componentFileHistoryService.getComponentFileHistorysByComponentHistory(componentHistoryEntity)) {
@@ -118,6 +119,7 @@ public class ScanHandlerService {
                 Iterator<ComponentFileHistoryEntity> componentFileHistoryEntityIterator = componentFileHistoryEntityList.iterator();
                 while (componentFileHistoryEntityIterator.hasNext()) {
                     ComponentFileHistoryEntity componentFileHistoryEntity = componentFileHistoryEntityIterator.next();
+                    log.info("查找未知文件：" + componentFileHistoryEntity.getName());
                     if (componentFileHistoryEntity.isFolder()) {
                         componentFileHistoryEntityIterator.remove();
                     } else {
