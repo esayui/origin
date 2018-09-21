@@ -103,7 +103,7 @@ public class DeployMetaService {
                 DeployLogDetailEntity deployLogDetailEntity = new DeployLogDetailEntity();
                 deployLogDetailEntity.setHostName(deviceEntity.getHostAddress());
                 deployLogDetailEntity.setComponentName(deployMetaEntity.getComponentHistoryEntity().getName());
-                deployLogDetailEntity.setComponentName(deployMetaEntity.getComponentHistoryEntity().getVersion());
+                deployLogDetailEntity.setComponentVersion(deployMetaEntity.getComponentHistoryEntity().getVersion());
                 deployLogDetailEntity.setComponentTag(deployMetaEntity.getComponentHistoryEntity().getTag());
                 deployLogDetailEntity.setTargetPath(targetPath);
                 deployLogDetailEntity.setDeployLogEntity(deployLogEntity);
