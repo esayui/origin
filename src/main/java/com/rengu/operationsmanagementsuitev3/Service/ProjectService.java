@@ -135,4 +135,11 @@ public class ProjectService {
     public Page<ProjectEntity> getProjects(Pageable pageable) {
         return projectRepository.findAll(pageable);
     }
+
+    // 移交工程管理用户
+    public ProjectEntity transferProjectByUser(String projectId, UserEntity userEntity) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        projectEntity.setUserEntity(userEntity);
+        return projectRepository.save(projectEntity);
+    }
 }

@@ -28,14 +28,16 @@ public class ProjectController {
     private final ComponentService componentService;
     private final DeploymentDesignService deploymentDesignService;
     private final DeployLogService deployLogService;
+    private final UserService userService;
 
     @Autowired
-    public ProjectController(ProjectService projectService, DeviceService deviceService, ComponentService componentService, DeploymentDesignService deploymentDesignService, DeployLogService deployLogService) {
+    public ProjectController(ProjectService projectService, DeviceService deviceService, ComponentService componentService, DeploymentDesignService deploymentDesignService, DeployLogService deployLogService, UserService userService) {
         this.projectService = projectService;
         this.deviceService = deviceService;
         this.componentService = componentService;
         this.deploymentDesignService = deploymentDesignService;
         this.deployLogService = deployLogService;
+        this.userService = userService;
     }
 
     // 根据Id删除工程
@@ -144,5 +146,12 @@ public class ProjectController {
     @GetMapping(value = "/{projectId}/deploylogs")
     public ResultEntity getDeployLogsByProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId) {
         return ResultUtils.build(deployLogService.getDeployLogsByProject(pageable, projectService.getProjectById(projectId)));
+    }
+
+    // 移交工程管理用户
+    @PatchMapping(value = "/{projectId}/users/{userId}/transfer")
+    @PreAuthorize(value = "hasRole('admin')")
+    public ResultEntity transferProjectByUser(@PathVariable(value = "projectId") String projectId, @PathVariable(value = "userId") String userId) {
+        return ResultUtils.build(projectService.transferProjectByUser(projectId, userService.getUserById(userId)));
     }
 }
