@@ -45,6 +45,7 @@ public class UserActionLogService {
 
     // 保存用户操作日志
     public UserActionLogEntity saveUserActionLog(UserActionLogEntity userActionLogEntity) {
+        log.info("已保存用户操作日志：" + userActionLogEntity.getDescription());
         return userActionLogRepository.save(userActionLogEntity);
     }
 

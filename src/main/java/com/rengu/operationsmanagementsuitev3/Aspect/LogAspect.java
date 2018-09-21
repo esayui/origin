@@ -104,7 +104,7 @@ public class LogAspect {
                         description = "用户：" + username + "，降级管理员：" + userEntity.getUsername() + "为普通用户";
                         break;
                     }
-                    case "saveProjectById": {
+                    case "saveProjectByUser": {
                         ProjectEntity projectEntity = (ProjectEntity) result.getData();
                         object = UserActionLogService.PROJECT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
