@@ -77,6 +77,17 @@ public class ComponentService {
         return componentEntity;
     }
 
+    public void copyComponentByProject(ProjectEntity sourceProject, ProjectEntity targetProject) {
+        List<ComponentEntity> componentEntityList = getComponentsByProject(sourceProject);
+        for (ComponentEntity sourceComponent : componentEntityList) {
+            ComponentEntity targetComponent = new ComponentEntity();
+            BeanUtils.copyProperties(sourceComponent, targetComponent, "id", "createTime");
+            targetComponent.setProjectEntity(targetProject);
+            componentRepository.save(targetComponent);
+            componentFileService.copyComponentFileByComponent(sourceComponent, targetComponent);
+        }
+    }
+
     // 根据Id删除组件
     @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity deleteComponentById(String componentId) {

@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ProjectRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -54,6 +55,20 @@ public class ProjectService {
         }
         projectEntity.setUserEntity(userEntity);
         return projectRepository.save(projectEntity);
+    }
+
+    // 根据Id复制工程
+    @CacheEvict(value = "Project_Cache", allEntries = true)
+    public ProjectEntity copyProjectByUser(String projectId) {
+        ProjectEntity projectArgs = getProjectById(projectId);
+        ProjectEntity projectEntity = new ProjectEntity();
+        BeanUtils.copyProperties(projectArgs, projectEntity, "id", "createTime");
+        projectRepository.save(projectEntity);
+        // 复制设备
+        deviceService.copyDeviceByProject(projectArgs, projectEntity);
+        // 复制组件
+        componentService.copyComponentByProject(projectArgs, projectEntity);
+        return projectEntity;
     }
 
     // 根据Id删除工程

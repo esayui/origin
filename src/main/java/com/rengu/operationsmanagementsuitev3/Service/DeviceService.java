@@ -80,6 +80,16 @@ public class DeviceService {
         return deviceRepository.save(deviceEntity);
     }
 
+    public void copyDeviceByProject(ProjectEntity sourceProject, ProjectEntity targetProject) {
+        List<DeviceEntity> deviceEntityList = getDevicesByProject(sourceProject);
+        for (DeviceEntity sourceDevice : deviceEntityList) {
+            DeviceEntity targetDevice = new DeviceEntity();
+            BeanUtils.copyProperties(sourceDevice, targetDevice, "id", "createTime");
+            targetDevice.setProjectEntity(targetProject);
+            deviceRepository.save(targetDevice);
+        }
+    }
+
     // 根据Id删除设备
     @CacheEvict(value = "Device_Cache", allEntries = true)
     public DeviceEntity deleteDeviceById(String deviceId) {
