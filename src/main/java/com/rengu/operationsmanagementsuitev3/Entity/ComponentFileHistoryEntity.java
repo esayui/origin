@@ -25,6 +25,7 @@ public class ComponentFileHistoryEntity implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
     private String name;
+    private String extension;
     private boolean isFolder;
     @ManyToOne
     private FileEntity fileEntity;

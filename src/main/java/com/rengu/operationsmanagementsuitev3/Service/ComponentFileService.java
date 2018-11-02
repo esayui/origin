@@ -57,7 +57,8 @@ public class ComponentFileService {
         if (StringUtils.isEmpty(componentFileEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_NAME_ARGS_NOT_FOUND);
         }
-        componentFileEntity.setName(getName(componentFileEntity.getName(), parentNode, componentEntity));
+        componentFileEntity.setName(getName(componentFileEntity.getName(), componentFileEntity.getExtension(), parentNode, componentEntity));
+        componentFileEntity.setExtension("?");
         componentFileEntity.setFolder(true);
         componentFileEntity.setParentNode(parentNode);
         componentFileEntity.setComponentEntity(componentEntity);
@@ -71,21 +72,25 @@ public class ComponentFileService {
     public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(ComponentEntity componentEntity, String parentNodeId, List<FileMetaEntity> fileMetaEntityList) {
         List<ComponentFileEntity> componentFileEntityList = new ArrayList<>();
         for (FileMetaEntity fileMetaEntity : fileMetaEntityList) {
+            log.info("文件路径：" + fileMetaEntity.getRelativePath());
             ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
             for (String path : fileMetaEntity.getRelativePath().split("/")) {
                 if (!StringUtils.isEmpty(path)) {
                     if (path.equals(fileMetaEntity.getName())) {
+                        log.info("文件节点：" + path);
                         // 文件节点，先判断是否存在该节点
-                        if (hasComponentFileByNameAndParentNodeAndComponent(FilenameUtils.getBaseName(path), parentNode, componentEntity)) {
-                            ComponentFileEntity componentFileEntity = getComponentFileByNameAndParentNodeAndComponent(FilenameUtils.getBaseName(path), parentNode, componentEntity);
+                        if (hasComponentFileByNameAndExtensionAndParentNodeAndComponent(FilenameUtils.getBaseName(path), FilenameUtils.getExtension(path), parentNode, componentEntity)) {
+                            ComponentFileEntity componentFileEntity = getComponentFileByNameAndExtensionAndParentNodeAndComponent(FilenameUtils.getBaseName(path), FilenameUtils.getExtension(path), parentNode, componentEntity);
                             componentFileEntity.setCreateTime(new Date());
                             componentFileEntity.setName(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
+                            componentFileEntity.setExtension(FilenameUtils.getExtension(fileMetaEntity.getRelativePath()));
                             componentFileEntity.setFolder(false);
                             componentFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
                             componentFileEntityList.add(componentFileRepository.save(componentFileEntity));
                         } else {
                             ComponentFileEntity componentFileEntity = new ComponentFileEntity();
                             componentFileEntity.setName(StringUtils.isEmpty(FilenameUtils.getBaseName(fileMetaEntity.getRelativePath())) ? "-" : FilenameUtils.getBaseName(fileMetaEntity.getRelativePath()));
+                            componentFileEntity.setExtension(FilenameUtils.getExtension(fileMetaEntity.getRelativePath()));
                             componentFileEntity.setFolder(false);
                             componentFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
                             componentFileEntity.setParentNode(parentNode);
@@ -93,12 +98,14 @@ public class ComponentFileService {
                             componentFileEntityList.add(componentFileRepository.save(componentFileEntity));
                         }
                     } else {
+                        log.info("路径节点：" + path);
                         // 路径节点，先判断是否存在该节点
-                        if (hasComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity)) {
-                            parentNode = getComponentFileByNameAndParentNodeAndComponent(path, parentNode, componentEntity);
+                        if (hasComponentFileByNameAndExtensionAndParentNodeAndComponent(path, "?", parentNode, componentEntity)) {
+                            parentNode = getComponentFileByNameAndExtensionAndParentNodeAndComponent(path, "?", parentNode, componentEntity);
                         } else {
                             ComponentFileEntity componentFileEntity = new ComponentFileEntity();
                             componentFileEntity.setName(path);
+                            componentFileEntity.setExtension("?");
                             componentFileEntity.setFolder(true);
                             componentFileEntity.setParentNode(parentNode);
                             componentFileEntity.setComponentEntity(componentEntity);
@@ -137,8 +144,8 @@ public class ComponentFileService {
     public void copyComponentFiles(ComponentFileEntity sourceNode, ComponentEntity sourceComponent, ComponentFileEntity targetNode, ComponentEntity targetComponent) {
         ComponentFileEntity copyNode;
         // 目标路径下是否有同名节点
-        if (hasComponentFileByNameAndParentNodeAndComponent(sourceNode.getName(), targetNode, targetComponent)) {
-            copyNode = getComponentFileByNameAndParentNodeAndComponent(sourceNode.getName(), targetNode, targetComponent);
+        if (hasComponentFileByNameAndExtensionAndParentNodeAndComponent(sourceNode.getName(), sourceNode.getExtension(), targetNode, targetComponent)) {
+            copyNode = getComponentFileByNameAndExtensionAndParentNodeAndComponent(sourceNode.getName(), sourceNode.getExtension(), targetNode, targetComponent);
         } else {
             copyNode = new ComponentFileEntity();
             BeanUtils.copyProperties(sourceNode, copyNode, "id", "createTime", "parentNode", "componentEntity");
@@ -157,11 +164,11 @@ public class ComponentFileService {
     public ComponentFileEntity moveComponentFileById(String sourceNodeId, String targetNodeId, ComponentEntity targetComponent) throws IOException {
         ComponentFileEntity sourceComponentFile = getComponentFileById(sourceNodeId);
         ComponentFileEntity targetComponentFile = hasComponentFileById(targetNodeId) ? getComponentFileById(targetNodeId) : null;
-        if (!hasComponentFileByNameAndParentNodeAndComponent(sourceComponentFile.getName(), targetComponentFile, targetComponent)) {
+        if (!hasComponentFileByNameAndExtensionAndParentNodeAndComponent(sourceComponentFile.getName(), sourceComponentFile.getExtension(), targetComponentFile, targetComponent)) {
             sourceComponentFile.setParentNode(targetComponentFile);
             sourceComponentFile.setComponentEntity(targetComponent);
         } else {
-            ComponentFileEntity target = getComponentFileByNameAndParentNodeAndComponent(sourceComponentFile.getName(), targetComponentFile, targetComponent);
+            ComponentFileEntity target = getComponentFileByNameAndExtensionAndParentNodeAndComponent(sourceComponentFile.getName(), sourceComponentFile.getExtension(), targetComponentFile, targetComponent);
             deleteComponentFile(target);
             sourceComponentFile.setParentNode(targetComponentFile);
             sourceComponentFile.setComponentEntity(targetComponent);
@@ -213,7 +220,7 @@ public class ComponentFileService {
     public ComponentFileEntity updateComponentFileById(String componentfileId, ComponentFileEntity componentFileArgs) {
         ComponentFileEntity componentFileEntity = getComponentFileById(componentfileId);
         if (!StringUtils.isEmpty(componentFileArgs.getName()) && !componentFileEntity.getName().equals(FilenameUtils.getBaseName(componentFileArgs.getName()))) {
-            if (hasComponentFileByNameAndParentNodeAndComponent(FilenameUtils.getBaseName(componentFileArgs.getName()), componentFileEntity.getParentNode(), componentFileEntity.getComponentEntity())) {
+            if (hasComponentFileByNameAndExtensionAndParentNodeAndComponent(FilenameUtils.getBaseName(componentFileArgs.getName()), FilenameUtils.getExtension(componentFileArgs.getName()), componentFileEntity.getParentNode(), componentFileEntity.getComponentEntity())) {
                 throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_NAME_EXISTED + componentFileArgs.getName());
             }
             componentFileEntity.setName(FilenameUtils.getBaseName(componentFileArgs.getName()));
@@ -232,11 +239,11 @@ public class ComponentFileService {
     }
 
     // 根据名称、父节点及组件检查文件是否存在
-    public boolean hasComponentFileByNameAndParentNodeAndComponent(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity) {
-        if (StringUtils.isEmpty(name)) {
+    public boolean hasComponentFileByNameAndExtensionAndParentNodeAndComponent(String name, String extension, ComponentFileEntity parentNode, ComponentEntity componentEntity) {
+        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(extension)) {
             return false;
         }
-        return componentFileRepository.existsByNameAndParentNodeAndComponentEntity(name, parentNode, componentEntity);
+        return componentFileRepository.existsByNameAndExtensionAndParentNodeAndComponentEntity(name, extension, parentNode, componentEntity);
     }
 
     // 根据引用文件判断是否存在
@@ -245,8 +252,8 @@ public class ComponentFileService {
     }
 
     // 根据名称、父节点及组件查询文件
-    public ComponentFileEntity getComponentFileByNameAndParentNodeAndComponent(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity) {
-        return componentFileRepository.findByNameAndParentNodeAndComponentEntity(name, parentNode, componentEntity).get();
+    public ComponentFileEntity getComponentFileByNameAndExtensionAndParentNodeAndComponent(String name, String extension, ComponentFileEntity parentNode, ComponentEntity componentEntity) {
+        return componentFileRepository.findByNameAndExtensionAndParentNodeAndComponentEntity(name, extension, parentNode, componentEntity).get();
     }
 
     // 根据id查询组件文件
@@ -271,9 +278,9 @@ public class ComponentFileService {
     }
 
     // 获取不重复的文件/文件夹名
-    public String getName(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity) {
+    public String getName(String name, String extension, ComponentFileEntity parentNode, ComponentEntity componentEntity) {
         int index = 0;
-        while (hasComponentFileByNameAndParentNodeAndComponent(name, parentNode, componentEntity)) {
+        while (hasComponentFileByNameAndExtensionAndParentNodeAndComponent(name, extension, parentNode, componentEntity)) {
             index = index + 1;
             name = name + "(" + index + ")";
         }
