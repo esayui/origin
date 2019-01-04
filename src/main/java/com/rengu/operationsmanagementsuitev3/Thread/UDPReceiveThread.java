@@ -37,7 +37,9 @@ public class UDPReceiveThread {
         DatagramSocket datagramSocket = new DatagramSocket(ApplicationConfig.UDP_RECEIVE_PORT);
         DatagramPacket datagramPacket = new DatagramPacket(new byte[512], 512);
         while (true) {
+            long startTime = System.currentTimeMillis();
             datagramSocket.receive(datagramPacket);
+            log.info("心跳间隔：" + (System.currentTimeMillis() - startTime) + "毫秒");
             // 解析心跳报文信息
             byte[] bytes = datagramPacket.getData();
             int pointer = 0;
@@ -65,7 +67,7 @@ public class UDPReceiveThread {
                 pointer = pointer + 8;
                 downLoadSpeed = Double.parseDouble(new String(bytes, pointer, 8).trim());
             } catch (NumberFormatException e) {
-                log.info(e.getMessage());
+                log.info("心跳豹纹解析异常，VxWorks系统请忽略此提示。");
             }
             HeartbeatEntity heartbeatEntity = new HeartbeatEntity();
             heartbeatEntity.setHostAddress(datagramPacket.getAddress().getHostAddress());
