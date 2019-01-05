@@ -37,9 +37,7 @@ public class UDPReceiveThread {
         DatagramSocket datagramSocket = new DatagramSocket(ApplicationConfig.UDP_RECEIVE_PORT);
         DatagramPacket datagramPacket = new DatagramPacket(new byte[512], 512);
         while (true) {
-            long startTime = System.currentTimeMillis();
             datagramSocket.receive(datagramPacket);
-            log.info("心跳间隔：" + (System.currentTimeMillis() - startTime) + "毫秒");
             // 解析心跳报文信息
             byte[] bytes = datagramPacket.getData();
             int pointer = 0;
@@ -50,9 +48,15 @@ public class UDPReceiveThread {
             int freeRAMSize = 0;
             double upLoadSpeed = 0.0;
             double downLoadSpeed = 0.0;
+            int OSType = 0;
+            String OSName = "";
             try {
                 String codeType = new String(bytes, pointer, 4).trim();
                 pointer = pointer + 4;
+                OSType = bytes[pointer];
+                pointer = pointer + 1;
+                OSName = new String(bytes, pointer, 16).trim();
+                pointer = pointer + 16;
                 cpuTag = new String(bytes, pointer, 64).trim();
                 pointer = pointer + 64;
                 cpuClock = Long.parseLong(new String(bytes, pointer, 6).trim());
@@ -66,8 +70,8 @@ public class UDPReceiveThread {
                 upLoadSpeed = Double.parseDouble(new String(bytes, pointer, 8).trim());
                 pointer = pointer + 8;
                 downLoadSpeed = Double.parseDouble(new String(bytes, pointer, 8).trim());
-            } catch (NumberFormatException e) {
-                log.info("心跳豹纹解析异常，VxWorks系统请忽略此提示。");
+            } catch (Exception e) {
+                log.info("心跳格式解析异常，VxWorks、Linux系统请忽略此提示。");
             }
             HeartbeatEntity heartbeatEntity = new HeartbeatEntity();
             heartbeatEntity.setHostAddress(datagramPacket.getAddress().getHostAddress());
@@ -78,6 +82,8 @@ public class UDPReceiveThread {
             heartbeatEntity.setRamFreeSize(freeRAMSize);
             heartbeatEntity.setUpLoadSpeed(upLoadSpeed);
             heartbeatEntity.setDownLoadSpeed(downLoadSpeed);
+            heartbeatEntity.setOSType(OSType);
+            heartbeatEntity.setOSName(OSName);
             simpMessagingTemplate.convertAndSend("/deviceInfo/" + heartbeatEntity.getHostAddress(), JsonUtils.toJson(heartbeatEntity));
             if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(heartbeatEntity.getHostAddress())) {
                 log.info(heartbeatEntity.getHostAddress() + "----->建立服务器连接。");

@@ -4,6 +4,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -73,9 +76,9 @@ public class DeployMetaService {
             DEPLOYING_DEVICE.put(deviceEntity.getHostAddress(), deviceEntity);
         }
         // 初始化Socket、输入输出流
-        Socket socket = null;
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
+        @Cleanup Socket socket = null;
+        @Cleanup InputStream inputStream = null;
+        @Cleanup OutputStream outputStream = null;
         try {
             // 建立TCP连接
             socket = new Socket(deviceEntity.getHostAddress(), ApplicationConfig.TCP_DEPLOY_PORT);
@@ -132,28 +135,61 @@ public class DeployMetaService {
                     }
                 }
                 // 4、发送实体文件(判断文件还是文件夹)
-                int bufferSize = 1024000;
                 File file = new File(deployMetaEntity.getComponentFileHistoryEntity().getFileEntity().getLocalPath());
-                FileInputStream fileInputStream = new FileInputStream(file);
-                byte[] buffer = new byte[bufferSize];
-                int readSize = 0;
-                while (-1 != (readSize = fileInputStream.read(buffer))) {
+                @Cleanup RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
+                int sendSize = 0;
+                while (sendSize < file.length()) {
                     long start = System.currentTimeMillis();
-                    if (readSize != bufferSize) {
-                        byte[] bytes = new byte[readSize];
-                        System.arraycopy(buffer, 0, bytes, 0, readSize);
-                        outputStream.write(bytes);
-                    } else {
-                        outputStream.write(buffer);
+                    // 设置读取缓冲区域大小
+                    byte[] buffer = new byte[1024];
+                    log.info("当前读取位置：" + sendSize + ",文件指针位置：" + randomAccessFile.getFilePointer());
+                    if (randomAccessFile.getFilePointer() != sendSize) {
+                        randomAccessFile.seek(sendSize);
                     }
-                    totalSendSize = totalSendSize + readSize;
-                    // 发送时间单位秒
-                    double time = (double) (System.currentTimeMillis() - start + 1) / 1000;
-                    // 发送大小单位kb
-                    double size = (double) readSize / 1024;
-                    speed = size / time;
-                    progress = ((double) totalSendSize / totalSize) * 100;
-                    simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING, FilenameUtils.getName(targetPath) + "-部署中"));
+                    int readSize = randomAccessFile.read(buffer);
+                    if (readSize != -1) {
+                        // 移动发送大小
+                        sendSize = sendSize + readSize;
+                        byte[] sendBuffer = new byte[readSize];
+                        System.arraycopy(buffer, 0, sendBuffer, 0, readSize);
+                        // 检测是否为VXWORKS系统
+                        if (DeviceService.ONLINE_HOST_ADRESS.get(deviceEntity.getHostAddress()).getOSType() == DeviceService.OS_TYPE.VXWORKS.ordinal()) {
+                            String byteText = new String(sendBuffer, StandardCharsets.UTF_8).replace("\r\n", "\n");
+                            // 检测最后一个字符是否为\r
+                            if (byteText.lastIndexOf("\r") + 1 == byteText.length() && sendSize + 1 < file.length()) {
+                                // 检测下一个字符是否为\n
+                                byte[] checkBytes = new byte[1];
+                                checkBytes[0] = randomAccessFile.readByte();
+                                String checkString = new String(checkBytes, StandardCharsets.UTF_8);
+                                if (checkString.equals("\n")) {
+                                    sendSize = sendSize + 1;
+                                    StringBuilder stringBuilder = new StringBuilder(byteText);
+                                    stringBuilder.setCharAt(stringBuilder.lastIndexOf("\r"), '\n');
+                                    byteText = stringBuilder.toString();
+                                }
+                            }
+                            ByteBuffer byteBuffer = ByteBuffer.wrap(byteText.getBytes());
+                            outputStream.write(byteBuffer.array());
+                        } else {
+                            outputStream.write(sendBuffer);
+                        }
+                        // 更新进度数据
+                        totalSendSize = totalSendSize + readSize;
+                        // 发送时间单位秒
+                        double time = (double) (System.currentTimeMillis() - start + 1) / 1000;
+                        // 发送大小单位kb
+                        double size = (double) readSize / 1024;
+                        speed = size / time;
+                        progress = ((double) totalSendSize / totalSize) * 100;
+                        simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING, FilenameUtils.getName(targetPath) + "-部署中"));
+                    } else {
+                        deployLogEntity.setComplete(false);
+                        deployLogDetailEntity.setComplete(false);
+                        progress = (double) totalSendSize / totalSize;
+                        log.info(deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署失败，文件读取异常。当前进度：" + progress + "%");
+                        simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING_ERROR, FilenameUtils.getName(targetPath) + "-部署失败"));
+                        continue deploylable;
+                    }
                 }
                 // 5、发送文件结束标志
 //                outputStream.write("fileRecvEnd".getBytes());

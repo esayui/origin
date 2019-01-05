@@ -35,6 +35,10 @@ import java.util.concurrent.TimeoutException;
 @Transactional
 public class DeviceService {
 
+    public enum OS_TYPE {
+        UNKNOWN, WINDOWS, LINUX, VXWORKS
+    }
+
     public static final Map<String, HeartbeatEntity> ONLINE_HOST_ADRESS = new ConcurrentHashMap<>();
 
     private final DeviceRepository deviceRepository;
