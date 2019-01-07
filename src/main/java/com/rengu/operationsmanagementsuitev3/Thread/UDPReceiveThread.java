@@ -71,7 +71,8 @@ public class UDPReceiveThread {
                 pointer = pointer + 8;
                 downLoadSpeed = Double.parseDouble(new String(bytes, pointer, 8).trim());
             } catch (Exception e) {
-                log.info("心跳格式解析异常，VxWorks、Linux系统请忽略此提示。");
+                log.info("心跳格式解析异常:" + e.getMessage());
+                e.printStackTrace();
             }
             HeartbeatEntity heartbeatEntity = new HeartbeatEntity();
             heartbeatEntity.setHostAddress(datagramPacket.getAddress().getHostAddress());

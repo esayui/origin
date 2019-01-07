@@ -72,12 +72,10 @@ public class ComponentFileService {
     public List<ComponentFileEntity> saveComponentFilesByParentNodeAndComponent(ComponentEntity componentEntity, String parentNodeId, List<FileMetaEntity> fileMetaEntityList) {
         List<ComponentFileEntity> componentFileEntityList = new ArrayList<>();
         for (FileMetaEntity fileMetaEntity : fileMetaEntityList) {
-            log.info("文件路径：" + fileMetaEntity.getRelativePath());
             ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
             for (String path : fileMetaEntity.getRelativePath().split("/")) {
                 if (!StringUtils.isEmpty(path)) {
                     if (path.equals(fileMetaEntity.getName())) {
-                        log.info("文件节点：" + path);
                         // 文件节点，先判断是否存在该节点
                         if (hasComponentFileByNameAndExtensionAndParentNodeAndComponent(FilenameUtils.getBaseName(path), FilenameUtils.getExtension(path), parentNode, componentEntity)) {
                             ComponentFileEntity componentFileEntity = getComponentFileByNameAndExtensionAndParentNodeAndComponent(FilenameUtils.getBaseName(path), FilenameUtils.getExtension(path), parentNode, componentEntity);
@@ -98,7 +96,6 @@ public class ComponentFileService {
                             componentFileEntityList.add(componentFileRepository.save(componentFileEntity));
                         }
                     } else {
-                        log.info("路径节点：" + path);
                         // 路径节点，先判断是否存在该节点
                         if (hasComponentFileByNameAndExtensionAndParentNodeAndComponent(path, "?", parentNode, componentEntity)) {
                             parentNode = getComponentFileByNameAndExtensionAndParentNodeAndComponent(path, "?", parentNode, componentEntity);

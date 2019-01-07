@@ -141,8 +141,7 @@ public class DeployMetaService {
                 while (sendSize < file.length()) {
                     long start = System.currentTimeMillis();
                     // 设置读取缓冲区域大小
-                    byte[] buffer = new byte[1024];
-                    log.info("当前读取位置：" + sendSize + ",文件指针位置：" + randomAccessFile.getFilePointer());
+                    byte[] buffer = new byte[10240];
                     if (randomAccessFile.getFilePointer() != sendSize) {
                         randomAccessFile.seek(sendSize);
                     }
@@ -153,7 +152,9 @@ public class DeployMetaService {
                         byte[] sendBuffer = new byte[readSize];
                         System.arraycopy(buffer, 0, sendBuffer, 0, readSize);
                         // 检测是否为VXWORKS系统
-                        if (DeviceService.ONLINE_HOST_ADRESS.get(deviceEntity.getHostAddress()).getOSType() == DeviceService.OS_TYPE.VXWORKS.ordinal()) {
+//                        if (DeviceService.ONLINE_HOST_ADRESS.get(deviceEntity.getHostAddress()).getOSType() == DeviceService.OS_TYPE.VXWORKS.ordinal()) {
+                        if (false) {
+                            log.info("VxWorks部署逻辑");
                             String byteText = new String(sendBuffer, StandardCharsets.UTF_8).replace("\r\n", "\n");
                             // 检测最后一个字符是否为\r
                             if (byteText.lastIndexOf("\r") + 1 == byteText.length() && sendSize + 1 < file.length()) {
@@ -170,8 +171,10 @@ public class DeployMetaService {
                             }
                             ByteBuffer byteBuffer = ByteBuffer.wrap(byteText.getBytes());
                             outputStream.write(byteBuffer.array());
+                            log.info("VxWorks发送-->" + deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",发送字节数：" + byteBuffer.array().length + "|" + byteBuffer.capacity());
                         } else {
                             outputStream.write(sendBuffer);
+                            log.info("普通发送-->" + deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",发送字节数：" + sendBuffer.length);
                         }
                         // 更新进度数据
                         totalSendSize = totalSendSize + readSize;

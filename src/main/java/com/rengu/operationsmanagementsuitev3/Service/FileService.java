@@ -21,7 +21,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -55,7 +54,7 @@ public class FileService {
     @CacheEvict(value = "File_Cache", allEntries = true)
     public FileEntity saveFile(File file) throws IOException {
         FileEntity fileEntity = new FileEntity();
-        String MD5 = DigestUtils.md5Hex(new FileInputStream(file));
+        String MD5 = DigestUtils.md5Hex(FileUtils.readFileToByteArray(file));
         if (hasFileByMD5(MD5)) {
             throw new RuntimeException(ApplicationMessages.FILE_MD5_EXISTED + MD5);
         }
@@ -125,18 +124,32 @@ public class FileService {
         if (hasFileByMD5(chunkEntity.getIdentifier())) {
             return getFileByMD5(chunkEntity.getIdentifier());
         } else {
-            File file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + "." + FilenameUtils.getExtension(chunkEntity.getFilename()));
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-            for (int i = 1; i <= chunkEntity.getTotalChunks(); i++) {
-                File chunk = new File(ApplicationConfig.CHUNKS_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + File.separator + i + ".tmp");
-                if (chunk.exists()) {
-                    FileUtils.writeByteArrayToFile(file, IOUtils.toByteArray(new FileInputStream(chunk)), true);
-                } else {
-                    throw new RuntimeException(ApplicationMessages.FILE_CHUNK_NOT_FOUND + chunk.getAbsolutePath());
-                }
+            File file = null;
+            String extension = FilenameUtils.getExtension(chunkEntity.getFilename());
+            if (StringUtils.isEmpty(extension)) {
+                file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getIdentifier());
+            } else {
+                file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + "." + FilenameUtils.getExtension(chunkEntity.getFilename()));
             }
-            return saveFile(file);
+            return mergeChunks(file, chunkEntity);
         }
+    }
+
+    private FileEntity mergeChunks(File file, ChunkEntity chunkEntity) throws IOException {
+        file.delete();
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        for (int i = 1; i <= chunkEntity.getTotalChunks(); i++) {
+            File chunk = new File(ApplicationConfig.CHUNKS_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + File.separator + i + ".tmp");
+            if (chunk.exists()) {
+                FileUtils.writeByteArrayToFile(file, FileUtils.readFileToByteArray(chunk), true);
+            } else {
+                throw new RuntimeException(ApplicationMessages.FILE_CHUNK_NOT_FOUND + chunk.getAbsolutePath());
+            }
+        }
+        if (!chunkEntity.getIdentifier().equals(DigestUtils.md5Hex(FileUtils.readFileToByteArray(file)))) {
+            throw new RuntimeException("文件合并失败，请检查：" + file.getAbsolutePath() + "是否正确。");
+        }
+        return saveFile(file);
     }
 }

@@ -86,7 +86,6 @@ public class ScanHandlerService {
                 // 初始化结果列表
                 List<DeploymentDesignScanResultDetailEntity> resultList = new ArrayList<>();
                 for (DeploymentDesignScanResultDetailEntity deploymentDesignScanResultDetailEntity : deploymentDesignScanResultDetailEntityList) {
-                    log.info("开始处理：" + deploymentDesignScanResultDetailEntity.getTargetPath());
                     boolean hasFile = false;
                     String relativePath = deploymentDesignScanResultDetailEntity.getTargetPath().replace(targetPath, "");
                     for (ComponentFileHistoryEntity componentFileHistoryEntity : componentFileHistoryService.getComponentFileHistorysByComponentHistory(componentHistoryEntity)) {
@@ -97,11 +96,13 @@ public class ScanHandlerService {
                                 if (deploymentDesignScanResultDetailEntity.getMd5().equals(componentFileHistoryEntity.getFileEntity().getMD5())) {
                                     // MD5相同
                                     deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_CORRECT);
+                                    log.info("发现正确部署文件：" + deploymentDesignScanResultDetailEntity.getTargetPath());
                                     resultList.add(deploymentDesignScanResultDetailEntity);
                                     break;
                                 } else {
                                     // MD5变化
                                     deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_MODIFYED);
+                                    log.info("发现修改文件：" + deploymentDesignScanResultDetailEntity.getTargetPath() + ",上报MD5：" + deploymentDesignScanResultDetailEntity.getMd5() + ",服务器MD5：" + componentFileHistoryEntity.getFileEntity().getMD5());
                                     resultList.add(deploymentDesignScanResultDetailEntity);
                                     break;
                                 }
@@ -110,6 +111,7 @@ public class ScanHandlerService {
                     }
                     // 未知文件
                     if (!hasFile) {
+                        log.info("发现未知文件：" + deploymentDesignScanResultDetailEntity.getTargetPath() + ",局部替换后路径：" + relativePath);
                         deploymentDesignScanResultDetailEntity.setType(SCAN_TYPE_UNKNOWN);
                         resultList.add(deploymentDesignScanResultDetailEntity);
                     }
@@ -119,7 +121,6 @@ public class ScanHandlerService {
                 Iterator<ComponentFileHistoryEntity> componentFileHistoryEntityIterator = componentFileHistoryEntityList.iterator();
                 while (componentFileHistoryEntityIterator.hasNext()) {
                     ComponentFileHistoryEntity componentFileHistoryEntity = componentFileHistoryEntityIterator.next();
-                    log.info("查找未知文件：" + componentFileHistoryEntity.getName());
                     if (componentFileHistoryEntity.isFolder()) {
                         componentFileHistoryEntityIterator.remove();
                     } else {
@@ -140,6 +141,7 @@ public class ScanHandlerService {
                     deploymentDesignScanResultDetailEntity.setTargetPath(FormatUtils.formatPath(orderEntity.getTargetPath() + FormatUtils.getComponentFileHistoryRelativePath(componentFileHistoryEntity, "")));
                     deploymentDesignScanResultDetailEntity.setName(FilenameUtils.getName(deploymentDesignScanResultDetailEntity.getTargetPath()));
                     deploymentDesignScanResultDetailEntity.setMd5(componentFileHistoryEntity.getFileEntity().getMD5());
+                    log.info("发现缺失文件：" + deploymentDesignScanResultDetailEntity.getTargetPath());
                     resultList.add(deploymentDesignScanResultDetailEntity);
                 }
                 DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = new DeploymentDesignScanResultEntity();
