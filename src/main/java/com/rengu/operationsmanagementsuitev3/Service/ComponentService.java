@@ -60,9 +60,7 @@ public class ComponentService {
         }
         componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
         componentEntity.setProjectEntity(projectEntity);
-        componentRepository.save(componentEntity);
-        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
-        return componentEntity;
+        return componentRepository.save(componentEntity);
     }
 
     // 根据id复制组件
@@ -73,7 +71,6 @@ public class ComponentService {
         componentEntity.setName(getName(componentArgs.getName(), componentArgs.getVersion(), componentArgs.getProjectEntity()));
         componentRepository.save(componentEntity);
         componentFileService.copyComponentFileByComponent(componentArgs, componentEntity);
-        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
         return componentEntity;
     }
 
@@ -150,9 +147,8 @@ public class ComponentService {
         if (isModifiedVersion) {
             componentEntity.setVersion(componentArgs.getVersion());
         }
-        componentRepository.save(componentEntity);
-        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
-        return componentEntity;
+        return componentRepository.save(componentEntity);
+//        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
     }
 
     // 根据组件名称、版本、是否删除及工程查询组件是否存在

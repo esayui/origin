@@ -37,44 +37,60 @@ public class UDPReceiveThread {
         DatagramSocket datagramSocket = new DatagramSocket(ApplicationConfig.UDP_RECEIVE_PORT);
         DatagramPacket datagramPacket = new DatagramPacket(new byte[512], 512);
         while (true) {
+            datagramSocket.receive(datagramPacket);
+            // 解析心跳报文信息
+            byte[] bytes = datagramPacket.getData();
+            int pointer = 0;
+            String cpuTag = "";
+            long cpuClock = 0;
+            int cpuUtilization = 0;
+            int ramTotalSize = 0;
+            int freeRAMSize = 0;
+            double upLoadSpeed = 0.0;
+            double downLoadSpeed = 0.0;
+            int OSType = 0;
+            String OSName = "";
             try {
-                datagramSocket.receive(datagramPacket);
-                // 解析心跳报文信息
-                byte bytes[] = datagramPacket.getData();
-                int pointer = 0;
                 String codeType = new String(bytes, pointer, 4).trim();
                 pointer = pointer + 4;
-                String cpuTag = new String(bytes, pointer, 64).trim();
+                OSType = bytes[pointer];
+                pointer = pointer + 1;
+                OSName = new String(bytes, pointer, 16).trim();
+                pointer = pointer + 16;
+                cpuTag = new String(bytes, pointer, 64).trim();
                 pointer = pointer + 64;
-                long cpuClock = Long.parseLong(new String(bytes, pointer, 6).trim());
+                cpuClock = Long.parseLong(new String(bytes, pointer, 6).trim());
                 pointer = pointer + 6;
-                int cpuUtilization = Integer.parseInt(new String(bytes, pointer, 4).trim());
+                cpuUtilization = Integer.parseInt(new String(bytes, pointer, 4).trim());
                 pointer = pointer + 4;
-                int ramTotalSize = Integer.parseInt(new String(bytes, pointer, 6).trim());
+                ramTotalSize = Integer.parseInt(new String(bytes, pointer, 6).trim());
                 pointer = pointer + 6;
-                int freeRAMSize = Integer.parseInt(new String(bytes, pointer, 6).trim());
+                freeRAMSize = Integer.parseInt(new String(bytes, pointer, 6).trim());
                 pointer = pointer + 6;
-                double upLoadSpeed = Double.parseDouble(new String(bytes, pointer, 8).trim());
+                upLoadSpeed = Double.parseDouble(new String(bytes, pointer, 8).trim());
                 pointer = pointer + 8;
-                double downLoadSpeed = Double.parseDouble(new String(bytes, pointer, 8).trim());
-                HeartbeatEntity heartbeatEntity = new HeartbeatEntity();
-                heartbeatEntity.setHostAddress(datagramPacket.getAddress().getHostAddress());
-                heartbeatEntity.setCpuTag(cpuTag);
-                heartbeatEntity.setCpuClock(cpuClock);
-                heartbeatEntity.setCpuUtilization(cpuUtilization);
-                heartbeatEntity.setRamTotalSize(ramTotalSize);
-                heartbeatEntity.setRamFreeSize(freeRAMSize);
-                heartbeatEntity.setUpLoadSpeed(upLoadSpeed);
-                heartbeatEntity.setDownLoadSpeed(downLoadSpeed);
-                simpMessagingTemplate.convertAndSend("/deviceInfo/" + heartbeatEntity.getHostAddress(), JsonUtils.toJson(heartbeatEntity));
-                if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(heartbeatEntity.getHostAddress())) {
-                    log.info(heartbeatEntity.getHostAddress() + "----->建立服务器连接。");
-                }
-                DeviceService.ONLINE_HOST_ADRESS.put(heartbeatEntity.getHostAddress(), heartbeatEntity);
-                simpMessagingTemplate.convertAndSend("/onlineDevice", JsonUtils.toJson(DeviceService.ONLINE_HOST_ADRESS));
-            } catch (NumberFormatException e) {
+                downLoadSpeed = Double.parseDouble(new String(bytes, pointer, 8).trim());
+            } catch (Exception e) {
+                log.info("心跳格式解析异常:" + e.getMessage());
                 e.printStackTrace();
             }
+            HeartbeatEntity heartbeatEntity = new HeartbeatEntity();
+            heartbeatEntity.setHostAddress(datagramPacket.getAddress().getHostAddress());
+            heartbeatEntity.setCpuTag(cpuTag);
+            heartbeatEntity.setCpuClock(cpuClock);
+            heartbeatEntity.setCpuUtilization(cpuUtilization);
+            heartbeatEntity.setRamTotalSize(ramTotalSize);
+            heartbeatEntity.setRamFreeSize(freeRAMSize);
+            heartbeatEntity.setUpLoadSpeed(upLoadSpeed);
+            heartbeatEntity.setDownLoadSpeed(downLoadSpeed);
+            heartbeatEntity.setOSType(OSType);
+            heartbeatEntity.setOSName(OSName);
+            simpMessagingTemplate.convertAndSend("/deviceInfo/" + heartbeatEntity.getHostAddress(), JsonUtils.toJson(heartbeatEntity));
+            if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(heartbeatEntity.getHostAddress())) {
+                log.info(heartbeatEntity.getHostAddress() + "----->建立服务器连接。");
+            }
+            DeviceService.ONLINE_HOST_ADRESS.put(heartbeatEntity.getHostAddress(), heartbeatEntity);
+            simpMessagingTemplate.convertAndSend("/onlineDevice", JsonUtils.toJson(DeviceService.ONLINE_HOST_ADRESS));
         }
     }
 }

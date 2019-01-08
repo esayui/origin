@@ -5,7 +5,7 @@
 
     <groupId>com.rengu</groupId>
     <artifactId>operations-management-suite-v3</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.5.0-RELEASE</version>
     <packaging>jar</packaging>
 
     <name>Operations Management Suite V3</name>
@@ -58,10 +58,10 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-oauth2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-activemq</artifactId>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.springframework.boot</groupId>-->
+        <!--<artifactId>spring-boot-starter-activemq</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

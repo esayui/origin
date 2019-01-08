@@ -3,6 +3,7 @@ package com.rengu.operationsmanagementsuitev3.Utils;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileHistoryEntity;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 
@@ -48,7 +49,7 @@ public class FormatUtils {
             if (componentFileEntity.isFolder()) {
                 basePath = File.separatorChar + componentFileEntity.getName() + File.separatorChar;
             } else {
-                basePath = File.separatorChar + componentFileEntity.getName() + "." + componentFileEntity.getFileEntity().getType();
+                basePath = StringUtils.isEmpty(componentFileEntity.getFileEntity().getType()) ? File.separatorChar + componentFileEntity.getName() : File.separatorChar + componentFileEntity.getName() + "." + componentFileEntity.getFileEntity().getType();
             }
         }
         while (componentFileEntity.getParentNode() != null) {
@@ -65,7 +66,7 @@ public class FormatUtils {
             if (componentFileHistoryEntity.isFolder()) {
                 basePath = File.separatorChar + componentFileHistoryEntity.getName() + File.separatorChar;
             } else {
-                basePath = File.separatorChar + componentFileHistoryEntity.getName() + "." + componentFileHistoryEntity.getFileEntity().getType();
+                basePath = StringUtils.isEmpty(componentFileHistoryEntity.getFileEntity().getType()) ? File.separatorChar + componentFileHistoryEntity.getName() : File.separatorChar + componentFileHistoryEntity.getName() + "." + componentFileHistoryEntity.getFileEntity().getType();
             }
         }
         while (componentFileHistoryEntity.getParentNode() != null) {

@@ -116,14 +116,14 @@ public class ComponentFileHistoryService {
     }
 
     // 根据父节点查询组件文件历史
-    @Cacheable(value = "ComponentFileHistory_Cache", key = "#methodName + #parentNodeId + #componentHistoryEntity.getId()")
+//    @Cacheable(value = "ComponentFileHistory_Cache", key = "#methodName + #parentNodeId + #componentHistoryEntity.getId()")
     public List<ComponentFileHistoryEntity> getComponentFileHistorysByParentNodeAndComponentHistory(String parentNodeId, ComponentHistoryEntity componentHistoryEntity) {
         ComponentFileHistoryEntity parentNode = hasComponentFileHistoryById(parentNodeId) ? getComponentFileHistoryById(parentNodeId) : null;
         return componentFileHistoryRepository.findAllByParentNodeAndComponentHistoryEntity(parentNode, componentHistoryEntity);
     }
 
     // 根据组件历史查询组件文件
-    @Cacheable(value = "ComponentFileHistory_Cache", key = "#methodName + #componentHistoryEntity.getId()")
+//    @Cacheable(value = "ComponentFileHistory_Cache", key = "#methodName + #componentHistoryEntity.getId()")
     public List<ComponentFileHistoryEntity> getComponentFileHistorysByComponentHistory(ComponentHistoryEntity componentHistoryEntity) {
         return componentFileHistoryRepository.findAllByComponentHistoryEntity(componentHistoryEntity);
     }
