@@ -5,7 +5,7 @@
 
     <groupId>com.rengu</groupId>
     <artifactId>operations-management-suite-v3</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.5.0-RELEASE</version>
     <packaging>jar</packaging>
 
     <name>Operations Management Suite V3</name>
