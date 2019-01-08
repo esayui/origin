@@ -39,14 +39,12 @@ public class ComponentFileService {
 
     private final ComponentFileRepository componentFileRepository;
     private final FileService fileService;
-    private final ComponentHistoryService componentHistoryService;
     private final ComponentFileHistoryService componentFileHistoryService;
 
     @Autowired
-    public ComponentFileService(ComponentFileRepository componentFileRepository, FileService fileService, ComponentHistoryService componentHistoryService, ComponentFileHistoryService componentFileHistoryService) {
+    public ComponentFileService(ComponentFileRepository componentFileRepository, FileService fileService, ComponentFileHistoryService componentFileHistoryService) {
         this.componentFileRepository = componentFileRepository;
         this.fileService = fileService;
-        this.componentHistoryService = componentHistoryService;
         this.componentFileHistoryService = componentFileHistoryService;
     }
 
@@ -62,9 +60,8 @@ public class ComponentFileService {
         componentFileEntity.setFolder(true);
         componentFileEntity.setParentNode(parentNode);
         componentFileEntity.setComponentEntity(componentEntity);
-        componentFileRepository.save(componentFileEntity);
-        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
-        return componentFileEntity;
+        return componentFileRepository.save(componentFileEntity);
+//        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
     }
 
     // 根据组件父节点保存文件
@@ -113,9 +110,6 @@ public class ComponentFileService {
                 }
             }
         }
-        if (!componentFileEntityList.isEmpty()) {
-            componentHistoryService.saveComponentHistoryByComponent(componentEntity);
-        }
         return componentFileEntityList;
     }
 
@@ -125,7 +119,6 @@ public class ComponentFileService {
         ComponentFileEntity sourceNode = getComponentFileById(sourceNodeId);
         ComponentFileEntity targetNode = hasComponentFileById(targetNodeId) ? getComponentFileById(targetNodeId) : null;
         copyComponentFiles(sourceNode, sourceNode.getComponentEntity(), targetNode, targetComponent);
-        componentHistoryService.saveComponentHistoryByComponent(targetComponent);
         return sourceNode;
     }
 
@@ -171,7 +164,6 @@ public class ComponentFileService {
             sourceComponentFile.setComponentEntity(targetComponent);
         }
         componentFileRepository.save(sourceComponentFile);
-        componentHistoryService.saveComponentHistoryByComponent(targetComponent);
         return targetComponentFile;
     }
 
@@ -180,7 +172,6 @@ public class ComponentFileService {
     public ComponentFileEntity deleteComponentFileById(String componentfileId) throws IOException {
         ComponentFileEntity componentFileEntity = getComponentFileById(componentfileId);
         deleteComponentFile(componentFileEntity);
-        componentHistoryService.saveComponentHistoryByComponent(componentFileEntity.getComponentEntity());
         return componentFileEntity;
     }
 
@@ -222,9 +213,7 @@ public class ComponentFileService {
             }
             componentFileEntity.setName(FilenameUtils.getBaseName(componentFileArgs.getName()));
         }
-        componentFileRepository.save(componentFileEntity);
-        componentHistoryService.saveComponentHistoryByComponent(componentFileEntity.getComponentEntity());
-        return componentFileEntity;
+        return componentFileRepository.save(componentFileEntity);
     }
 
     // 根据Id查询组件文件是否存在

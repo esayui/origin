@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -39,6 +40,7 @@ public class ComponentHistoryService {
     }
 
     // 根据组件保存组件历史
+    @Async
     @CacheEvict(value = "ComponentHistory_Cache", allEntries = true)
     public void saveComponentHistoryByComponent(ComponentEntity sourceComponent) {
         ComponentHistoryEntity componentHistoryEntity = new ComponentHistoryEntity();
