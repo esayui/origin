@@ -46,6 +46,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http.authorizeRequests().antMatchers("/components/*/export", "/componentfiles/*/export", "/componenthistorys/*/export", "/componentfilehistorys/*/export").permitAll();
         // 放行websocket接口
         http.authorizeRequests().antMatchers("/OMS/**").permitAll();
+        // 放行actuator接口
+        http.authorizeRequests().antMatchers("/actuator/**").permitAll();
         http.authorizeRequests().anyRequest().authenticated();
     }
 }
