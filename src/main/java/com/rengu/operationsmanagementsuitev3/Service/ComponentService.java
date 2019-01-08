@@ -68,7 +68,7 @@ public class ComponentService {
     public ComponentEntity copyComponentById(ComponentEntity componentArgs) {
         ComponentEntity componentEntity = new ComponentEntity();
         BeanUtils.copyProperties(componentArgs, componentEntity, "id", "createTime");
-        componentEntity.setName(getName(componentArgs.getName(), componentArgs.getVersion(), componentArgs.getProjectEntity()));
+        componentEntity.setName(getComponentName(componentArgs));
         componentRepository.save(componentEntity);
         componentFileService.copyComponentFileByComponent(componentArgs, componentEntity);
         return componentEntity;
@@ -97,6 +97,7 @@ public class ComponentService {
     @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity restoreComponentById(String componentId) {
         ComponentEntity componentEntity = getComponentById(componentId);
+        componentEntity.setName(getComponentName(componentEntity));
         componentEntity.setDeleted(false);
         return componentRepository.save(componentEntity);
     }
@@ -148,7 +149,6 @@ public class ComponentService {
             componentEntity.setVersion(componentArgs.getVersion());
         }
         return componentRepository.save(componentEntity);
-//        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
     }
 
     // 根据组件名称、版本、是否删除及工程查询组件是否存在
@@ -203,12 +203,24 @@ public class ComponentService {
     }
 
     // 生成不重复的组件名称
-    public String getName(String name, String version, ProjectEntity projectEntity) {
-        int index = 0;
-        while (hasComponentByNameAndVersionAndDeletedAndProject(name, version, false, projectEntity)) {
-            index = index + 1;
-            name = name + "-" + index;
+    private String getComponentName(ComponentEntity componentEntity) {
+        String name = componentEntity.getName();
+        String version = componentEntity.getVersion();
+        if (hasComponentByNameAndVersionAndDeletedAndProject(name, version, false, componentEntity.getProjectEntity())) {
+            int index = 0;
+            String tempName = name;
+            if (name.contains("@")) {
+                tempName = name.substring(0, name.lastIndexOf("@"));
+                index = Integer.parseInt(name.substring(name.lastIndexOf("@") + 1)) + 1;
+                name = tempName + "@" + index;
+            }
+            while (hasComponentByNameAndVersionAndDeletedAndProject(name, version, false, componentEntity.getProjectEntity())) {
+                name = tempName + "@" + index;
+                index = index + 1;
+            }
+            return name;
+        } else {
+            return name;
         }
-        return name;
     }
 }

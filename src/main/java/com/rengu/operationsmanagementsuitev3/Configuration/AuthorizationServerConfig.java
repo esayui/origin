@@ -65,7 +65,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
                 .secret(new BCryptPasswordEncoder().encode("OAUTH_CLIENT_SECRET"))
                 .scopes("SCOPES")
                 .accessTokenValiditySeconds(60 * 60 * 6)
-                .refreshTokenValiditySeconds(60 * 60 * 9);
+                .refreshTokenValiditySeconds(60 * 60 * 24);
     }
 
     @Override
@@ -82,6 +82,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         endpoints.accessTokenConverter(accessTokenConverter());
         endpoints.tokenEnhancer(tokenEnhancerChain);
         endpoints.authenticationManager(authenticationManager);
+        endpoints.userDetailsService(userService);
     }
 
     @Bean

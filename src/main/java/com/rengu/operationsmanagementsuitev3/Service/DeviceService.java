@@ -115,6 +115,9 @@ public class DeviceService {
     @CacheEvict(value = "Device_Cache", allEntries = true)
     public DeviceEntity restoreDeviceById(String deviceId) {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
+        if (hasDeviceByHostAddressAndDeletedAndProject(deviceEntity.getHostAddress(), false, deviceEntity.getProjectEntity())) {
+            throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_EXISTED + deviceEntity.getHostAddress());
+        }
         deviceEntity.setDeleted(false);
         return deviceRepository.save(deviceEntity);
     }

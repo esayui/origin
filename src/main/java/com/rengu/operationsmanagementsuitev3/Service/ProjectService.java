@@ -84,6 +84,7 @@ public class ProjectService {
     @CacheEvict(value = "Project_Cache", allEntries = true)
     public ProjectEntity restoreProjectById(String projectId) {
         ProjectEntity projectEntity = getProjectById(projectId);
+        projectEntity.setName(getProjectName(projectEntity));
         projectEntity.setDeleted(false);
         return projectRepository.save(projectEntity);
     }
@@ -157,5 +158,26 @@ public class ProjectService {
         ProjectEntity projectEntity = getProjectById(projectId);
         projectEntity.setUserEntity(userEntity);
         return projectRepository.save(projectEntity);
+    }
+
+    // 生成不重复的工程名称
+    private String getProjectName(ProjectEntity projectEntity) {
+        String name = projectEntity.getName();
+        if (hasProjectByNameAndDeletedAndUser(name, false, projectEntity.getUserEntity())) {
+            int index = 0;
+            String tempName = name;
+            if (name.contains("@")) {
+                tempName = name.substring(0, name.lastIndexOf("@"));
+                index = Integer.parseInt(name.substring(name.lastIndexOf("@") + 1)) + 1;
+                name = tempName + "@" + index;
+            }
+            while (hasProjectByNameAndDeletedAndUser(name, false, projectEntity.getUserEntity())) {
+                name = tempName + "@" + index;
+                index = index + 1;
+            }
+            return name;
+        } else {
+            return name;
+        }
     }
 }
