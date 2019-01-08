@@ -56,7 +56,7 @@ public class DeploymentDesignService {
         DeploymentDesignEntity deploymentDesignArgs = getDeploymentDesignById(deploymentDesignId);
         DeploymentDesignEntity deploymentDesignEntity = new DeploymentDesignEntity();
         BeanUtils.copyProperties(deploymentDesignArgs, deploymentDesignEntity, "id", "createTime", "baseline", "name");
-        deploymentDesignEntity.setName(getName(deploymentDesignArgs.getName(), deploymentDesignArgs.getProjectEntity()));
+        deploymentDesignEntity.setName(getDeploymentDesignName(deploymentDesignEntity));
         deploymentDesignRepository.save(deploymentDesignEntity);
         deploymentDesignNodeService.copyDeploymentDesignNodeByDeploymentDesign(deploymentDesignArgs, deploymentDesignEntity);
         return deploymentDesignEntity;
@@ -83,6 +83,7 @@ public class DeploymentDesignService {
     @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
     public DeploymentDesignEntity restoreDeploymentDesignById(String deploymentDesignId) {
         DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
+        deploymentDesignEntity.setName(getDeploymentDesignName(deploymentDesignEntity));
         deploymentDesignEntity.setDeleted(false);
         return deploymentDesignRepository.save(deploymentDesignEntity);
     }
@@ -171,12 +172,24 @@ public class DeploymentDesignService {
     }
 
     // 生成不重复的部署设计名称
-    public String getName(String name, ProjectEntity projectEntity) {
-        int index = 0;
-        while (hasDeploymentDesignByNameAndDeletedAndProject(name, false, projectEntity)) {
-            index = index + 1;
-            name = name + "-" + index;
+    // 生成不重复的工程名称
+    private String getDeploymentDesignName(DeploymentDesignEntity deploymentDesignEntity) {
+        String name = deploymentDesignEntity.getName();
+        if (hasDeploymentDesignByNameAndDeletedAndProject(name, false, deploymentDesignEntity.getProjectEntity())) {
+            int index = 0;
+            String tempName = name;
+            if (name.contains("@")) {
+                tempName = name.substring(0, name.lastIndexOf("@"));
+                index = Integer.parseInt(name.substring(name.lastIndexOf("@") + 1)) + 1;
+                name = tempName + "@" + index;
+            }
+            while (hasDeploymentDesignByNameAndDeletedAndProject(name, false, deploymentDesignEntity.getProjectEntity())) {
+                name = tempName + "@" + index;
+                index = index + 1;
+            }
+            return name;
+        } else {
+            return name;
         }
-        return name;
     }
 }
