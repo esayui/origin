@@ -178,8 +178,11 @@ public class DeploymentDesignDetailService {
         Future<DeploymentDesignScanResultEntity> result = scanHandlerService.deploymentDesignScanHandler(orderEntity, deploymentDesignDetailEntity);
         long startTime = System.currentTimeMillis();
         while (true) {
-            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 10) {
-                throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
+            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 6) {
+                if (!ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {
+                    log.info("扫描Id：" + orderEntity.getId() + ",扫描超时，程序退出。");
+                    throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
+                }
             }
             if (result.isDone()) {
                 DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = result.get();
@@ -187,6 +190,8 @@ public class DeploymentDesignDetailService {
                     orderId = UUID.randomUUID().toString();
                 }
                 deploymentDesignScanResultEntity.setOrderId(orderId);
+                ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.remove(orderEntity.getId());
+                log.info("扫描Id：" + orderEntity.getId() + ",扫描结束。");
                 return deploymentDesignScanResultService.saveDeploymentDesignScanResult(deploymentDesignScanResultEntity);
             }
         }

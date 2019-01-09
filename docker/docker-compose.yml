@@ -1,0 +1,57 @@
+version: "3"
+services:
+
+  Nginx:
+    restart: always
+    container_name: "OMS-Nginx"
+    image: nginx:alpine
+    # 映射端口
+    ports:
+      - 80:80
+    networks:
+      - OMS-Network
+    # 数据卷
+    volumes:
+      - "$PWD/nginx/html:/usr/share/nginx/html"
+
+  MySQL:
+    restart: always
+    container_name: "OMS-MySQL"
+    image: mysql:8
+    ports:
+      - 3306:3306
+    networks:
+      - OMS-Network
+    volumes:
+      - "$PWD/mysql/data:/var/lib/mysql"
+    environment:
+      MYSQL_DATABASE: OperationsManagementSuiteV3DB
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: rengu
+      MYSQL_PASSWORD: rengu
+
+  service:
+    restart: always
+    container_name: "OMS-Server"
+    build:
+      context: ./OMS-Server
+      dockerfile: Dockerfile
+    # 依赖项
+    depends_on:
+      - MySQL
+      - Nginx
+    ports:
+      - 8080:8080
+      - 6005:6005
+      - 6004:6004
+      - 3086:3086
+      - 3087:3087
+      - 3088:3088
+    networks:
+      - OMS-Network
+    volumes:
+      - "$PWD/OMS:/root/OMS"
+
+networks:
+  OMS-Network:
+    driver: bridge

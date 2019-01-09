@@ -70,6 +70,7 @@ public class DeployMetaService {
 
     // 部署元数据
     public void deployMeta(DeploymentDesignEntity deploymentDesignEntity, DeviceEntity deviceEntity, List<DeployMetaEntity> deployMetaEntityList) throws IOException {
+        long deployStartTime = System.currentTimeMillis();
         if (DEPLOYING_DEVICE.containsKey(deviceEntity.getHostAddress())) {
             throw new RuntimeException(ApplicationMessages.DEVICE_IS_DEPOLOYING + deviceEntity.getHostAddress());
         } else {
@@ -171,10 +172,10 @@ public class DeployMetaService {
                             }
                             ByteBuffer byteBuffer = ByteBuffer.wrap(byteText.getBytes());
                             outputStream.write(byteBuffer.array());
-                            log.info("VxWorks发送-->" + deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",发送字节数：" + byteBuffer.array().length + "|" + byteBuffer.capacity());
+//                            log.info("VxWorks发送-->" + deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",发送字节数：" + byteBuffer.array().length + "|" + byteBuffer.capacity());
                         } else {
                             outputStream.write(sendBuffer);
-                            log.info("普通发送-->" + deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",发送字节数：" + sendBuffer.length);
+//                            log.info("普通发送-->" + deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",发送字节数：" + sendBuffer.length);
                         }
                         // 更新进度数据
                         totalSendSize = totalSendSize + readSize;
@@ -230,6 +231,8 @@ public class DeployMetaService {
             DEPLOYING_DEVICE.remove(deviceEntity.getHostAddress());
             deployLogService.saveDeployLog(deployLogEntity);
             deployLogDetailService.saveDeployLogDetails(deployLogDetailEntityList);
+            long deployFinishTime = System.currentTimeMillis();
+            log.info("总计部署文件大小：" + totalSize / 1024 + "Kb，总计部署时间：" + (deployFinishTime - deployStartTime) / 1000 + "s,平均部署速度：" + ((totalSize / 1024) / ((deployFinishTime - deployStartTime) / 1000)) + "kb/s");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

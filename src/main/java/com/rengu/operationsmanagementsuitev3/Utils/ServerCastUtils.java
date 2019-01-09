@@ -35,8 +35,8 @@ public class ServerCastUtils {
     }
 
     public static void sendMessage(InterfaceAddress interfaceAddress) throws IOException {
-        String message = ("S101" + interfaceAddress.getAddress().toString()).replace("/", "");
-//        sendMessageByBroadcast(interfaceAddress, message);
+        String ipAddress = interfaceAddress.getAddress().toString().replace("/", "");
+        String message = ("S101" + ipAddress);
         sendMessageByMulticast(interfaceAddress, message);
     }
 }

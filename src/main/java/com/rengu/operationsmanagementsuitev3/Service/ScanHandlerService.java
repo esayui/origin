@@ -76,7 +76,7 @@ public class ScanHandlerService {
     public Future<DeploymentDesignScanResultEntity> deploymentDesignScanHandler(OrderEntity orderEntity, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
         long startTime = System.currentTimeMillis();
         while (true) {
-            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 5) {
+            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 6) {
                 throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
             }
             if (DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {
@@ -147,6 +147,7 @@ public class ScanHandlerService {
                 DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = new DeploymentDesignScanResultEntity();
                 deploymentDesignScanResultEntity.setDeploymentDesignDetailEntity(deploymentDesignDetailEntity);
                 deploymentDesignScanResultEntity.setResult(resultList);
+                log.info("指令Id：" + orderEntity.getId() + ",总计文件数量：" + deploymentDesignScanResultDetailEntityList.size() + ",扫描总计耗时：" + (System.currentTimeMillis() - startTime) / 1000 + "秒。");
                 return new AsyncResult<>(deploymentDesignScanResultEntity);
             }
         }
