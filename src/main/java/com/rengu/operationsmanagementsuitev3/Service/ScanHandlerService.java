@@ -147,6 +147,7 @@ public class ScanHandlerService {
                 DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = new DeploymentDesignScanResultEntity();
                 deploymentDesignScanResultEntity.setDeploymentDesignDetailEntity(deploymentDesignDetailEntity);
                 deploymentDesignScanResultEntity.setResult(resultList);
+                log.info("指令Id：" + orderEntity.getId() + "扫描总计耗时：" + (System.currentTimeMillis() - startTime) / 1000 + "秒。");
                 return new AsyncResult<>(deploymentDesignScanResultEntity);
             }
         }
