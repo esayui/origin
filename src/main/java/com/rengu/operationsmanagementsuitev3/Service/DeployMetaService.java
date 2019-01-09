@@ -232,7 +232,7 @@ public class DeployMetaService {
             deployLogService.saveDeployLog(deployLogEntity);
             deployLogDetailService.saveDeployLogDetails(deployLogDetailEntityList);
             long deployFinishTime = System.currentTimeMillis();
-            log.info("总计部署文件大小：" + totalSize + "，总计部署时间：" + (deployFinishTime - deployStartTime) + ",平均部署速度：" + ((totalSize / 1024) / ((deployFinishTime - deployStartTime) / 1000)) + "kb/s");
+            log.info("总计部署文件大小：" + totalSize / 1024 + "Kb，总计部署时间：" + (deployFinishTime - deployStartTime) / 1000 + "s,平均部署速度：" + ((totalSize / 1024) / ((deployFinishTime - deployStartTime) / 1000)) + "kb/s");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
