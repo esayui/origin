@@ -2,6 +2,13 @@ package com.rengu.operationsmanagementsuitev3.Utils;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,16 +61,35 @@ public class IPUtils {
     public static String longToIP(long hostAddress) {
         StringBuffer sb = new StringBuffer();
         // 直接右移24位
-        sb.append(String.valueOf((hostAddress >>> 24)));
+        sb.append((hostAddress >>> 24));
         sb.append(".");
         // 将高8位置0，然后右移16位
-        sb.append(String.valueOf((hostAddress & 0x00FFFFFF) >>> 16));
+        sb.append(((hostAddress & 0x00FFFFFF) >>> 16));
         sb.append(".");
         // 将高16位置0，然后右移8位
-        sb.append(String.valueOf((hostAddress & 0x0000FFFF) >>> 8));
+        sb.append(((hostAddress & 0x0000FFFF) >>> 8));
         sb.append(".");
         // 将高24位置0
-        sb.append(String.valueOf((hostAddress & 0x000000FF)));
+        sb.append((hostAddress & 0x000000FF));
         return sb.toString();
+    }
+
+    public static List<InterfaceAddress> getLocalIPs() throws SocketException {
+        List<InterfaceAddress> interfaceAddressList = new ArrayList<>();
+        Enumeration<NetworkInterface> networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
+        while (networkInterfaceEnumeration.hasMoreElements()) {
+            NetworkInterface networkInterface = networkInterfaceEnumeration.nextElement();
+            if (!networkInterface.isLoopback() && !networkInterface.isVirtual()) {
+                for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
+                    if (interfaceAddress.getAddress() != null && interfaceAddress.getBroadcast() != null) {
+                        InetAddress inetAddress = interfaceAddress.getAddress();
+                        if (!inetAddress.isLoopbackAddress() && IPUtils.isIPv4Address(inetAddress.getHostAddress())) {
+                            interfaceAddressList.add(interfaceAddress);
+                        }
+                    }
+                }
+            }
+        }
+        return interfaceAddressList;
     }
 }

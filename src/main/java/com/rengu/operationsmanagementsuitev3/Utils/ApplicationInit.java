@@ -6,6 +6,7 @@ import com.rengu.operationsmanagementsuitev3.Service.RoleService;
 import com.rengu.operationsmanagementsuitev3.Service.UserService;
 import com.rengu.operationsmanagementsuitev3.Thread.TCPReceiveThread;
 import com.rengu.operationsmanagementsuitev3.Thread.UDPReceiveThread;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InterfaceAddress;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -22,6 +24,7 @@ import java.io.IOException;
  * @create: 2018-08-22 17:09
  **/
 
+@Slf4j
 @Order(value = -1)
 @Component
 public class ApplicationInit implements ApplicationRunner {
@@ -41,8 +44,15 @@ public class ApplicationInit implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws IOException {
+        // 获取并打印本机IP地址
+        StringBuilder stringBuilder = new StringBuilder("|");
+        for (InterfaceAddress interfaceAddress : IPUtils.getLocalIPs()) {
+            stringBuilder.append(interfaceAddress.getAddress().toString().replace("/", "")).append("|");
+        }
+        log.info("OMS服务器-IP地址：" + stringBuilder.toString());
         // 初始化文件保存路径
         File file = new File(ApplicationConfig.FILES_SAVE_PATH);
+        log.info("OMS服务器-组件实体文件存放路径：" + file.getAbsolutePath());
         if (!file.exists()) {
             FileUtils.forceMkdir(file);
         }

@@ -120,7 +120,7 @@ public class FileService {
     }
 
     // 合并文件块
-    public FileEntity mergeChunks(ChunkEntity chunkEntity) throws IOException {
+    public synchronized FileEntity mergeChunks(ChunkEntity chunkEntity) throws IOException {
         if (hasFileByMD5(chunkEntity.getIdentifier())) {
             return getFileByMD5(chunkEntity.getIdentifier());
         } else {

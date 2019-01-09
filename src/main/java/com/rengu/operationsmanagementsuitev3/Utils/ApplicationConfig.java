@@ -33,7 +33,7 @@ public class ApplicationConfig {
     public static final String FILES_SAVE_PATH = FormatUtils.formatPath(FileUtils.getUserDirectoryPath() + File.separator + "OMS" + File.separator + "FILES");
 
     // 扫描超时时间
-    public static final long SCAN_TIME_OUT = 1000 * 15;
+    public static final long SCAN_TIME_OUT = 1000 * 10;
     // 部署回复超时时间
     public static final long REPLY_TIME_OUT = 1000 * 5;
 }

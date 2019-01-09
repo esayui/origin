@@ -76,7 +76,7 @@ public class ScanHandlerService {
     public Future<DeploymentDesignScanResultEntity> deploymentDesignScanHandler(OrderEntity orderEntity, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
         long startTime = System.currentTimeMillis();
         while (true) {
-            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 5) {
+            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 6) {
                 throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
             }
             if (DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {
