@@ -1,0 +1,44 @@
+version: "3"
+services:
+
+  Nginx:
+    restart: always
+    container_name: "OMS-Nginx"
+    image: nginx:latest
+    # 映射端口
+    ports:
+      - 90:80
+    # 数据卷
+    volumes:
+      - "$PWD/nginx/html:/usr/share/nginx/html"
+
+  MySQL:
+    restart: always
+    container_name: "OMS-MySQL"
+    image: mysql:latest
+    # 映射端口
+    ports:
+      - 33061:3306
+    # 数据卷
+    volumes:
+      - "$PWD/mysql/data:/var/lib/mysql"
+    environment:
+      MYSQL_DATABASE: OperationsManagementSuiteV3DB
+      #root管理员用户密码
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: rengu
+      MYSQL_PASSWORD: rengu
+
+  OMS:
+    restart: always
+    container_name: "OMS-Server"
+    image: nginx:latest
+    # 映射端口
+    ports:
+      - 9090:8080
+    depends_on:
+      - MySQL
+    # 数据卷
+    volumes:
+      - "$PWD/nginx/html:/usr/share/nginx/html"
+      - "$PWD/ngi"
