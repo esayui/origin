@@ -7,7 +7,7 @@ services:
     image: nginx:alpine
     # 映射端口
     ports:
-      - 90:80
+      - 80:80
     networks:
       - OMS-Network
     # 数据卷
@@ -19,7 +19,7 @@ services:
     container_name: "OMS-MySQL"
     image: mysql:8
     ports:
-      - 33061:3306
+      - 3306:3306
     networks:
       - OMS-Network
     volumes:
@@ -36,12 +36,21 @@ services:
     build:
       context: ./OMS-Server
       dockerfile: Dockerfile
-    networks:
-      - OMS-Network
     # 依赖项
     depends_on:
       - MySQL
       - Nginx
+    ports:
+      - 8080:8080
+      - 6005:6005
+      - 6004:6004
+      - 3086:3086
+      - 3087:3087
+      - 3088:3088
+    networks:
+      - OMS-Network
+    volumes:
+      - "$PWD/OMS:/root/OMS"
 
 networks:
   OMS-Network:
