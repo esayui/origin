@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  **/
 
 @RestController
-@RequestMapping(value = "deploylogs")
+@RequestMapping(value = "/deploylogs")
 public class DeployLogController {
 
     private final DeployLogService deployLogService;

@@ -102,6 +102,10 @@ public class DeployMetaService {
             }
             deploylable:
             for (DeployMetaEntity deployMetaEntity : deployMetaEntityList) {
+                // 检测设备是否在线
+                if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(deployMetaEntity.getDeviceEntity().getHostAddress())) {
+                    throw new RuntimeException(ApplicationMessages.DEVICE_IS_OFFLINE + deployMetaEntity.getDeviceEntity().getHostAddress());
+                }
                 // 生成部署路径
                 String targetPath = FormatUtils.formatPath(deployMetaEntity.getDeviceEntity().getDeployPath() + deployMetaEntity.getComponentHistoryEntity().getRelativePath() + FormatUtils.getComponentFileHistoryRelativePath(deployMetaEntity.getComponentFileHistoryEntity(), ""));
                 // 建立日志详情节点

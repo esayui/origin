@@ -219,8 +219,9 @@ public class DeviceService {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setTag(OrderService.PROCESS_SCAN_TAG);
-        orderService.sendProcessScanOrderByUDP(deviceEntity, orderEntity);
-        return scanHandlerService.processScanHandler(orderEntity).get(15, TimeUnit.SECONDS);
+        orderEntity.setTargetDevice(deviceEntity);
+        orderService.sendProcessScanOrderByUDP(orderEntity);
+        return scanHandlerService.processScanHandler(orderEntity).get(10, TimeUnit.SECONDS);
     }
 
     // 根据id扫描设备磁盘信息
@@ -228,7 +229,8 @@ public class DeviceService {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setTag(OrderService.DISK_SCAN_TAG);
-        orderService.sendDiskScanOrderByUDP(deviceEntity, orderEntity);
-        return scanHandlerService.diskScanHandler(orderEntity).get(15, TimeUnit.SECONDS);
+        orderEntity.setTargetDevice(deviceEntity);
+        orderService.sendDiskScanOrderByUDP(orderEntity);
+        return scanHandlerService.diskScanHandler(orderEntity).get(10, TimeUnit.SECONDS);
     }
 }

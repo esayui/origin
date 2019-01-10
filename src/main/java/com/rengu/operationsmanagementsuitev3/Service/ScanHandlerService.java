@@ -49,6 +49,9 @@ public class ScanHandlerService {
     public Future<List<DiskScanResultEntity>> diskScanHandler(OrderEntity orderEntity) {
         long startTime = System.currentTimeMillis();
         while (true) {
+            if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(orderEntity.getTargetDevice().getHostAddress())) {
+                throw new RuntimeException(ApplicationMessages.DEVICE_IS_OFFLINE + orderEntity.getTargetDevice().getHostAddress());
+            }
             if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT) {
                 throw new RuntimeException(ApplicationMessages.SCAN_DISK_TIME_OUT);
             }
@@ -63,6 +66,9 @@ public class ScanHandlerService {
     public Future<List<ProcessScanResultEntity>> processScanHandler(OrderEntity orderEntity) {
         long startTime = System.currentTimeMillis();
         while (true) {
+            if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(orderEntity.getTargetDevice().getHostAddress())) {
+                throw new RuntimeException(ApplicationMessages.DEVICE_IS_OFFLINE + orderEntity.getTargetDevice().getHostAddress());
+            }
             if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT) {
                 throw new RuntimeException(ApplicationMessages.SCAN_PROCESS_TIME_OUT);
             }
@@ -76,7 +82,10 @@ public class ScanHandlerService {
     public Future<DeploymentDesignScanResultEntity> deploymentDesignScanHandler(OrderEntity orderEntity, DeploymentDesignDetailEntity deploymentDesignDetailEntity) {
         long startTime = System.currentTimeMillis();
         while (true) {
-            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 6) {
+            if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(orderEntity.getTargetDevice().getHostAddress())) {
+                throw new RuntimeException(ApplicationMessages.DEVICE_IS_OFFLINE + orderEntity.getTargetDevice().getHostAddress());
+            }
+            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 5) {
                 throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
             }
             if (DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -144,7 +145,7 @@ public class DeploymentDesignDetailService {
         return deploymentDesignDetailRepository.findAllByComponentEntity(componentEntity);
     }
 
-    public List<DeploymentDesignScanResultEntity> scanDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity, String[] extensions) throws InterruptedException, ExecutionException, IOException {
+    public List<DeploymentDesignScanResultEntity> scanDeploymentDesignDetailsByDeploymentDesignNode(DeploymentDesignNodeEntity deploymentDesignNodeEntity, String[] extensions) throws InterruptedException, ExecutionException, IOException, TimeoutException {
         List<DeploymentDesignDetailEntity> deploymentDesignDetailEntityList = getDeploymentDesignDetailsByDeploymentDesignNode(deploymentDesignNodeEntity);
         List<DeploymentDesignScanResultEntity> deploymentDesignScanResultEntityList = new ArrayList<>();
         String orderId = UUID.randomUUID().toString();
@@ -154,7 +155,7 @@ public class DeploymentDesignDetailService {
         return deploymentDesignScanResultEntityList;
     }
 
-    public DeploymentDesignScanResultEntity scanDeploymentDesignDetailsById(String deploymentDesignDetailId, String[] extensions, String orderId) throws IOException, ExecutionException, InterruptedException {
+    public DeploymentDesignScanResultEntity scanDeploymentDesignDetailsById(String deploymentDesignDetailId, String[] extensions, String orderId) throws IOException, ExecutionException, InterruptedException, TimeoutException {
         DeploymentDesignDetailEntity deploymentDesignDetailEntity = getDeploymentDesignDetailById(deploymentDesignDetailId);
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = deploymentDesignDetailEntity.getDeploymentDesignNodeEntity();
         if (deploymentDesignNodeEntity.getDeviceEntity() == null) {
@@ -174,7 +175,8 @@ public class DeploymentDesignDetailService {
         orderEntity.setDeploymentDesignNodeId(deploymentDesignNodeEntity.getId());
         orderEntity.setDeploymentDesignDetailId(deploymentDesignDetailEntity.getId());
         orderEntity.setTargetPath(deviceEntity.getDeployPath() + deploymentDesignDetailEntity.getComponentHistoryEntity().getRelativePath());
-        orderService.sendDeployDesignScanOrderByUDP(deviceEntity, orderEntity);
+        orderEntity.setTargetDevice(deviceEntity);
+        orderService.sendDeployDesignScanOrderByUDP(orderEntity);
         Future<DeploymentDesignScanResultEntity> result = scanHandlerService.deploymentDesignScanHandler(orderEntity, deploymentDesignDetailEntity);
         long startTime = System.currentTimeMillis();
         while (true) {
