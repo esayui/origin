@@ -70,9 +70,11 @@ public class ComponentFileService {
         List<ComponentFileEntity> componentFileEntityList = new ArrayList<>();
         for (FileMetaEntity fileMetaEntity : fileMetaEntityList) {
             ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
-            for (String path : fileMetaEntity.getRelativePath().split("/")) {
+            String[] splitPaths = fileMetaEntity.getRelativePath().split("/");
+            for (int i = 0; i < splitPaths.length; i++) {
+                String path = splitPaths[i];
                 if (!StringUtils.isEmpty(path)) {
-                    if (path.equals(fileMetaEntity.getName())) {
+                    if (i == splitPaths.length - 1) {
                         // 文件节点，先判断是否存在该节点
                         if (hasComponentFileByNameAndExtensionAndParentNodeAndComponent(FilenameUtils.getBaseName(path), FilenameUtils.getExtension(path), parentNode, componentEntity)) {
                             ComponentFileEntity componentFileEntity = getComponentFileByNameAndExtensionAndParentNodeAndComponent(FilenameUtils.getBaseName(path), FilenameUtils.getExtension(path), parentNode, componentEntity);
