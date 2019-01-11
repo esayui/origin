@@ -83,7 +83,7 @@ public class DeployMetaService {
             // 建立TCP连接
             socket = new Socket(deviceEntity.getHostAddress(), ApplicationConfig.TCP_DEPLOY_PORT);
             socket.setTcpNoDelay(true);
-            socket.setSoTimeout(50);
+            socket.setSoTimeout(200);
             // 获取输入输出流
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
