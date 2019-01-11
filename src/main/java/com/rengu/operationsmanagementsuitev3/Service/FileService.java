@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.FileEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.FileRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -21,6 +22,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -54,7 +56,8 @@ public class FileService {
     @CacheEvict(value = "File_Cache", allEntries = true)
     public FileEntity saveFile(File file) throws IOException {
         FileEntity fileEntity = new FileEntity();
-        String MD5 = DigestUtils.md5Hex(FileUtils.readFileToByteArray(file));
+        @Cleanup FileInputStream fileInputStream = new FileInputStream(file);
+        String MD5 = DigestUtils.md5Hex(fileInputStream);
         if (hasFileByMD5(MD5)) {
             throw new RuntimeException(ApplicationMessages.FILE_MD5_EXISTED + MD5);
         }
@@ -147,7 +150,8 @@ public class FileService {
                 throw new RuntimeException(ApplicationMessages.FILE_CHUNK_NOT_FOUND + chunk.getAbsolutePath());
             }
         }
-        if (!chunkEntity.getIdentifier().equals(DigestUtils.md5Hex(FileUtils.readFileToByteArray(file)))) {
+        @Cleanup FileInputStream fileInputStream = new FileInputStream(file);
+        if (!chunkEntity.getIdentifier().equals(DigestUtils.md5Hex(fileInputStream))) {
             throw new RuntimeException("文件合并失败，请检查：" + file.getAbsolutePath() + "是否正确。");
         }
         return saveFile(file);
