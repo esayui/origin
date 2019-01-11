@@ -180,7 +180,7 @@ public class DeploymentDesignDetailService {
         Future<DeploymentDesignScanResultEntity> result = scanHandlerService.deploymentDesignScanHandler(orderEntity, deploymentDesignDetailEntity);
         long startTime = System.currentTimeMillis();
         while (true) {
-            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 6) {
+            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 12) {
                 if (!ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {
                     log.info("扫描Id：" + orderEntity.getId() + ",扫描超时，程序退出。");
                     throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);

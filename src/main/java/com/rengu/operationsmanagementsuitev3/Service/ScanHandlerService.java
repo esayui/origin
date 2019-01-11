@@ -85,7 +85,7 @@ public class ScanHandlerService {
             if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(orderEntity.getTargetDevice().getHostAddress())) {
                 throw new RuntimeException(ApplicationMessages.DEVICE_IS_OFFLINE + orderEntity.getTargetDevice().getHostAddress());
             }
-            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 5) {
+            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 12) {
                 throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
             }
             if (DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {

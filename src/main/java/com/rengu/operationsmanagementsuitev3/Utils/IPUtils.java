@@ -79,7 +79,7 @@ public class IPUtils {
         Enumeration<NetworkInterface> networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
         while (networkInterfaceEnumeration.hasMoreElements()) {
             NetworkInterface networkInterface = networkInterfaceEnumeration.nextElement();
-            if (!networkInterface.isLoopback() && !networkInterface.isVirtual()) {
+            if (!networkInterface.isLoopback() && !networkInterface.isVirtual() && networkInterface.isUp() && networkInterface.supportsMulticast()) {
                 for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
                     if (interfaceAddress.getAddress() != null && interfaceAddress.getBroadcast() != null) {
                         InetAddress inetAddress = interfaceAddress.getAddress();
