@@ -83,7 +83,7 @@ public class DeployMetaService {
             // 建立TCP连接
             socket = new Socket(deviceEntity.getHostAddress(), ApplicationConfig.TCP_DEPLOY_PORT);
             socket.setTcpNoDelay(true);
-//            socket.setSoTimeout(1000);
+            socket.setSoTimeout(50);
             // 获取输入输出流
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
@@ -241,7 +241,7 @@ public class DeployMetaService {
             deployLogService.saveDeployLog(deployLogEntity);
             deployLogDetailService.saveDeployLogDetails(deployLogDetailEntityList);
             long deployFinishTime = System.currentTimeMillis();
-            log.info("总计部署文件大小：" + totalSize / 1024 + "Kb，总计部署时间：" + (deployFinishTime - deployStartTime) / 1000 + "s,平均部署速度：" + ((totalSize / 1024) / ((deployFinishTime - deployStartTime) / 1000)) + "kb/s");
+            log.info("总计部署文件大小：" + totalSize / 1024 + "Kb，总计部署时间：" + (deployFinishTime - deployStartTime) / 1000 + "s,平均部署速度：" + ((totalSize / 1024) / ((deployFinishTime - deployStartTime + 1) / 1000)) + "kb/s");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
