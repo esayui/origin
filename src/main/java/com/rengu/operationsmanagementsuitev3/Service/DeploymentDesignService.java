@@ -56,7 +56,7 @@ public class DeploymentDesignService {
         DeploymentDesignEntity deploymentDesignArgs = getDeploymentDesignById(deploymentDesignId);
         DeploymentDesignEntity deploymentDesignEntity = new DeploymentDesignEntity();
         BeanUtils.copyProperties(deploymentDesignArgs, deploymentDesignEntity, "id", "createTime", "baseline", "name");
-        deploymentDesignEntity.setName(getDeploymentDesignName(deploymentDesignEntity));
+        deploymentDesignEntity.setName(getDeploymentDesignName(deploymentDesignArgs));
         deploymentDesignRepository.save(deploymentDesignEntity);
         deploymentDesignNodeService.copyDeploymentDesignNodeByDeploymentDesign(deploymentDesignArgs, deploymentDesignEntity);
         return deploymentDesignEntity;
@@ -172,7 +172,6 @@ public class DeploymentDesignService {
     }
 
     // 生成不重复的部署设计名称
-    // 生成不重复的工程名称
     private String getDeploymentDesignName(DeploymentDesignEntity deploymentDesignEntity) {
         String name = deploymentDesignEntity.getName();
         if (hasDeploymentDesignByNameAndDeletedAndProject(name, false, deploymentDesignEntity.getProjectEntity())) {
