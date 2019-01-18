@@ -66,6 +66,7 @@ public class ApplicationInit implements ApplicationRunner {
             roleEntity.setName(ApplicationConfig.DEFAULT_ADMIN_ROLE_NAME);
             roleEntity.setDescription("系统默认管理员角色");
             roleService.saveRole(roleEntity);
+            log.info("OMS服务器-初始化系统默认管理员角色：" + roleEntity.getName());
         }
         //初始化默认用户角色
         if (!roleService.hasRoleByName(ApplicationConfig.DEFAULT_USER_ROLE_NAME)) {
@@ -73,6 +74,7 @@ public class ApplicationInit implements ApplicationRunner {
             roleEntity.setName(ApplicationConfig.DEFAULT_USER_ROLE_NAME);
             roleEntity.setDescription("系统默认用户角色");
             roleService.saveRole(roleEntity);
+            log.info("OMS服务器-初始化系统默认用户角色：" + roleEntity.getName());
         }
         // 初始化管理员用户
         if (!userService.hasUserByUsername(ApplicationConfig.DEFAULT_ADMIN_USERNAME)) {
@@ -80,6 +82,7 @@ public class ApplicationInit implements ApplicationRunner {
             userEntity.setUsername(ApplicationConfig.DEFAULT_ADMIN_USERNAME);
             userEntity.setPassword(ApplicationConfig.DEFAULT_ADMIN_PASSWORD);
             userService.saveAdminUser(userEntity);
+            log.info("OMS服务器-初始化系统默认用户：" + userEntity.getUsername());
         }
     }
 }

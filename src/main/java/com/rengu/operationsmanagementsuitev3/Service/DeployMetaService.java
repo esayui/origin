@@ -6,6 +6,7 @@ import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -84,7 +83,7 @@ public class DeployMetaService {
             // 建立TCP连接
             socket = new Socket(deviceEntity.getHostAddress(), ApplicationConfig.TCP_DEPLOY_PORT);
             socket.setTcpNoDelay(true);
-            socket.setSoTimeout(1000 * 2);
+            socket.setSoTimeout(200);
             // 获取输入输出流
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
@@ -102,6 +101,10 @@ public class DeployMetaService {
             }
             deploylable:
             for (DeployMetaEntity deployMetaEntity : deployMetaEntityList) {
+                // 检测设备是否在线
+                if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(deployMetaEntity.getDeviceEntity().getHostAddress())) {
+                    throw new RuntimeException(ApplicationMessages.DEVICE_IS_OFFLINE + deployMetaEntity.getDeviceEntity().getHostAddress());
+                }
                 // 生成部署路径
                 String targetPath = FormatUtils.formatPath(deployMetaEntity.getDeviceEntity().getDeployPath() + deployMetaEntity.getComponentHistoryEntity().getRelativePath() + FormatUtils.getComponentFileHistoryRelativePath(deployMetaEntity.getComponentFileHistoryEntity(), ""));
                 // 建立日志详情节点
@@ -139,53 +142,59 @@ public class DeployMetaService {
                 File file = new File(deployMetaEntity.getComponentFileHistoryEntity().getFileEntity().getLocalPath());
                 @Cleanup RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
                 int sendSize = 0;
+                long sendNum = 0;
                 while (sendSize < file.length()) {
                     long start = System.currentTimeMillis();
                     // 设置读取缓冲区域大小
                     byte[] buffer = new byte[10240];
-                    if (randomAccessFile.getFilePointer() != sendSize) {
-                        randomAccessFile.seek(sendSize);
-                    }
+//                    // 移动读取文件位置后，恢复文件读取位置
+//                    if (randomAccessFile.getFilePointer() != sendSize) {
+//                        randomAccessFile.seek(sendSize);
+//                    }
                     int readSize = randomAccessFile.read(buffer);
                     if (readSize != -1) {
                         // 移动发送大小
                         sendSize = sendSize + readSize;
                         byte[] sendBuffer = new byte[readSize];
                         System.arraycopy(buffer, 0, sendBuffer, 0, readSize);
-                        // 检测是否为VXWORKS系统
+//                        // 检测是否为VXWORKS系统
 //                        if (DeviceService.ONLINE_HOST_ADRESS.get(deviceEntity.getHostAddress()).getOSType() == DeviceService.OS_TYPE.VXWORKS.ordinal()) {
-                        if (false) {
-                            log.info("VxWorks部署逻辑");
-                            String byteText = new String(sendBuffer, StandardCharsets.UTF_8).replace("\r\n", "\n");
-                            // 检测最后一个字符是否为\r
-                            if (byteText.lastIndexOf("\r") + 1 == byteText.length() && sendSize + 1 < file.length()) {
-                                // 检测下一个字符是否为\n
-                                byte[] checkBytes = new byte[1];
-                                checkBytes[0] = randomAccessFile.readByte();
-                                String checkString = new String(checkBytes, StandardCharsets.UTF_8);
-                                if (checkString.equals("\n")) {
-                                    sendSize = sendSize + 1;
-                                    StringBuilder stringBuilder = new StringBuilder(byteText);
-                                    stringBuilder.setCharAt(stringBuilder.lastIndexOf("\r"), '\n');
-                                    byteText = stringBuilder.toString();
-                                }
-                            }
-                            ByteBuffer byteBuffer = ByteBuffer.wrap(byteText.getBytes());
-                            outputStream.write(byteBuffer.array());
+//                            log.info("VxWorks部署逻辑");
+//                            String byteText = new String(sendBuffer, StandardCharsets.UTF_8).replace("\r\n", "\n");
+//                            // 检测最后一个字符是否为\r
+//                            if (byteText.lastIndexOf("\r") + 1 == byteText.length() && sendSize + 1 < file.length()) {
+//                                // 检测下一个字符是否为\n
+//                                byte[] checkBytes = new byte[1];
+//                                checkBytes[0] = randomAccessFile.readByte();
+//                                String checkString = new String(checkBytes, StandardCharsets.UTF_8);
+//                                if (checkString.equals("\n")) {
+//                                    sendSize = sendSize + 1;
+//                                    StringBuilder stringBuilder = new StringBuilder(byteText);
+//                                    stringBuilder.setCharAt(stringBuilder.lastIndexOf("\r"), '\n');
+//                                    byteText = stringBuilder.toString();
+//                                }
+//                            }
+//                            ByteBuffer byteBuffer = ByteBuffer.wrap(byteText.getBytes());
+//                            outputStream.write(byteBuffer.array());
 //                            log.info("VxWorks发送-->" + deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",发送字节数：" + byteBuffer.array().length + "|" + byteBuffer.capacity());
-                        } else {
-                            outputStream.write(sendBuffer);
-//                            log.info("普通发送-->" + deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",发送字节数：" + sendBuffer.length);
-                        }
+//                        }
+                        outputStream.write(sendBuffer);
                         // 更新进度数据
                         totalSendSize = totalSendSize + readSize;
+                        sendNum = sendNum + 1;
                         // 发送时间单位秒
                         double time = (double) (System.currentTimeMillis() - start + 1) / 1000;
                         // 发送大小单位kb
                         double size = (double) readSize / 1024;
                         speed = size / time;
                         progress = ((double) totalSendSize / totalSize) * 100;
-                        simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING, FilenameUtils.getName(targetPath) + "-部署中"));
+                        if (file.length() <= FileUtils.ONE_MB) {
+                            simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING, FilenameUtils.getName(targetPath) + "-部署中"));
+                        } else {
+                            if (sendNum % 50 == 0) {
+                                simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING, FilenameUtils.getName(targetPath) + "-部署中"));
+                            }
+                        }
                     } else {
                         deployLogEntity.setComplete(false);
                         deployLogDetailEntity.setComplete(false);
@@ -232,16 +241,16 @@ public class DeployMetaService {
             deployLogService.saveDeployLog(deployLogEntity);
             deployLogDetailService.saveDeployLogDetails(deployLogDetailEntityList);
             long deployFinishTime = System.currentTimeMillis();
-            log.info("总计部署文件大小：" + totalSize / 1024 + "Kb，总计部署时间：" + (deployFinishTime - deployStartTime) / 1000 + "s,平均部署速度：" + ((totalSize / 1024) / ((deployFinishTime - deployStartTime) / 1000)) + "kb/s");
+            log.info("总计部署文件大小：" + totalSize / 1024 + "Kb，总计部署时间：" + (deployFinishTime - deployStartTime) / 1000 + "s,平均部署速度：" + ((totalSize / 1024) / ((deployFinishTime - deployStartTime + 1) / 1000)) + "kb/s");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), 0, 100, DEPLOY_FINISHED, "部署结束"));
-            if (!socket.isClosed()) {
+            DEPLOYING_DEVICE.remove(deviceEntity.getHostAddress());
+            if (socket != null && !socket.isClosed()) {
                 outputStream.close();
                 inputStream.close();
                 socket.close();
-                DEPLOYING_DEVICE.remove(deviceEntity.getHostAddress());
             }
         }
     }

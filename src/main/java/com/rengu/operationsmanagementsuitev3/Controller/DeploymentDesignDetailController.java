@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -33,7 +34,7 @@ public class DeploymentDesignDetailController {
 
     // 根据部署设计Id及设备Id进行扫描
     @GetMapping(value = "/{deploymentDesignDetailId}/scan")
-    public ResultEntity scanDeploymentDesignDetailsByDeploymentDesignAndDevice(@PathVariable(value = "deploymentDesignDetailId") String deploymentDesignDetailId, @RequestParam(value = "extensions", required = false, defaultValue = "") String... extensions) throws InterruptedException, ExecutionException, IOException {
+    public ResultEntity scanDeploymentDesignDetailsByDeploymentDesignAndDevice(@PathVariable(value = "deploymentDesignDetailId") String deploymentDesignDetailId, @RequestParam(value = "extensions", required = false, defaultValue = "") String... extensions) throws InterruptedException, ExecutionException, IOException, TimeoutException {
         return ResultUtils.build(deploymentDesignDetailService.scanDeploymentDesignDetailsById(deploymentDesignDetailId, extensions, ""));
     }
 }

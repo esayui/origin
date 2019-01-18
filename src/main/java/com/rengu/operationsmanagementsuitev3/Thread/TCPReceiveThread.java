@@ -35,7 +35,7 @@ public class TCPReceiveThread {
     @Async
     public void TCPMessageReceiver() {
         try {
-            log.info("启动客户端TCP报文监听线程，监听端口：" + ApplicationConfig.TCP_RECEIVE_PORT);
+            log.info("OMS服务器-启动客户端TCP报文监听线程，监听端口：" + ApplicationConfig.TCP_RECEIVE_PORT);
             ServerSocket serverSocket = new ServerSocket(ApplicationConfig.TCP_RECEIVE_PORT);
             while (true) {
                 socketHandler(serverSocket.accept());

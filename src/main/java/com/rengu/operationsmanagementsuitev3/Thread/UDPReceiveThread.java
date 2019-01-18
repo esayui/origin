@@ -33,7 +33,7 @@ public class UDPReceiveThread {
 
     @Async
     public void UDPMessageReceiver() throws IOException {
-        log.info("启动客户端UDP报文监听线程，监听端口：" + ApplicationConfig.UDP_RECEIVE_PORT);
+        log.info("OMS服务器-启动客户端UDP报文监听线程，监听端口：" + ApplicationConfig.UDP_RECEIVE_PORT);
         DatagramSocket datagramSocket = new DatagramSocket(ApplicationConfig.UDP_RECEIVE_PORT);
         DatagramPacket datagramPacket = new DatagramPacket(new byte[512], 512);
         while (true) {

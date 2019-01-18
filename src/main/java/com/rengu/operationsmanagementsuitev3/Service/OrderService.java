@@ -1,6 +1,5 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.OrderEntity;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
@@ -30,31 +29,31 @@ public class OrderService {
     public static final String PROCESS_SCAN_RESULT_TAG = "C105";
     public static final String DISK_SCAN_RESULT_TAG = "C106";
 
-    public void sendProcessScanOrderByUDP(DeviceEntity deviceEntity, OrderEntity orderEntity) throws IOException {
+    public void sendProcessScanOrderByUDP(OrderEntity orderEntity) throws IOException {
         String tag = FormatUtils.getString(orderEntity.getTag(), 4);
         String type = FormatUtils.getString("", 1);
         String uuid = FormatUtils.getString(orderEntity.getId(), 37);
-        sandMessageByUDP(deviceEntity.getHostAddress(), tag + type + uuid);
+        sandMessageByUDP(orderEntity.getTargetDevice().getHostAddress(), tag + type + uuid);
     }
 
-    public void sendDiskScanOrderByUDP(DeviceEntity deviceEntity, OrderEntity orderEntity) throws IOException {
+    public void sendDiskScanOrderByUDP(OrderEntity orderEntity) throws IOException {
         String tag = FormatUtils.getString(orderEntity.getTag(), 4);
         String type = FormatUtils.getString("", 1);
         String uuid = FormatUtils.getString(orderEntity.getId(), 37);
-        sandMessageByUDP(deviceEntity.getHostAddress(), tag + type + uuid);
+        sandMessageByUDP(orderEntity.getTargetDevice().getHostAddress(), tag + type + uuid);
     }
 
-    public void sendDeployDesignScanOrderByUDP(DeviceEntity deviceEntity, OrderEntity orderEntity) throws IOException {
+    public void sendDeployDesignScanOrderByUDP(OrderEntity orderEntity) throws IOException {
         String tag = FormatUtils.getString(orderEntity.getTag(), 4);
         String uuid = FormatUtils.getString(orderEntity.getId(), 37);
         String deploymentDesignNodeId = FormatUtils.getString(orderEntity.getDeploymentDesignNodeId(), 37);
         String deploymentDesignDetailId = FormatUtils.getString(orderEntity.getDeploymentDesignDetailId(), 37);
         String targetPath = FormatUtils.getString(orderEntity.getTargetPath(), 256);
         if (StringUtils.isEmpty(orderEntity.getExtension())) {
-            sandMessageByUDP(deviceEntity.getHostAddress(), tag + uuid + deploymentDesignNodeId + deploymentDesignDetailId + targetPath);
+            sandMessageByUDP(orderEntity.getTargetDevice().getHostAddress(), tag + uuid + deploymentDesignNodeId + deploymentDesignDetailId + targetPath);
         } else {
             String extension = FormatUtils.getString(orderEntity.getExtension(), 128);
-            sandMessageByUDP(deviceEntity.getHostAddress(), tag + uuid + deploymentDesignNodeId + deploymentDesignDetailId + extension + targetPath);
+            sandMessageByUDP(orderEntity.getTargetDevice().getHostAddress(), tag + uuid + deploymentDesignNodeId + deploymentDesignDetailId + extension + targetPath);
         }
     }
 

@@ -24,4 +24,5 @@ public class OrderEntity implements Serializable {
     private String deploymentDesignDetailId;
     private String extension;
     private String targetPath;
+    private DeviceEntity targetDevice;
 }
