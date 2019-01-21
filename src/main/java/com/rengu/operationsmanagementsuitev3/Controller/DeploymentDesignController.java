@@ -14,6 +14,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 /**
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
@@ -75,6 +77,12 @@ public class DeploymentDesignController {
     @GetMapping(value = "/{deploymentDesignId}")
     public ResultEntity getDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) {
         return ResultUtils.build(deploymentDesignService.getDeploymentDesignById(deploymentDesignId));
+    }
+
+    // 下发整个部署设计
+    @PutMapping(value = "/{deploymentDesignId}/deploy")
+    public void deployDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) throws IOException {
+        deploymentDesignService.deployDeploymentDesignById(deploymentDesignId);
     }
 
     // 查询所有部署设计

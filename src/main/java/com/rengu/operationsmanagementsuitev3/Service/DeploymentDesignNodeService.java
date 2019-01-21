@@ -13,6 +13,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -173,6 +174,7 @@ public class DeploymentDesignNodeService {
     }
 
     // 根据部署设计节点部署
+    @Async
     public void deployDeploymentDesignNodeById(String deploymentDesignNodeId) throws IOException {
         DeploymentDesignNodeEntity deploymentDesignNodeEntity = getDeploymentDesignNodeById(deploymentDesignNodeId);
         if (deploymentDesignNodeEntity.getDeviceEntity() == null) {
