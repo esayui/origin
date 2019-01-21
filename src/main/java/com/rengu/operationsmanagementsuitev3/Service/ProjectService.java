@@ -117,6 +117,16 @@ public class ProjectService {
         return projectRepository.save(projectEntity);
     }
 
+    // 添加或删除星标
+    public ProjectEntity starProjectById(String projectId, boolean hasStar) {
+        ProjectEntity projectEntity = getProjectById(projectId);
+        if (projectEntity.isHasStar() != hasStar) {
+            projectEntity.setHasStar(hasStar);
+            return projectRepository.save(projectEntity);
+        }
+        return projectEntity;
+    }
+
 
     // 根据名称、是否删除及用户判断工程是否存在
     public boolean hasProjectByNameAndDeletedAndUser(String name, boolean deleted, UserEntity userEntity) {

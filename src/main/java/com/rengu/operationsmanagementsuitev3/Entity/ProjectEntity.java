@@ -27,6 +27,7 @@ public class ProjectEntity implements Serializable {
     private String name;
     private String description;
     private boolean deleted = false;
+    private boolean hasStar = false;
     @ManyToOne
     private UserEntity userEntity;
 }
