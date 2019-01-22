@@ -241,7 +241,7 @@ public class DeployMetaService {
             deployLogService.saveDeployLog(deployLogEntity);
             deployLogDetailService.saveDeployLogDetails(deployLogDetailEntityList);
             // 若成功部署文件，则打印日志
-            if (totalSize > 0) {
+            if (deployMetaEntityList.size() > 0) {
                 long deployFileSize = totalSize / 1024;
                 long deployTime = (System.currentTimeMillis() - deployStartTime) / 1000;
                 double deploySpeed = deployFileSize / (double) deployTime;
