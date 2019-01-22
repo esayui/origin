@@ -245,7 +245,7 @@ public class DeployMetaService {
                 long deployFileSize = totalSize / 1024;
                 long deployTime = (System.currentTimeMillis() - deployStartTime) / 1000;
                 double deploySpeed = deployFileSize / (double) deployTime;
-                log.info("总计部署文件大小：" + deployFileSize + "Kb，总计部署时间：" + deployTime + "s,平均部署速度：" + deploySpeed + "kb/s");
+                log.info(deviceEntity.getHostAddress() + ":总计部署文件大小：" + deployFileSize + "Kb，总计部署时间：" + deployTime + "s,平均部署速度：" + deploySpeed + "kb/s");
             }
         } catch (IOException e) {
             e.printStackTrace();
