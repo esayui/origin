@@ -17,6 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,6 +55,7 @@ public class FileService {
 
     // 保存文件信息
     @CacheEvict(value = "File_Cache", allEntries = true)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public FileEntity saveFile(File file) throws IOException {
         FileEntity fileEntity = new FileEntity();
         @Cleanup FileInputStream fileInputStream = new FileInputStream(file);
@@ -123,7 +125,7 @@ public class FileService {
     }
 
     // 合并文件块
-    public synchronized FileEntity mergeChunks(ChunkEntity chunkEntity) throws IOException {
+    public FileEntity mergeChunks(ChunkEntity chunkEntity) throws IOException {
         if (hasFileByMD5(chunkEntity.getIdentifier())) {
             return getFileByMD5(chunkEntity.getIdentifier());
         } else {

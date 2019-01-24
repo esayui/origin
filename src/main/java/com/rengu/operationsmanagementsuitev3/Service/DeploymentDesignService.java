@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -135,6 +137,14 @@ public class DeploymentDesignService {
             return false;
         }
         return deploymentDesignRepository.existsById(deploymentDesignId);
+    }
+
+    // 下发整个部署设计
+    public void deployDeploymentDesignById(String deploymentDesignId) throws IOException {
+        DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
+        for (DeploymentDesignNodeEntity deploymentDesignNodeEntity : deploymentDesignNodeService.getDeploymentDesignNodesByDeploymentDesign(deploymentDesignEntity)) {
+            deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeEntity.getId());
+        }
     }
 
     // 查询全部部署组件

@@ -240,8 +240,13 @@ public class DeployMetaService {
             DEPLOYING_DEVICE.remove(deviceEntity.getHostAddress());
             deployLogService.saveDeployLog(deployLogEntity);
             deployLogDetailService.saveDeployLogDetails(deployLogDetailEntityList);
-            long deployFinishTime = System.currentTimeMillis();
-            log.info("总计部署文件大小：" + totalSize / 1024 + "Kb，总计部署时间：" + (deployFinishTime - deployStartTime) / 1000 + "s,平均部署速度：" + ((totalSize / 1024) / ((deployFinishTime - deployStartTime + 1) / 1000)) + "kb/s");
+            // 若成功部署文件，则打印日志
+            if (deployMetaEntityList.size() > 0) {
+                long deployFileSize = totalSize / 1024;
+                long deployTime = (System.currentTimeMillis() - deployStartTime) / 1000;
+                double deploySpeed = deployFileSize / (double) deployTime;
+                log.info(deviceEntity.getHostAddress() + ":总计部署文件大小：" + deployFileSize + "Kb，总计部署时间：" + deployTime + "s,平均部署速度：" + deploySpeed + "kb/s");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

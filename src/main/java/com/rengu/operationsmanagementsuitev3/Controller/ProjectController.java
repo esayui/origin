@@ -77,6 +77,12 @@ public class ProjectController {
         return ResultUtils.build(projectService.getProjects(pageable));
     }
 
+    // 添加设置星标状态
+    @PatchMapping(value = "/{projectId}/star")
+    public ResultEntity starProjectById(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "hasStar") boolean hasStar) {
+        return ResultUtils.build(projectService.starProjectById(projectId, hasStar));
+    }
+
     // 根据Id创建设备
     @PostMapping(value = "/{projectId}/device")
     public ResultEntity saveDeviceByProject(@PathVariable(value = "projectId") String projectId, DeviceEntity deviceEntity) {
