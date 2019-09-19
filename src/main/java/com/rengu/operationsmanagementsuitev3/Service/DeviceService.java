@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,6 +75,33 @@ public class DeviceService {
         deviceEntity.setProjectEntity(projectEntity);
         return deviceRepository.save(deviceEntity);
     }
+
+
+    public List<DeviceEntity> saveDevicesByProject(ProjectEntity projectEntity, DeviceEntity[] deviceEntities) {
+
+        List<DeviceEntity> devices = new LinkedList<>();
+        for(DeviceEntity deviceEntity:deviceEntities) {
+            if (StringUtils.isEmpty(deviceEntity.getName())) {
+                throw new RuntimeException(ApplicationMessages.DEVICE_NAME_ARGS_NOT_FOUND);
+            }
+            if (StringUtils.isEmpty(deviceEntity.getHostAddress()) || !IPUtils.isIPv4Address(deviceEntity.getHostAddress())) {
+                throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_ARGS_NOT_FOUND);
+            }
+            if (StringUtils.isEmpty(deviceEntity.getDeployPath())) {
+                throw new RuntimeException(ApplicationMessages.DEVICE_DEPLOY_PATH_ARGS_NOT_FOUND);
+            }
+            if (hasDeviceByHostAddressAndDeletedAndProject(deviceEntity.getHostAddress(), false, projectEntity)) {
+                throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_EXISTED + deviceEntity.getHostAddress());
+            }
+            deviceEntity.setDeployPath(FormatUtils.formatPath(deviceEntity.getDeployPath()));
+            deviceEntity.setProjectEntity(projectEntity);
+            deviceRepository.save(deviceEntity);
+            devices.add(deviceEntity);
+        }
+        return devices;
+    }
+
+
 
     // 根据Id复制设备
     @CacheEvict(value = "Device_Cache", allEntries = true)

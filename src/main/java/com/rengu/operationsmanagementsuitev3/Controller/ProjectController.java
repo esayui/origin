@@ -91,6 +91,12 @@ public class ProjectController {
         return ResultUtils.build(deviceService.saveDeviceByProject(projectService.getProjectById(projectId), deviceEntity));
     }
 
+    // 根据Id创建设备复数
+    @PostMapping(value = "/{projectId}/device")
+    public ResultEntity saveDeviceByProject(@PathVariable(value = "projectId") String projectId, DeviceEntity[] deviceEntities) {
+        return ResultUtils.build(deviceService.saveDevicesByProject(projectService.getProjectById(projectId), deviceEntities));
+    }
+
     // 根据Id查询设备
     @GetMapping(value = "/{projectId}/device")
     public ResultEntity getDevicesByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {

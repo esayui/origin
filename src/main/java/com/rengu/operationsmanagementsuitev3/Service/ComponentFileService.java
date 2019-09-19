@@ -56,10 +56,9 @@ public class ComponentFileService {
             throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_NAME_ARGS_NOT_FOUND);
         }
         componentFileEntity.setName(getName(componentFileEntity.getName(), parentNode, componentEntity));
-        //componentFileEntity.setExtension("?");
-        //componentFileEntity.setFolder(true);
         componentFileEntity.setParentNode(parentNode);
         componentFileEntity.setComponentEntity(componentEntity);
+
         return componentFileRepository.save(componentFileEntity);
 //        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
     }
@@ -255,6 +254,12 @@ public class ComponentFileService {
     }
 
     // 查询父节点和组件查询组件文件
+    @Cacheable(value = "ComponentFile_Cache", key = "#methodName +#parentNodeId + #componentEntity.getId()")
+    public List<ComponentFileEntity> getComponentFilesByParentNodeAndComponent(String parentNodeId, ComponentEntity componentEntity,int fileType) {
+        ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
+        return componentFileRepository.findByParentNodeAndComponentEntityAndType(parentNode, componentEntity,fileType);
+    }
+
     @Cacheable(value = "ComponentFile_Cache", key = "#methodName +#parentNodeId + #componentEntity.getId()")
     public List<ComponentFileEntity> getComponentFilesByParentNodeAndComponent(String parentNodeId, ComponentEntity componentEntity) {
         ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;

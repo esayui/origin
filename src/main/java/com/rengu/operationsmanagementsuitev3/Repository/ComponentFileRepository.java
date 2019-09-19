@@ -28,4 +28,6 @@ public interface ComponentFileRepository extends JpaRepository<ComponentFileEnti
     boolean existsByNameAndParentNodeAndComponentEntity(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity);
 
     Optional<ComponentFileEntity> findByNameAndParentNodeAndComponentEntity(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity);
+
+    List<ComponentFileEntity> findByParentNodeAndComponentEntityAndType(ComponentFileEntity parentNode, ComponentEntity componentEntity, int fileType);
 }

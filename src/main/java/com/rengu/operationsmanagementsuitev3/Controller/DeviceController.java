@@ -32,6 +32,8 @@ public class DeviceController {
         this.deviceService = deviceService;
     }
 
+
+
     // 根据Id复制设备
     @PostMapping(value = "/{deviceId}/copy")
     public ResultEntity copyDeviceById(@PathVariable(value = "deviceId") String deviceId) {

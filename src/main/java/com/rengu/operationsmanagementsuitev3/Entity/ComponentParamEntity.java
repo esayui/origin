@@ -31,6 +31,9 @@ public class ComponentParamEntity implements Serializable {
     private String name;
     @NotNull(message = "参数类型不能为空")
     private int type;
+
+    private String value = "";
+
     private String description;
 
     //同一批参数设置 批次甄别

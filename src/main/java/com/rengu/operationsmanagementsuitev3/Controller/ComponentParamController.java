@@ -30,21 +30,29 @@ public class ComponentParamController {
         this.componentService = componentService;
     }
 
-    // 根据Id删除组件文件
+    // 根据Id删除组件参数配置
     @DeleteMapping(value = "/{componentparamId}")
-    public ResultEntity deleteComponentFileById(@PathVariable(value = "componentparamId") String componentparamId) throws IOException {
+    public ResultEntity deleteComponentParamById(@PathVariable(value = "componentparamId") String componentparamId) throws IOException {
         return ResultUtils.build(componentParamService.deleteComponentParamById(componentparamId));
     }
 
-    // 根据Id修改组件文件
+    // 根据Id修改组件参数配置
     @PatchMapping(value = "/{componentparamId}")
-    public ResultEntity updateComponentFileById(@PathVariable(value = "componentparamId") String componentparamId, ComponentParamEntity componentParamArgs) {
+    public ResultEntity updateComponentParamById(@PathVariable(value = "componentparamId") String componentparamId, ComponentParamEntity componentParamArgs) {
         return ResultUtils.build(componentParamService.updateComponentParamById(componentparamId, componentParamArgs));
     }
 
-    // 根据Id查询组件文件
+
+    //根据Id给参数配置赋值
+    @PatchMapping(value = "/{componentparamId}/setValue")
+    public ResultEntity  updateComponentParamValueById(@PathVariable(value = "componentparamId") String componentparamId, ComponentParamEntity componentParamArgs) {
+        return ResultUtils.build(componentParamService.updateComponentParamValueById(componentparamId, componentParamArgs));
+    }
+
+
+    // 根据Id查询组件参数配置
     @GetMapping(value = "/{componentparamId}")
-    public ResultEntity getComponentFileById(@PathVariable(value = "componentparamId") String componentparamId) {
+    public ResultEntity getComponentParamById(@PathVariable(value = "componentparamId") String componentparamId) {
         return ResultUtils.build(componentParamService.getComponentParamById(componentparamId));
     }
 

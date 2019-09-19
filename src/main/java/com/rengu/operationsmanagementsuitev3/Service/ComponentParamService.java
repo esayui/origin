@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Author: XYmar
@@ -35,6 +32,7 @@ public class ComponentParamService {
         this.componentParamRepository = componentParamRepository;
 
     }
+
 
 
     @CacheEvict(value = "ComponentParam_Cache", allEntries = true)
@@ -59,6 +57,16 @@ public class ComponentParamService {
         componentParamEntityOld.setName(componentParamEntity.getName());
         componentParamEntityOld.setType(componentParamEntity.getType());
 
+
+        return componentParamRepository.save(componentParamEntityOld);
+    }
+
+    @CacheEvict(value = "ComponentParam_Cache", allEntries = true)
+    public ComponentParamEntity updateComponentParamValueById(String componentParamId,ComponentParamEntity componentParamEntity){
+
+
+        ComponentParamEntity componentParamEntityOld = getComponentParamById(componentParamId);
+        componentParamEntityOld.setValue(componentParamEntity.getValue());
 
         return componentParamRepository.save(componentParamEntityOld);
     }
@@ -103,5 +111,11 @@ public class ComponentParamService {
 
         }
         return coms;
+    }
+
+    public Optional<ComponentParamEntity> getComponentParamsByComponent(ComponentEntity componentEntity) {
+
+        return componentParamRepository.findAllByComponentEntity(componentEntity);
+
     }
 }

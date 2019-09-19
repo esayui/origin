@@ -101,6 +101,10 @@ public class ComponentController {
         return ResultUtils.build(componentParamService.saveComponentParamsByComponent(componentService.getComponentById(componentId),componentParamEntities));
     }
 
+    @GetMapping(value = "/{componentId}/params")
+    public ResultEntity getComponentParamsByComponent(@PathVariable(value = "componentId") String componentId){
+        return ResultUtils.build(componentParamService.getComponentParamsByComponent(componentService.getComponentById(componentId)));
+    }
 
 
 
@@ -129,11 +133,23 @@ public class ComponentController {
         return ResultUtils.build(componentFileService.saveComponentFilesByParentNodeAndComponent(componentService.getComponentById(componentId), parentNodeId, fileMetaEntityList));
     }
 
-    // 根据id和父节点查询组件文件
+
+    // 根据id和父节点和类型查询组件文件
+
+    /**
+     *
+     * @param componentId
+     * @param parentNodeId
+     * @param fileType 实验文件类型 0：exe源码 1：脚本文件 2：结果文件
+     * @return
+     */
     @GetMapping(value = "/{componentId}/files")
-    public ResultEntity getComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId) {
-        return ResultUtils.build(componentFileService.getComponentFilesByParentNodeAndComponent(parentNodeId, componentService.getComponentById(componentId)));
+    public ResultEntity getComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId,@RequestHeader(value = "fileType", required = false, defaultValue = "0") String fileType) {
+        return ResultUtils.build(componentFileService.getComponentFilesByParentNodeAndComponent(parentNodeId, componentService.getComponentById(componentId),Integer.parseInt(fileType)));
     }
+
+
+
 
     // 根据id导出组件文件
     @GetMapping(value = "/{componentId}/export")
