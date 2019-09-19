@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
+ *   实例源码、脚本文件、仿真结果文件
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
  * @create: 2018-08-24 11:41
@@ -25,12 +26,19 @@ public class ComponentFileEntity implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
     private String name;
-    private String extension;
-    private boolean isFolder;
+    private int type;//实验脚本文件类型 0：exe源码 1：脚本文件 2：结果文件
+//    private String extension;
+//    private boolean isFolder;
     @ManyToOne
     private FileEntity fileEntity;
+
+
     @ManyToOne
-    private ComponentFileEntity parentNode;
+    private ComponentFileEntity parentNode; //
+
+
     @ManyToOne
     private ComponentEntity componentEntity;
+
+
 }

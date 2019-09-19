@@ -3,14 +3,15 @@ package com.rengu.operationsmanagementsuitev3.Entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
+ *  project版本信息 一个版本对应多个参数配置 对应一个实例源码
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
  * @create: 2018-08-24 12:51
@@ -29,6 +30,11 @@ public class ComponentEntity implements Serializable {
     private String relativePath;
     private String description;
     private boolean deleted = false;
+
+
     @ManyToOne
     private ProjectEntity projectEntity;
+
+    @OneToMany(mappedBy = "componentEntity",cascade= CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ComponentParamEntity> params = new ArrayList<>();
 }

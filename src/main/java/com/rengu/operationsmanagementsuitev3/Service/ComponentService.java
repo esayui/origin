@@ -55,11 +55,15 @@ public class ComponentService {
         if (hasComponentByNameAndVersionAndDeletedAndProject(componentEntity.getName(), componentEntity.getVersion(), false, projectEntity)) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_AND_VERSION_EXISTED + componentEntity.getName() + "-" + componentEntity.getVersion());
         }
+
+
         if (StringUtils.isEmpty(componentEntity.getRelativePath())) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_RELATIVE_PATH_ARGS_NOT_FOUND);
         }
         componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
         componentEntity.setProjectEntity(projectEntity);
+
+
         return componentRepository.save(componentEntity);
     }
 

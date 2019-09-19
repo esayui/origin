@@ -1,11 +1,9 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentHistoryService;
+import com.rengu.operationsmanagementsuitev3.Service.ComponentParamService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.apache.commons.io.IOUtils;
@@ -23,6 +21,7 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -37,13 +36,18 @@ public class ComponentController {
     private final ComponentService componentService;
     private final ComponentFileService componentFileService;
     private final ComponentHistoryService componentHistoryService;
+    private final ComponentParamService componentParamService;
 
     @Autowired
-    public ComponentController(ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService) {
+    public ComponentController(ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService,ComponentParamService componentParamService) {
         this.componentService = componentService;
         this.componentFileService = componentFileService;
         this.componentHistoryService = componentHistoryService;
+        this.componentParamService = componentParamService;
     }
+
+
+
 
     // 根据id复制组件
     @PostMapping(value = "/{componentId}/copy")
@@ -90,6 +94,16 @@ public class ComponentController {
     public ResultEntity getComponents(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResultUtils.build(componentService.getComponents(pageable));
     }
+
+    //根据Id创建组件参数配置
+    @PostMapping(value = "/{componentId}/params")
+    public ResultEntity saveComponentParamsByComponent(@PathVariable(value = "componentId") String componentId,@RequestBody ComponentParamEntity[] componentParamEntities){
+        return ResultUtils.build(componentParamService.saveComponentParamsByComponent(componentService.getComponentById(componentId),componentParamEntities));
+    }
+
+
+
+
 
     // 根据Id查询组件历史
     @GetMapping(value = "/{componentId}/history")

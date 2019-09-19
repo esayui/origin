@@ -68,6 +68,11 @@ public class ApplicationMessages {
     public static final String COMPONENT_ID_EXISTED = "该组件Id已存在：";
     public static final String COMPONENT_NAME_AND_VERSION_EXISTED = "该组件已存在：";
 
+    //组件参数相关提示信息
+    public static final String COMPONENT_PARAM_ID_NOT_FOUND ="未发现该组件参数配置id";
+    public static final String COMPONENT_PARAM_NAMEANDVALUE_EXISTED = "该组件参数设置已存在";
+
+
     // 文件块相关提示信息
     public static final String FILE_CHUNK_ARGS_NOT_FOUND = "文件块不存在或不合法";
     public static final String FILE_CHUNK_NOT_FOUND = "未发现该文件块：";

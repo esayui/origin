@@ -18,13 +18,14 @@ import java.util.Optional;
 @Repository
 public interface ComponentFileRepository extends JpaRepository<ComponentFileEntity, String> {
 
-    boolean existsByNameAndExtensionAndParentNodeAndComponentEntity(String name, String extension, ComponentFileEntity parentNode, ComponentEntity componentEntity);
 
     boolean existsByFileEntity(FileEntity fileEntity);
-
-    Optional<ComponentFileEntity> findByNameAndExtensionAndParentNodeAndComponentEntity(String name, String extension, ComponentFileEntity parentNode, ComponentEntity componentEntity);
 
     List<ComponentFileEntity> findByParentNodeAndComponentEntity(ComponentFileEntity parentNode, ComponentEntity componentEntity);
 
     List<ComponentFileEntity> findAllByComponentEntity(ComponentEntity componentEntity);
+
+    boolean existsByNameAndParentNodeAndComponentEntity(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity);
+
+    Optional<ComponentFileEntity> findByNameAndParentNodeAndComponentEntity(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity);
 }

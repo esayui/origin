@@ -46,11 +46,11 @@ public class FormatUtils {
     // 递归拼接path信息
     public static String getComponentFileRelativePath(ComponentFileEntity componentFileEntity, String basePath) {
         if (basePath.isEmpty()) {
-            if (componentFileEntity.isFolder()) {
-                basePath = File.separatorChar + componentFileEntity.getName() + File.separatorChar;
-            } else {
+//            if (componentFileEntity.isFolder()) {
+//                basePath = File.separatorChar + componentFileEntity.getName() + File.separatorChar;
+//            } else {
                 basePath = StringUtils.isEmpty(componentFileEntity.getFileEntity().getType()) ? File.separatorChar + componentFileEntity.getName() : File.separatorChar + componentFileEntity.getName() + "." + componentFileEntity.getFileEntity().getType();
-            }
+           // }
         }
         while (componentFileEntity.getParentNode() != null) {
             componentFileEntity = componentFileEntity.getParentNode();
