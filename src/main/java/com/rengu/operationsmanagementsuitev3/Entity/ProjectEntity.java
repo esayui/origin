@@ -30,4 +30,5 @@ public class ProjectEntity implements Serializable {
     private boolean hasStar = false;
     @ManyToOne
     private UserEntity userEntity;
+
 }

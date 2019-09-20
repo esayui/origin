@@ -16,6 +16,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -267,6 +268,23 @@ public class LogAspect {
                         description = "用户：" + username + "，下载组件：" + componentEntity.getName() + "文件";
                         break;
                     }
+
+                    case "saveComponentParamsByComponent":{
+                        List<ComponentParamEntity>  componentParamEntities = (List<ComponentParamEntity>)result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.EXPORT_TYPE;
+                        description = "用户：" + username + "，保存参数配置：" + componentParamEntities.get(0).getName();
+                        break;
+                    }
+
+                    case "saveComponentFilesByParentNodeAndComponent":{
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.EXPORT_TYPE;
+                        description = "用户：" + username + "，保存参数配置：" + componentEntity.getName();
+                        break;
+                    }
+
                     default:
                 }
             }

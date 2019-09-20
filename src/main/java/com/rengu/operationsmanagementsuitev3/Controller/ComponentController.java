@@ -1,10 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
 import com.rengu.operationsmanagementsuitev3.Entity.*;
-import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
-import com.rengu.operationsmanagementsuitev3.Service.ComponentHistoryService;
-import com.rengu.operationsmanagementsuitev3.Service.ComponentParamService;
-import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
+import com.rengu.operationsmanagementsuitev3.Service.*;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +34,17 @@ public class ComponentController {
     private final ComponentFileService componentFileService;
     private final ComponentHistoryService componentHistoryService;
     private final ComponentParamService componentParamService;
+    private final DeploymentDesignService deploymentDesignService;
+    private final DeviceService deviceService;
 
     @Autowired
-    public ComponentController(ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService,ComponentParamService componentParamService) {
+    public ComponentController(ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService,ComponentParamService componentParamService,DeploymentDesignService deploymentDesignService,DeviceService deviceService) {
         this.componentService = componentService;
         this.componentFileService = componentFileService;
         this.componentHistoryService = componentHistoryService;
         this.componentParamService = componentParamService;
+        this.deploymentDesignService = deploymentDesignService;
+        this.deviceService = deviceService;
     }
 
 
@@ -162,5 +163,56 @@ public class ComponentController {
         // 文件流输出
         IOUtils.copy(new FileInputStream(exportFile), httpServletResponse.getOutputStream());
         httpServletResponse.flushBuffer();
+    }
+
+
+    // 根据工程Id创建部署设计
+    @PostMapping(value = "/{componentId}/deploymentdesign")
+    public ResultEntity saveDeploymentDesignByComponent(@PathVariable(value = "componentId") String componentId, DeploymentDesignEntity deploymentDesignEntity) {
+        return ResultUtils.build(deploymentDesignService.saveDeploymentDesignByComponent(componentService.getComponentById(componentId), deploymentDesignEntity));
+    }
+
+    // 根据工程Id查看部署设计
+    @GetMapping(value = "/{componentId}/deploymentdesigns")
+    public ResultEntity getDeploymentDesignsByDeletedAndComponent(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deploymentDesignService.getDeploymentDesignsByDeletedAndComponent(pageable, deleted, componentService.getComponentById(componentId)));
+    }
+
+    // 根据工程Id查看部署设计数量
+    @GetMapping(value = "/{componentId}/deploymentdesigncounts")
+    public ResultEntity countDeploymentDesignsByDeletedAndComponent(@PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deploymentDesignService.countDeploymentDesignsByDeletedAndComponent(deleted, componentService.getComponentById(componentId)));
+    }
+
+
+    // 根据Id创建设备
+    @PostMapping(value = "/{componentId}/device")
+    public ResultEntity saveDeviceByComponent(@PathVariable(value = "componentId") String componentId, DeviceEntity deviceEntity) {
+        return ResultUtils.build(deviceService.saveDeviceByComponent(componentService.getComponentById(componentId), deviceEntity));
+    }
+
+    // 根据Id创建设备复数
+    @PostMapping(value = "/{componentId}/devices")
+    public ResultEntity saveDeviceByComponent(@PathVariable(value = "componentId") String componentId, DeviceEntity[] deviceEntities) {
+        return ResultUtils.build(deviceService.saveDevicesByComponent(componentService.getComponentById(componentId), deviceEntities));
+    }
+
+    // 根据Id查询设备
+    @GetMapping(value = "/{componentId}/device")
+    public ResultEntity getDevicesByDeletedAndComponent(@PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deviceService.getDevicesByDeletedAndComponent(deleted, componentService.getComponentById(componentId)));
+    }
+
+    // 根据Id查询设备
+    @GetMapping(value = "/{componentId}/devices")
+    public ResultEntity getDevicesByDeletedAndComponent(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deviceService.getDevicesByDeletedAndComponent(pageable, deleted, componentService.getComponentById(componentId)));
+    }
+
+    // 根据Id查询设备数量
+    @GetMapping(value = "/{componentId}/devicecounts")
+    public ResultEntity countDevicesByDeletedAndComponent(@PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deviceService.countDevicesByDeletedAndComponent(deleted, componentService.getComponentById(componentId)));
+
     }
 }

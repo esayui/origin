@@ -78,9 +78,9 @@ public class ProjectService {
     public ProjectEntity cleanProjectById(String projectId) throws IOException {
         ProjectEntity projectEntity = getProjectById(projectId);
         deployLogService.deleteDeployLogByProject(projectEntity);
-        deviceService.deleteDeviceByProject(projectEntity);
+        //deviceService.deleteDeviceByComponent(projectEntity);
         componentService.deleteComponentByProject(projectEntity);
-        deploymentDesignService.deleteDeploymentDesignByProject(projectEntity);
+        //deploymentDesignService.deleteDeploymentDesignByProject(projectEntity);
         projectRepository.delete(projectEntity);
         return projectEntity;
     }

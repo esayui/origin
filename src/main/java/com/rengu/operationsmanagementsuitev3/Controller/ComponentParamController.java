@@ -50,6 +50,8 @@ public class ComponentParamController {
     }
 
 
+
+
     // 根据Id查询组件参数配置
     @GetMapping(value = "/{componentparamId}")
     public ResultEntity getComponentParamById(@PathVariable(value = "componentparamId") String componentparamId) {

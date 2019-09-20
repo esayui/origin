@@ -35,6 +35,17 @@ public class ComponentEntity implements Serializable {
     @ManyToOne
     private ProjectEntity projectEntity;
 
-    @OneToMany(mappedBy = "componentEntity",cascade= CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ComponentParamEntity> params = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "ComponentEntity{" +
+                "id='" + id + '\'' +
+                ", createTime=" + createTime +
+                ", name='" + name + '\'' +
+                ", version='" + version + '\'' +
+                ", relativePath='" + relativePath + '\'' +
+                ", description='" + description + '\'' +
+                ", deleted=" + deleted +
+                '}';
+    }
 }

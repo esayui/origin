@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignNodeRepository;
+import com.rengu.operationsmanagementsuitev3.Repository.DeviceRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -36,18 +37,22 @@ public class DeploymentDesignNodeService {
     private final DeploymentDesignNodeRepository deploymentDesignNodeRepository;
     private final DeployMetaService deployMetaService;
     private final DeploymentDesignDetailService deploymentDesignDetailService;
+    private final DeviceRepository deviceRepository;
 
     @Autowired
-    public DeploymentDesignNodeService(DeploymentDesignNodeRepository deploymentDesignNodeRepository, DeployMetaService deployMetaService, DeploymentDesignDetailService deploymentDesignDetailService) {
+    public DeploymentDesignNodeService(DeploymentDesignNodeRepository deploymentDesignNodeRepository, DeployMetaService deployMetaService, DeploymentDesignDetailService deploymentDesignDetailService,DeviceRepository deviceRepository) {
         this.deploymentDesignNodeRepository = deploymentDesignNodeRepository;
         this.deployMetaService = deployMetaService;
         this.deploymentDesignDetailService = deploymentDesignDetailService;
+        this.deviceRepository = deviceRepository;
     }
 
     // 根据部署设计保存部署节点
     @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public DeploymentDesignNodeEntity saveDeploymentDesignNodeByDeploymentDesign(DeploymentDesignEntity deploymentDesignEntity, DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
+        DeviceEntity deviceEntity = deploymentDesignNodeEntity.getDeviceEntity();
         deploymentDesignNodeEntity.setDeploymentDesignEntity(deploymentDesignEntity);
+        deploymentDesignNodeEntity.setDeviceEntity( deviceRepository.save(deviceEntity));
         return deploymentDesignNodeRepository.save(deploymentDesignNodeEntity);
     }
 

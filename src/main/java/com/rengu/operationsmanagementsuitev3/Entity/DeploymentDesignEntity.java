@@ -28,6 +28,29 @@ public class DeploymentDesignEntity implements Serializable {
     private String name;
     private String description;
     private boolean deleted = false;
+    private int testCount;
+
+
+    public void setTestCount(int testCount) {
+        if(!(testCount >0)){
+            testCount =1;
+        }
+        this.testCount = testCount;
+    }
+
     @ManyToOne
-    private ProjectEntity projectEntity;
+    private ComponentEntity   componentEntity;
+
+    @Override
+    public String toString() {
+        return "DeploymentDesignEntity{" +
+                "id='" + id + '\'' +
+                ", createTime=" + createTime +
+                ", baseline=" + baseline +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", deleted=" + deleted +
+                ", testCount=" + testCount +
+                '}';
+    }
 }

@@ -89,7 +89,7 @@ public class DeployMetaService {
             outputStream = socket.getOutputStream();
             // 建立部署日志节点
             DeployLogEntity deployLogEntity = new DeployLogEntity();
-            deployLogEntity.setProjectEntity(deviceEntity.getProjectEntity());
+            deployLogEntity.setProjectEntity(deviceEntity.getComponentEntity().getProjectEntity());
             List<DeployLogDetailEntity> deployLogDetailEntityList = new ArrayList<>();
             // 记录文件发送数量、进度、速度等
             long totalSize = 0;

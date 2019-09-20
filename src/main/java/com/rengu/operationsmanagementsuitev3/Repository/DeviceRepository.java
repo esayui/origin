@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Repository;
 
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeviceEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import org.springframework.data.domain.Page;
@@ -18,13 +19,15 @@ import java.util.List;
 @Repository
 public interface DeviceRepository extends JpaRepository<DeviceEntity, String> {
 
-    boolean existsByHostAddressAndDeletedAndProjectEntity(String hostAddress, boolean deleted, ProjectEntity projectEntity);
 
-    Page<DeviceEntity> findByDeletedAndProjectEntity(Pageable pageable, boolean deleted, ProjectEntity projectEntity);
 
-    List<DeviceEntity> findByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
+    Page<DeviceEntity> findByDeletedAndComponentEntity(Pageable pageable, boolean deleted, ComponentEntity componentEntity);
 
-    List<DeviceEntity> findAllByProjectEntity(ProjectEntity projectEntity);
+    List<DeviceEntity> findByDeletedAndComponentEntity(boolean deleted, ComponentEntity componentEntity);
 
-    long countByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
+    List<DeviceEntity> findAllByComponentEntity(ComponentEntity componentEntity);
+
+    long countByDeletedAndComponentEntity(boolean deleted, ComponentEntity componentEntity);
+
+    boolean existsByHostAddressAndDeletedAndComponentEntity(String hostAddress, boolean deleted, ComponentEntity componentEntity);
 }

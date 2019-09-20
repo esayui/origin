@@ -29,6 +29,8 @@ public class ComponentHistoryEntity implements Serializable {
     private String version;
     private String relativePath;
     private String description;
+
+
     @ManyToOne
     private ComponentEntity componentEntity;
 }

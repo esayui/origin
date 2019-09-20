@@ -34,6 +34,10 @@ public class ComponentService {
     private final ComponentFileService componentFileService;
     private final ComponentHistoryService componentHistoryService;
     @Autowired
+    private  DeviceService deviceService;
+    @Autowired
+    private  DeploymentDesignService deploymentDesignService;
+    @Autowired
     private DeploymentDesignDetailService deploymentDesignDetailService;
 
     @Autowired
@@ -114,6 +118,8 @@ public class ComponentService {
         componentHistoryService.deleteComponentHistoryByComponent(componentEntity);
         componentFileService.deleteComponentFileByComponent(componentEntity);
         componentRepository.delete(componentEntity);
+        deviceService.deleteDeviceByComponent(componentEntity);
+        deploymentDesignService.deleteDeploymentDesignByComponent(componentEntity);
         return componentEntity;
     }
 

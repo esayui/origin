@@ -85,35 +85,7 @@ public class ProjectController {
         return ResultUtils.build(projectService.starProjectById(projectId, hasStar));
     }
 
-    // 根据Id创建设备
-    @PostMapping(value = "/{projectId}/device")
-    public ResultEntity saveDeviceByProject(@PathVariable(value = "projectId") String projectId, DeviceEntity deviceEntity) {
-        return ResultUtils.build(deviceService.saveDeviceByProject(projectService.getProjectById(projectId), deviceEntity));
-    }
 
-    // 根据Id创建设备复数
-    @PostMapping(value = "/{projectId}/device")
-    public ResultEntity saveDeviceByProject(@PathVariable(value = "projectId") String projectId, DeviceEntity[] deviceEntities) {
-        return ResultUtils.build(deviceService.saveDevicesByProject(projectService.getProjectById(projectId), deviceEntities));
-    }
-
-    // 根据Id查询设备
-    @GetMapping(value = "/{projectId}/device")
-    public ResultEntity getDevicesByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(deviceService.getDevicesByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
-    }
-
-    // 根据Id查询设备
-    @GetMapping(value = "/{projectId}/devices")
-    public ResultEntity getDevicesByDeletedAndProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(deviceService.getDevicesByDeletedAndProject(pageable, deleted, projectService.getProjectById(projectId)));
-    }
-
-    // 根据Id查询设备数量
-    @GetMapping(value = "/{projectId}/devicecounts")
-    public ResultEntity countDevicesByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(deviceService.countDevicesByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
-    }
 
     // 根据Id创建组件
     @PostMapping(value = "/{projectId}/component")
@@ -139,23 +111,6 @@ public class ProjectController {
         return ResultUtils.build(componentService.countComponentsByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
     }
 
-    // 根据工程Id创建部署设计
-    @PostMapping(value = "/{projectId}/deploymentdesign")
-    public ResultEntity saveDeploymentDesignByProject(@PathVariable(value = "projectId") String projectId, DeploymentDesignEntity deploymentDesignEntity) {
-        return ResultUtils.build(deploymentDesignService.saveDeploymentDesignByProject(projectService.getProjectById(projectId), deploymentDesignEntity));
-    }
-
-    // 根据工程Id查看部署设计
-    @GetMapping(value = "/{projectId}/deploymentdesigns")
-    public ResultEntity getDeploymentDesignsByDeletedAndProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(deploymentDesignService.getDeploymentDesignsByDeletedAndProject(pageable, deleted, projectService.getProjectById(projectId)));
-    }
-
-    // 根据工程Id查看部署设计数量
-    @GetMapping(value = "/{projectId}/deploymentdesigncounts")
-    public ResultEntity countDeploymentDesignsByDeletedAndProject(@PathVariable(value = "projectId") String projectId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(deploymentDesignService.countDeploymentDesignsByDeletedAndProject(deleted, projectService.getProjectById(projectId)));
-    }
 
     @GetMapping(value = "/{projectId}/deploylogs")
     public ResultEntity getDeployLogsByProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "projectId") String projectId) {

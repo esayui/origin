@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
@@ -41,14 +42,15 @@ public class DeploymentDesignService {
 
     // 根据工程保存部署设计
     @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
-    public DeploymentDesignEntity saveDeploymentDesignByProject(ProjectEntity projectEntity, DeploymentDesignEntity deploymentDesignEntity) {
+    public DeploymentDesignEntity saveDeploymentDesignByComponent(ComponentEntity componentEntity, DeploymentDesignEntity deploymentDesignEntity) {
         if (StringUtils.isEmpty(deploymentDesignEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_ARGS_NOT_FOUND);
         }
-        if (hasDeploymentDesignByNameAndDeletedAndProject(deploymentDesignEntity.getName(), false, projectEntity)) {
+        if (hasDeploymentDesignByNameAndDeletedAndComponent(deploymentDesignEntity.getName(), false, componentEntity)) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_EXISTED + deploymentDesignEntity.getName());
         }
-        deploymentDesignEntity.setProjectEntity(projectEntity);
+        deploymentDesignEntity.setComponentEntity(componentEntity);
+
         return deploymentDesignRepository.save(deploymentDesignEntity);
     }
 
@@ -69,6 +71,9 @@ public class DeploymentDesignService {
     public DeploymentDesignEntity baselineDeploymentDesignById(String deploymentDesignId) {
         DeploymentDesignEntity deploymentDesignEntity = copyDeploymentDesignById(deploymentDesignId);
         deploymentDesignEntity.setBaseline(true);
+
+
+
         deploymentDesignRepository.save(deploymentDesignEntity);
         return deploymentDesignEntity;
     }
@@ -99,8 +104,8 @@ public class DeploymentDesignService {
         return deploymentDesignEntity;
     }
 
-    public List<DeploymentDesignEntity> deleteDeploymentDesignByProject(ProjectEntity projectEntity) {
-        List<DeploymentDesignEntity> deploymentDesignEntityList = getDeploymentDesignsByProject(projectEntity);
+    public List<DeploymentDesignEntity> deleteDeploymentDesignByComponent(ComponentEntity componentEntity) {
+        List<DeploymentDesignEntity> deploymentDesignEntityList = getDeploymentDesignsByComponent(componentEntity);
         for (DeploymentDesignEntity deploymentDesignEntity : deploymentDesignEntityList) {
             cleanDeploymentDesignById(deploymentDesignEntity.getId());
         }
@@ -112,7 +117,7 @@ public class DeploymentDesignService {
     public DeploymentDesignEntity updateDeploymentDesignById(String deploymentDesignId, DeploymentDesignEntity deploymentDesignArgs) {
         DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
         if (!StringUtils.isEmpty(deploymentDesignArgs.getName()) && !deploymentDesignEntity.getName().equals(deploymentDesignArgs.getName())) {
-            if (hasDeploymentDesignByNameAndDeletedAndProject(deploymentDesignArgs.getName(), false, deploymentDesignEntity.getProjectEntity())) {
+            if (hasDeploymentDesignByNameAndDeletedAndComponent(deploymentDesignArgs.getName(), false, deploymentDesignEntity.getComponentEntity())) {
                 throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_EXISTED + deploymentDesignArgs.getName());
             }
             deploymentDesignEntity.setName(deploymentDesignArgs.getName());
@@ -124,11 +129,11 @@ public class DeploymentDesignService {
     }
 
     // 根据名称、是否删除及工程判断是否存在工程
-    public boolean hasDeploymentDesignByNameAndDeletedAndProject(String name, boolean deleted, ProjectEntity projectEntity) {
+    public boolean hasDeploymentDesignByNameAndDeletedAndComponent(String name, boolean deleted, ComponentEntity componentEntity) {
         if (StringUtils.isEmpty(name)) {
             return false;
         }
-        return deploymentDesignRepository.existsByNameAndDeletedAndProjectEntity(name, deleted, projectEntity);
+        return deploymentDesignRepository.existsByNameAndDeletedAndComponentEntity(name, deleted, componentEntity);
     }
 
     // 根据Id判断部署设计是否存在
@@ -162,29 +167,29 @@ public class DeploymentDesignService {
     }
 
     // 根据是否删除及工程查询部署设计
-    public Page<DeploymentDesignEntity> getDeploymentDesignsByDeletedAndProject(Pageable pageable, boolean deleted, ProjectEntity projectEntity) {
-        return deploymentDesignRepository.findAllByDeletedAndProjectEntity(pageable, deleted, projectEntity);
+    public Page<DeploymentDesignEntity> getDeploymentDesignsByDeletedAndComponent(Pageable pageable, boolean deleted, ComponentEntity componentEntity) {
+        return deploymentDesignRepository.findAllByDeletedAndComponentEntity(pageable, deleted, componentEntity);
     }
 
     // 根据是否删除及工程查询部署设计
-    public List<DeploymentDesignEntity> getDeploymentDesignsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
-        return deploymentDesignRepository.findAllByDeletedAndProjectEntity(deleted, projectEntity);
+    public List<DeploymentDesignEntity> getDeploymentDesignsByDeletedAndComponent(boolean deleted, ComponentEntity componentEntity) {
+        return deploymentDesignRepository.findAllByDeletedAndComponentEntity(deleted, componentEntity);
     }
 
     // 根据是否删除及工程查询部署设计
-    public List<DeploymentDesignEntity> getDeploymentDesignsByProject(ProjectEntity projectEntity) {
-        return deploymentDesignRepository.findAllByProjectEntity(projectEntity);
+    public List<DeploymentDesignEntity> getDeploymentDesignsByComponent(ComponentEntity componentEntity) {
+        return deploymentDesignRepository.findAllByComponentEntity(componentEntity);
     }
 
     // 根据是否删除及工程查询部署设计数量
-    public long countDeploymentDesignsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
-        return deploymentDesignRepository.countAllByDeletedAndProjectEntity(deleted, projectEntity);
+    public long countDeploymentDesignsByDeletedAndComponent(boolean deleted, ComponentEntity componentEntity) {
+        return deploymentDesignRepository.countAllByDeletedAndComponentEntity(deleted, componentEntity);
     }
 
     // 生成不重复的部署设计名称
     private String getDeploymentDesignName(DeploymentDesignEntity deploymentDesignEntity) {
         String name = deploymentDesignEntity.getName();
-        if (hasDeploymentDesignByNameAndDeletedAndProject(name, false, deploymentDesignEntity.getProjectEntity())) {
+        if (hasDeploymentDesignByNameAndDeletedAndComponent(name, false, deploymentDesignEntity.getComponentEntity())) {
             int index = 0;
             String tempName = name;
             if (name.contains("@")) {
@@ -192,7 +197,7 @@ public class DeploymentDesignService {
                 index = Integer.parseInt(name.substring(name.lastIndexOf("@") + 1)) + 1;
                 name = tempName + "@" + index;
             }
-            while (hasDeploymentDesignByNameAndDeletedAndProject(name, false, deploymentDesignEntity.getProjectEntity())) {
+            while (hasDeploymentDesignByNameAndDeletedAndComponent(name, false, deploymentDesignEntity.getComponentEntity())) {
                 name = tempName + "@" + index;
                 index = index + 1;
             }

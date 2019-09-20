@@ -50,7 +50,7 @@ public class DeploymentDesignNodeController {
         return ResultUtils.build(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId));
     }
 
-    // 根据id部署部署设计节点
+    // 根据id部署部署设计节点 即新建实例
     @PutMapping(value = "/{deploymentDesignNodeId}/deploy")
     public void deployDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) throws IOException {
         deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeId);

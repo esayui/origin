@@ -58,7 +58,7 @@ public class DeviceService {
 
     // 根据工程创建设备
     @CacheEvict(value = "Device_Cache", allEntries = true)
-    public DeviceEntity saveDeviceByProject(ProjectEntity projectEntity, DeviceEntity deviceEntity) {
+    public DeviceEntity saveDeviceByComponent(ComponentEntity componentEntity, DeviceEntity deviceEntity) {
         if (StringUtils.isEmpty(deviceEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.DEVICE_NAME_ARGS_NOT_FOUND);
         }
@@ -68,16 +68,16 @@ public class DeviceService {
         if (StringUtils.isEmpty(deviceEntity.getDeployPath())) {
             throw new RuntimeException(ApplicationMessages.DEVICE_DEPLOY_PATH_ARGS_NOT_FOUND);
         }
-        if (hasDeviceByHostAddressAndDeletedAndProject(deviceEntity.getHostAddress(), false, projectEntity)) {
+        if (hasDeviceByHostAddressAndDeletedAndComponent(deviceEntity.getHostAddress(), false, componentEntity)) {
             throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_EXISTED + deviceEntity.getHostAddress());
         }
         deviceEntity.setDeployPath(FormatUtils.formatPath(deviceEntity.getDeployPath()));
-        deviceEntity.setProjectEntity(projectEntity);
+        deviceEntity.setComponentEntity(componentEntity);
         return deviceRepository.save(deviceEntity);
     }
 
 
-    public List<DeviceEntity> saveDevicesByProject(ProjectEntity projectEntity, DeviceEntity[] deviceEntities) {
+    public List<DeviceEntity> saveDevicesByComponent(ComponentEntity componentEntity, DeviceEntity[] deviceEntities) {
 
         List<DeviceEntity> devices = new LinkedList<>();
         for(DeviceEntity deviceEntity:deviceEntities) {
@@ -90,11 +90,11 @@ public class DeviceService {
             if (StringUtils.isEmpty(deviceEntity.getDeployPath())) {
                 throw new RuntimeException(ApplicationMessages.DEVICE_DEPLOY_PATH_ARGS_NOT_FOUND);
             }
-            if (hasDeviceByHostAddressAndDeletedAndProject(deviceEntity.getHostAddress(), false, projectEntity)) {
+            if (hasDeviceByHostAddressAndDeletedAndComponent(deviceEntity.getHostAddress(), false, componentEntity)) {
                 throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_EXISTED + deviceEntity.getHostAddress());
             }
             deviceEntity.setDeployPath(FormatUtils.formatPath(deviceEntity.getDeployPath()));
-            deviceEntity.setProjectEntity(projectEntity);
+            deviceEntity.setComponentEntity(componentEntity);
             deviceRepository.save(deviceEntity);
             devices.add(deviceEntity);
         }
@@ -109,16 +109,16 @@ public class DeviceService {
         DeviceEntity deviceArgs = getDeviceById(deviceId);
         DeviceEntity deviceEntity = new DeviceEntity();
         BeanUtils.copyProperties(deviceArgs, deviceEntity, "id", "createTime", "hostAddress");
-        deviceEntity.setHostAddress(getHostAddress(deviceArgs.getHostAddress(), deviceArgs.getProjectEntity()));
+        deviceEntity.setHostAddress(getHostAddress(deviceArgs.getHostAddress(), deviceArgs.getComponentEntity()));
         return deviceRepository.save(deviceEntity);
     }
 
-    public void copyDeviceByProject(ProjectEntity sourceProject, ProjectEntity targetProject) {
-        List<DeviceEntity> deviceEntityList = getDevicesByProject(sourceProject);
+    public void copyDeviceByComponent(ComponentEntity sourceComponent, ComponentEntity targetComponent) {
+        List<DeviceEntity> deviceEntityList = getDevicesByComponent(sourceComponent);
         for (DeviceEntity sourceDevice : deviceEntityList) {
             DeviceEntity targetDevice = new DeviceEntity();
             BeanUtils.copyProperties(sourceDevice, targetDevice, "id", "createTime");
-            targetDevice.setProjectEntity(targetProject);
+            targetDevice.setComponentEntity(targetComponent);
             deviceRepository.save(targetDevice);
         }
     }
@@ -132,8 +132,8 @@ public class DeviceService {
     }
 
     @CacheEvict(value = "Device_Cache", allEntries = true)
-    public List<DeviceEntity> deleteDeviceByProject(ProjectEntity projectEntity) {
-        List<DeviceEntity> deviceEntityList = getDevicesByProject(projectEntity);
+    public List<DeviceEntity> deleteDeviceByComponent(ComponentEntity componentEntity) {
+        List<DeviceEntity> deviceEntityList = getDevicesByComponent(componentEntity);
         for (DeviceEntity deviceEntity : deviceEntityList) {
             cleanDeviceById(deviceEntity.getId());
         }
@@ -144,7 +144,7 @@ public class DeviceService {
     @CacheEvict(value = "Device_Cache", allEntries = true)
     public DeviceEntity restoreDeviceById(String deviceId) {
         DeviceEntity deviceEntity = getDeviceById(deviceId);
-        if (hasDeviceByHostAddressAndDeletedAndProject(deviceEntity.getHostAddress(), false, deviceEntity.getProjectEntity())) {
+        if (hasDeviceByHostAddressAndDeletedAndComponent(deviceEntity.getHostAddress(), false, deviceEntity.getComponentEntity())) {
             throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_EXISTED + deviceEntity.getHostAddress());
         }
         deviceEntity.setDeleted(false);
@@ -177,7 +177,7 @@ public class DeviceService {
             if (!IPUtils.isIPv4Address(deviceArgs.getHostAddress())) {
                 throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_NOT_FOUND);
             }
-            if (hasDeviceByHostAddressAndDeletedAndProject(deviceArgs.getHostAddress(), false, deviceEntity.getProjectEntity())) {
+            if (hasDeviceByHostAddressAndDeletedAndComponent(deviceArgs.getHostAddress(), false, deviceEntity.getComponentEntity())) {
                 throw new RuntimeException(ApplicationMessages.DEVICE_HOST_ADDRESS_EXISTED + deviceArgs.getHostAddress());
             }
             deviceEntity.setHostAddress(deviceArgs.getHostAddress());
@@ -187,11 +187,11 @@ public class DeviceService {
 
 
     // 根据IP、是否删除及工程查询设备是否存在
-    public boolean hasDeviceByHostAddressAndDeletedAndProject(String hostAddress, boolean deleted, ProjectEntity projectEntity) {
+    public boolean hasDeviceByHostAddressAndDeletedAndComponent(String hostAddress, boolean deleted, ComponentEntity componentEntity) {
         if (StringUtils.isEmpty(hostAddress) || !IPUtils.isIPv4Address(hostAddress)) {
             return false;
         }
-        return deviceRepository.existsByHostAddressAndDeletedAndProjectEntity(hostAddress, deleted, projectEntity);
+        return deviceRepository.existsByHostAddressAndDeletedAndComponentEntity(hostAddress, deleted, componentEntity);
     }
 
     // 根据Id判断设备是否存在
@@ -216,28 +216,28 @@ public class DeviceService {
         return deviceRepository.findAll(pageable);
     }
 
-    public List<DeviceEntity> getDevicesByProject(ProjectEntity projectEntity) {
-        return deviceRepository.findAllByProjectEntity(projectEntity);
+    public List<DeviceEntity> getDevicesByComponent(ComponentEntity componentEntity) {
+        return deviceRepository.findAllByComponentEntity(componentEntity);
     }
 
     // 根据是否删除及工程查询设备
-    public Page<DeviceEntity> getDevicesByDeletedAndProject(Pageable pageable, boolean deleted, ProjectEntity projectEntity) {
-        return deviceRepository.findByDeletedAndProjectEntity(pageable, deleted, projectEntity);
+    public Page<DeviceEntity> getDevicesByDeletedAndComponent(Pageable pageable, boolean deleted, ComponentEntity componentEntity) {
+        return deviceRepository.findByDeletedAndComponentEntity(pageable, deleted, componentEntity);
     }
 
     // 根据是否删除及工程查询设备
-    public List<DeviceEntity> getDevicesByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
-        return deviceRepository.findByDeletedAndProjectEntity(deleted, projectEntity);
+    public List<DeviceEntity> getDevicesByDeletedAndComponent(boolean deleted, ComponentEntity componentEntity) {
+        return deviceRepository.findByDeletedAndComponentEntity(deleted, componentEntity);
     }
 
     // 根据是否删除及工程查询设备数量
-    public long countDevicesByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
-        return deviceRepository.countByDeletedAndProjectEntity(deleted, projectEntity);
+    public long countDevicesByDeletedAndComponent(boolean deleted, ComponentEntity componentEntity) {
+        return deviceRepository.countByDeletedAndComponentEntity(deleted, componentEntity);
     }
 
     // 生成不重复的设备IP地址
-    public String getHostAddress(String hostAddress, ProjectEntity projectEntity) {
-        while (hasDeviceByHostAddressAndDeletedAndProject(hostAddress, false, projectEntity)) {
+    public String getHostAddress(String hostAddress, ComponentEntity componentEntity) {
+        while (hasDeviceByHostAddressAndDeletedAndComponent(hostAddress, false, componentEntity)) {
             hostAddress = IPUtils.longToIP(IPUtils.ipToLong(hostAddress) + 1);
         }
         return hostAddress;

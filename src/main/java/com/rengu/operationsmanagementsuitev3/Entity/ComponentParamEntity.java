@@ -40,9 +40,7 @@ public class ComponentParamEntity implements Serializable {
     private String pid;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "componentEntity_id")
-    @JsonBackReference
+    @ManyToOne
     private ComponentEntity componentEntity;
 
     public void setCreateTime(Date createTime) {

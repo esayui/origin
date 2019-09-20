@@ -41,4 +41,14 @@ public class ComponentFileEntity implements Serializable {
     private ComponentEntity componentEntity;
 
 
+    @Override
+    public String toString() {
+        return "ComponentFileEntity{" +
+                "id='" + id + '\'' +
+                ", createTime=" + createTime +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                ", fileEntity=" + fileEntity +
+                '}';
+    }
 }

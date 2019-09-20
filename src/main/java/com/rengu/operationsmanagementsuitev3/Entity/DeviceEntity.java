@@ -30,5 +30,18 @@ public class DeviceEntity implements Serializable {
     private String deployPath;
     private boolean deleted = false;
     @ManyToOne
-    private ProjectEntity projectEntity;
+    private ComponentEntity componentEntity;
+
+    @Override
+    public String toString() {
+        return "DeviceEntity{" +
+                "id='" + id + '\'' +
+                ", createTime=" + createTime +
+                ", name='" + name + '\'' +
+                ", hostAddress='" + hostAddress + '\'' +
+                ", description='" + description + '\'' +
+                ", deployPath='" + deployPath + '\'' +
+                ", deleted=" + deleted +
+                '}';
+    }
 }
