@@ -1,10 +1,8 @@
 package com.rengu.operationsmanagementsuitev3.Aspect;
 
-import com.rengu.operationsmanagementsuitev3.Controller.ComponentController;
-import com.rengu.operationsmanagementsuitev3.Controller.DeviceController;
-import com.rengu.operationsmanagementsuitev3.Controller.ProjectController;
-import com.rengu.operationsmanagementsuitev3.Controller.UserController;
+import com.rengu.operationsmanagementsuitev3.Controller.*;
 import com.rengu.operationsmanagementsuitev3.Entity.*;
+import com.rengu.operationsmanagementsuitev3.Service.DeployLogService;
 import com.rengu.operationsmanagementsuitev3.Service.UserActionLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -122,37 +120,37 @@ public class LogAspect {
                         ProjectEntity projectEntity = (ProjectEntity) result.getData();
                         object = UserActionLogService.PROJECT_OBJECT;
                         type = UserActionLogService.DELETE_TYPE;
-                        description = "用户：" + username + "，删除工程：" + projectEntity.getName();
+                        description = "用户：" + username + "，删除应用：" + projectEntity.getName();
                         break;
                     }
                     case "restoreProjectById": {
                         ProjectEntity projectEntity = (ProjectEntity) result.getData();
                         object = UserActionLogService.PROJECT_OBJECT;
                         type = UserActionLogService.RESTORE_TYPE;
-                        description = "用户：" + username + "，撤销删除工程：" + projectEntity.getName();
+                        description = "用户：" + username + "，撤销删除应用：" + projectEntity.getName();
                         break;
                     }
                     case "cleanProjectById": {
                         ProjectEntity projectEntity = (ProjectEntity) result.getData();
                         object = UserActionLogService.PROJECT_OBJECT;
                         type = UserActionLogService.CLEAN_TYPE;
-                        description = "用户：" + username + "，清除工程：" + projectEntity.getName();
+                        description = "用户：" + username + "，清除应用：" + projectEntity.getName();
                         break;
                     }
                     case "updateProjectById": {
                         ProjectEntity projectEntity = (ProjectEntity) result.getData();
                         object = UserActionLogService.PROJECT_OBJECT;
                         type = UserActionLogService.UPDATE_TYPE;
-                        description = "用户：" + username + "，修改工程：" + projectEntity.getName() + "信息。";
+                        description = "用户：" + username + "，修改应用：" + projectEntity.getName() + "信息。";
                         break;
                     }
-                    case "saveDeviceByProject": {
-                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
-                        object = UserActionLogService.DEVICE_OBJECT;
-                        type = UserActionLogService.CREATE_TYPE;
-                        description = "用户：" + username + "，保存设备：" + deviceEntity.getName();
-                        break;
-                    }
+//                    case "saveDeviceByProject": {
+//                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+//                        object = UserActionLogService.DEVICE_OBJECT;
+//                        type = UserActionLogService.CREATE_TYPE;
+//                        description = "用户：" + username + "，保存设备：" + deviceEntity.getName();
+//                        break;
+//                    }
                     case "saveComponentByProject": {
                         ComponentEntity componentEntity = (ComponentEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
@@ -160,13 +158,13 @@ public class LogAspect {
                         description = "用户：" + username + "，保存组件：" + componentEntity.getName();
                         break;
                     }
-                    case "saveDeploymentDesignByProject": {
-                        DeploymentDesignEntity deploymentDesignEntity = (DeploymentDesignEntity) result.getData();
-                        object = UserActionLogService.DEPLOYMENT_DESIGN_OBJECT;
-                        type = UserActionLogService.CREATE_TYPE;
-                        description = "用户：" + username + "，保存部署设计：" + deploymentDesignEntity.getName();
-                        break;
-                    }
+//                    case "saveDeploymentDesignByProject": {
+//                        DeploymentDesignEntity deploymentDesignEntity = (DeploymentDesignEntity) result.getData();
+//                        object = UserActionLogService.DEPLOYMENT_DESIGN_OBJECT;
+//                        type = UserActionLogService.CREATE_TYPE;
+//                        description = "用户：" + username + "，保存部署设计：" + deploymentDesignEntity.getName();
+//                        break;
+//                    }
                     default:
                 }
             }
@@ -272,22 +270,40 @@ public class LogAspect {
                     case "saveComponentParamsByComponent":{
                         List<ComponentParamEntity>  componentParamEntities = (List<ComponentParamEntity>)result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
-                        type = UserActionLogService.EXPORT_TYPE;
-                        description = "用户：" + username + "，保存参数配置：" + componentParamEntities.get(0).getName();
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，保存组件参数配置：" + componentParamEntities.get(0).getName();
                         break;
                     }
 
                     case "saveComponentFilesByParentNodeAndComponent":{
-                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
+                        List<ComponentFileEntity> componentEntity = (List<ComponentFileEntity>) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
-                        type = UserActionLogService.EXPORT_TYPE;
-                        description = "用户：" + username + "，保存参数配置：" + componentEntity.getName();
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，保存组件文件：" + componentEntity.get(0).getName();
+                        break;
+                    }
+
+                    case "saveDeviceByComponent":{
+                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，保存组件设备：ip=" + deviceEntity.getHostAddress();
+                        break;
+                    }
+
+                    case "saveDeploymentDesignByComponent":{
+                        DeploymentDesignEntity deploymentDesignEntity = (DeploymentDesignEntity)result.getData();
+                        object = UserActionLogService.COMPONENT_OBJECT;
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，保存实验：" + deploymentDesignEntity.getName();
                         break;
                     }
 
                     default:
                 }
             }
+
+
             if (object != UserActionLogService.ERROR_OBJECT || type != UserActionLogService.ERROR_TYPE || !StringUtils.isEmpty(description)) {
                 UserActionLogEntity userActionLogEntity = new UserActionLogEntity();
                 userActionLogEntity.setUsername(username);
