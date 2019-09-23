@@ -50,6 +50,8 @@ public class DeploymentDesignNodeService {
     // 根据部署设计保存部署节点
     @CacheEvict(value = "DeploymentDesignNode_Cache", allEntries = true)
     public DeploymentDesignNodeEntity saveDeploymentDesignNodeByDeploymentDesign(DeploymentDesignEntity deploymentDesignEntity, DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
+
+        //TODO device应在此由外部获得
         DeviceEntity deviceEntity = deploymentDesignNodeEntity.getDeviceEntity();
         deploymentDesignNodeEntity.setDeploymentDesignEntity(deploymentDesignEntity);
         deploymentDesignNodeEntity.setDeviceEntity( deviceRepository.save(deviceEntity));
@@ -186,9 +188,9 @@ public class DeploymentDesignNodeService {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NODE_DEVICE_ARGS_NOT_FOUND);
         }
         DeviceEntity deviceEntity = deploymentDesignNodeEntity.getDeviceEntity();
-        if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(deviceEntity.getHostAddress())) {
-            throw new RuntimeException(ApplicationMessages.DEVICE_NOT_ONLINE + deviceEntity.getHostAddress());
-        }
+//        if (!DeviceService.ONLINE_HOST_ADRESS.containsKey(deviceEntity.getHostAddress())) {
+//            throw new RuntimeException(ApplicationMessages.DEVICE_NOT_ONLINE + deviceEntity.getHostAddress());
+//        }
         List<DeployMetaEntity> deployMetaEntityList = deployMetaService.createDeployMeta(deploymentDesignDetailService.getDeploymentDesignDetailsByDeploymentDesignNode(deploymentDesignNodeEntity));
         deployMetaService.deployMeta(deploymentDesignNodeEntity.getDeploymentDesignEntity(), deviceEntity, deployMetaEntityList);
     }

@@ -186,33 +186,33 @@ public class ComponentController {
 
 
     // 根据Id创建设备
-    @PostMapping(value = "/{componentId}/device")
-    public ResultEntity saveDeviceByComponent(@PathVariable(value = "componentId") String componentId, DeviceEntity deviceEntity) {
-        return ResultUtils.build(deviceService.saveDeviceByComponent(componentService.getComponentById(componentId), deviceEntity));
+    @PostMapping(value = "/device")
+    public ResultEntity saveDevice(DeviceEntity deviceEntity) {
+        return ResultUtils.build(deviceService.saveDevice(deviceEntity));
     }
 
     // 根据Id创建设备复数
-    @PostMapping(value = "/{componentId}/devices")
-    public ResultEntity saveDeviceByComponent(@PathVariable(value = "componentId") String componentId, DeviceEntity[] deviceEntities) {
-        return ResultUtils.build(deviceService.saveDevicesByComponent(componentService.getComponentById(componentId), deviceEntities));
+    @PostMapping(value = "/devices")
+    public ResultEntity saveDevice( DeviceEntity[] deviceEntities) {
+        return ResultUtils.build(deviceService.saveDevices(deviceEntities));
     }
 
     // 根据Id查询设备
-    @GetMapping(value = "/{componentId}/device")
-    public ResultEntity getDevicesByDeletedAndComponent(@PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(deviceService.getDevicesByDeletedAndComponent(deleted, componentService.getComponentById(componentId)));
+    @GetMapping(value = "/device")
+    public ResultEntity getDevicesByDeletedAndComponent(@RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deviceService.getDevicesByDeleted(deleted));
     }
 
     // 根据Id查询设备
-    @GetMapping(value = "/{componentId}/devices")
-    public ResultEntity getDevicesByDeletedAndComponent(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(deviceService.getDevicesByDeletedAndComponent(pageable, deleted, componentService.getComponentById(componentId)));
+    @GetMapping(value = "/devices")
+    public ResultEntity getDevicesByDeletedAndComponent(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deviceService.getDevicesByDeleted(pageable, deleted));
     }
 
     // 根据Id查询设备数量
-    @GetMapping(value = "/{componentId}/devicecounts")
-    public ResultEntity countDevicesByDeletedAndComponent(@PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(deviceService.countDevicesByDeletedAndComponent(deleted, componentService.getComponentById(componentId)));
+    @GetMapping(value = "/devicecounts")
+    public ResultEntity countDevicesByDeletedAndComponent(@RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(deviceService.countDevicesByDeleted(deleted));
 
     }
 }

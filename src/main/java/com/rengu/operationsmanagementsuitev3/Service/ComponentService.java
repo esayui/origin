@@ -118,7 +118,7 @@ public class ComponentService {
         componentHistoryService.deleteComponentHistoryByComponent(componentEntity);
         componentFileService.deleteComponentFileByComponent(componentEntity);
         componentRepository.delete(componentEntity);
-        deviceService.deleteDeviceByComponent(componentEntity);
+        //deviceService.deleteDeviceByComponent(componentEntity);
         deploymentDesignService.deleteDeploymentDesignByComponent(componentEntity);
         return componentEntity;
     }

@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
@@ -29,8 +30,6 @@ public class DeviceEntity implements Serializable {
     private String description;
     private String deployPath;
     private boolean deleted = false;
-    @ManyToOne
-    private ComponentEntity componentEntity;
 
     @Override
     public String toString() {

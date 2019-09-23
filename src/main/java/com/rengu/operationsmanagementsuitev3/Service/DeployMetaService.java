@@ -70,6 +70,9 @@ public class DeployMetaService {
     // 部署元数据
     public void deployMeta(DeploymentDesignEntity deploymentDesignEntity, DeviceEntity deviceEntity, List<DeployMetaEntity> deployMetaEntityList) throws IOException {
         long deployStartTime = System.currentTimeMillis();
+
+
+
         if (DEPLOYING_DEVICE.containsKey(deviceEntity.getHostAddress())) {
             throw new RuntimeException(ApplicationMessages.DEVICE_IS_DEPOLOYING + deviceEntity.getHostAddress());
         } else {
@@ -89,7 +92,7 @@ public class DeployMetaService {
             outputStream = socket.getOutputStream();
             // 建立部署日志节点
             DeployLogEntity deployLogEntity = new DeployLogEntity();
-            deployLogEntity.setProjectEntity(deviceEntity.getComponentEntity().getProjectEntity());
+            deployLogEntity.setProjectEntity(deploymentDesignEntity.getComponentEntity().getProjectEntity());
             List<DeployLogDetailEntity> deployLogDetailEntityList = new ArrayList<>();
             // 记录文件发送数量、进度、速度等
             long totalSize = 0;

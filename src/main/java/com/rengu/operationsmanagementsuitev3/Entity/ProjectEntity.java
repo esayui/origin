@@ -31,4 +31,15 @@ public class ProjectEntity implements Serializable {
     @ManyToOne
     private UserEntity userEntity;
 
+    @Override
+    public String toString() {
+        return "ProjectEntity{" +
+                "id='" + id + '\'' +
+                ", createTime=" + createTime +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", deleted=" + deleted +
+                ", hasStar=" + hasStar +
+                '}';
+    }
 }

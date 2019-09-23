@@ -32,4 +32,7 @@ public class DeploymentDesignDetailEntity implements Serializable {
     private ComponentEntity componentEntity;
     @ManyToOne
     private DeploymentDesignEntity deploymentDesignEntity;
+
+
+
 }

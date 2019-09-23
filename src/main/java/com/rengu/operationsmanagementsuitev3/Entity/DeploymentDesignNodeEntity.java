@@ -35,6 +35,7 @@ public class DeploymentDesignNodeEntity implements Serializable {
         return "DeploymentDesignNodeEntity{" +
                 "id='" + id + '\'' +
                 ", createTime=" + createTime +
+                ", deviceEntity=" + deviceEntity +
                 '}';
     }
 }

@@ -18,16 +18,13 @@ import java.util.List;
 
 @Repository
 public interface DeviceRepository extends JpaRepository<DeviceEntity, String> {
+    
 
+    boolean existsByHostAddressAndDeleted(String hostAddress, boolean deleted);
 
+    Page<DeviceEntity> findByDeleted(Pageable pageable, boolean deleted);
 
-    Page<DeviceEntity> findByDeletedAndComponentEntity(Pageable pageable, boolean deleted, ComponentEntity componentEntity);
+    List<DeviceEntity> findByDeleted(boolean deleted);
 
-    List<DeviceEntity> findByDeletedAndComponentEntity(boolean deleted, ComponentEntity componentEntity);
-
-    List<DeviceEntity> findAllByComponentEntity(ComponentEntity componentEntity);
-
-    long countByDeletedAndComponentEntity(boolean deleted, ComponentEntity componentEntity);
-
-    boolean existsByHostAddressAndDeletedAndComponentEntity(String hostAddress, boolean deleted, ComponentEntity componentEntity);
+    long countByDeleted(boolean deleted);
 }
