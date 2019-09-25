@@ -129,6 +129,14 @@ public class ComponentController {
     }
 
     // 根据id和父节点Id创建文件
+
+    /**
+     *
+     * @param componentId   组件id 组件即为project配置版本
+     * @param parentNodeId  脚本文件id 可为空
+     * @param fileMetaEntityList
+     * @return
+     */
     @PostMapping(value = "/{componentId}/uploadfiles")
     public ResultEntity saveComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId, @RequestBody List<FileMetaEntity> fileMetaEntityList) {
         return ResultUtils.build(componentFileService.saveComponentFilesByParentNodeAndComponent(componentService.getComponentById(componentId), parentNodeId, fileMetaEntityList));

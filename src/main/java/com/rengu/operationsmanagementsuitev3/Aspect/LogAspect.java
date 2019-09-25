@@ -267,15 +267,15 @@ public class LogAspect {
                         break;
                     }
 
-                    case "saveComponentParamsByComponent":{
-                        List<ComponentParamEntity>  componentParamEntities = (List<ComponentParamEntity>)result.getData();
+                    case "saveComponentParamsByComponent": {
+                        List<ComponentParamEntity> componentParamEntities = (List<ComponentParamEntity>) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
                         description = "用户：" + username + "，保存组件参数配置：" + componentParamEntities.get(0).getName();
                         break;
                     }
 
-                    case "saveComponentFilesByParentNodeAndComponent":{
+                    case "saveComponentFilesByParentNodeAndComponent": {
                         List<ComponentFileEntity> componentEntity = (List<ComponentFileEntity>) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
@@ -283,7 +283,7 @@ public class LogAspect {
                         break;
                     }
 
-                    case "saveDeviceByComponent":{
+                    case "saveDeviceByComponent": {
                         DeviceEntity deviceEntity = (DeviceEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
@@ -291,13 +291,45 @@ public class LogAspect {
                         break;
                     }
 
-                    case "saveDeploymentDesignByComponent":{
-                        DeploymentDesignEntity deploymentDesignEntity = (DeploymentDesignEntity)result.getData();
+                    case "saveDeploymentDesignByComponent": {
+                        DeploymentDesignEntity deploymentDesignEntity = (DeploymentDesignEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
                         description = "用户：" + username + "，保存实验：" + deploymentDesignEntity.getName();
                         break;
                     }
+
+                    default:
+                }
+            }
+
+            // 实例节点接口
+            if (joinPoint.getTarget().getClass().equals(DeploymentDesignNodeController.class)) {
+                switch (joinPoint.getSignature().getName()) {
+                    case "initializeByDeploymentDesignANode": {
+                        DeployNodeRuntimeLog deployNodeRuntimeLog = (DeployNodeRuntimeLog) result.getData();
+                        object = UserActionLogService.DEPLOYMENT_DESIGN_NODE_OBJECT;
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，给实验："+deployNodeRuntimeLog.getDeploymentDesignName()+"，节点："+deployNodeRuntimeLog.getIps()+"，发送命令初始化实例。";
+                        break;
+                    }
+
+                    case "startByDeploymentDesignANode": {
+                        DeployNodeRuntimeLog deployNodeRuntimeLog = (DeployNodeRuntimeLog) result.getData();
+                        object = UserActionLogService.DEPLOYMENT_DESIGN_NODE_OBJECT;
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，给实验："+deployNodeRuntimeLog.getDeploymentDesignName()+"，节点："+deployNodeRuntimeLog.getIps()+"，发送命令运行实例。";
+                        break;
+                    }
+
+                    case "terminateByDeploymentDesignANode": {
+                        DeployNodeRuntimeLog deployNodeRuntimeLog = (DeployNodeRuntimeLog) result.getData();
+                        object = UserActionLogService.DEPLOYMENT_DESIGN_NODE_OBJECT;
+                        type = UserActionLogService.CREATE_TYPE;
+                        description = "用户：" + username + "，给实验："+deployNodeRuntimeLog.getDeploymentDesignName()+"，节点："+deployNodeRuntimeLog.getIps()+"，发送命令终止实例。";
+                        break;
+                    }
+
 
                     default:
                 }

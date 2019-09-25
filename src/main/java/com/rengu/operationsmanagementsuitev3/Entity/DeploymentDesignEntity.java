@@ -26,16 +26,17 @@ public class DeploymentDesignEntity implements Serializable {
     private Date createTime = new Date();
     private boolean baseline = false;
     private String name;
-    private String description;
+    private String type;
     private boolean deleted = false;
-    private int testCount;
+
+    private int runTime;
 
 
-    public void setTestCount(int testCount) {
-        if(!(testCount >0)){
-            testCount =1;
+    public void setTestCount(int runTime) {
+        if(!(runTime >0)){
+            runTime =1;
         }
-        this.testCount = testCount;
+        this.runTime = runTime;
     }
 
     @ManyToOne
@@ -48,9 +49,9 @@ public class DeploymentDesignEntity implements Serializable {
                 ", createTime=" + createTime +
                 ", baseline=" + baseline +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
+                ", description='" + type + '\'' +
                 ", deleted=" + deleted +
-                ", testCount=" + testCount +
+                ", testCount=" + runTime +
                 '}';
     }
 }

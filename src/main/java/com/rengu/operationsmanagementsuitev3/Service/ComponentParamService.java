@@ -35,6 +35,7 @@ public class ComponentParamService {
 
 
 
+    //保存参数配置
     @CacheEvict(value = "ComponentParam_Cache", allEntries = true)
     public ComponentParamEntity saveComponentParamByComponent(ComponentEntity componentEntity,ComponentParamEntity componentParamEntity){
         componentParamEntity.setComponentEntity(componentEntity);
@@ -42,6 +43,8 @@ public class ComponentParamService {
         return componentParamRepository.save(componentParamEntity);
     }
 
+
+    //更新参数配置
     @CacheEvict(value = "ComponentParam_Cache", allEntries = true)
     public ComponentParamEntity updateComponentParamById(String componentParamId,ComponentParamEntity componentParamEntity){
 

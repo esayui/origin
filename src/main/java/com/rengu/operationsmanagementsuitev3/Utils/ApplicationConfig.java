@@ -23,6 +23,8 @@ public class ApplicationConfig {
     public static final int UDP_RECEIVE_PORT = 6004;
     public static final int UDP_SEND_PORT = 3087;
     public static final int TCP_DEPLOY_PORT = 3088;
+    public static final int UDP_DEPLOY_PORT = 3089;
+
     public static final String SERVER_CAST_ADDRESS = "224.10.10.15";
     public static final int SERVER_BROAD_CAST_PORT = 3086;
     public static final int SERVER_MULTI_CAST_PORT = 3086;

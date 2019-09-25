@@ -4,6 +4,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignDetailRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.net.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -198,4 +201,47 @@ public class DeploymentDesignDetailService {
             }
         }
     }
+
+
+    /**
+     *
+     * @param operateType  0 initialize;1 start;2 terminate
+     * @param deploymentDesignNodeByIds
+     * @return
+     * @throws IOException
+     */
+    public DeployNodeRuntimeLog operateCmdByDeploymentDesignANode(int operateType,List<DeploymentDesignNodeEntity> deploymentDesignNodeByIds) throws IOException {
+
+        DeployNodeRuntimeLog deployNodeRuntimeLog = new DeployNodeRuntimeLog();
+        StringBuilder stringBuilder  = new StringBuilder();
+        byte[] bytes = new byte[12];
+        ByteBuffer buf = ByteBuffer.wrap(bytes);
+        buf.put(FormatUtils.getString("cmd",8).getBytes());
+        buf.putInt(operateType);
+
+        DatagramSocket ds=new DatagramSocket();
+
+        for(DeploymentDesignNodeEntity deploymentDesignNodeEntity:deploymentDesignNodeByIds) {
+            String hostAddress = deploymentDesignNodeEntity.getDeviceEntity().getHostAddress();
+
+            //2、确定数据，并封装数据到数据包.DatagramPacket(byte[] buf, int length, InetAddress address, int port) DatagramPacket(byte[] buf, int length, InetAddress address, int port)
+            DatagramPacket dp = new DatagramPacket(buf.array(), 12, InetAddress.getByName(hostAddress), ApplicationConfig.UDP_DEPLOY_PORT);
+
+            //3、通过socket服务，将已有的数据报发送出去，通过send方法。
+            ds.send(dp);
+
+            stringBuilder.append(hostAddress+"、");
+
+        }
+
+        deployNodeRuntimeLog.setDeploymentDesignName(deploymentDesignNodeByIds.get(0).getDeploymentDesignEntity().getName());
+        deployNodeRuntimeLog.setCmdcode(operateType);
+        deployNodeRuntimeLog.setIps(stringBuilder.substring(0,stringBuilder.length()-1));
+        //4、关闭资源
+        ds.close();
+
+        return deployNodeRuntimeLog;
+    }
+
+
 }

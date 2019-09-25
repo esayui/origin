@@ -122,8 +122,8 @@ public class DeploymentDesignService {
             }
             deploymentDesignEntity.setName(deploymentDesignArgs.getName());
         }
-        if (deploymentDesignArgs.getDescription() != null && !deploymentDesignEntity.getDescription().equals(deploymentDesignArgs.getDescription())) {
-            deploymentDesignEntity.setDescription(deploymentDesignArgs.getDescription());
+        if (deploymentDesignArgs.getType() != null && !deploymentDesignEntity.getType().equals(deploymentDesignArgs.getType())) {
+            deploymentDesignEntity.setType(deploymentDesignArgs.getType());
         }
         return deploymentDesignRepository.save(deploymentDesignEntity);
     }

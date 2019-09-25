@@ -20,4 +20,6 @@ public class FileMetaEntity implements Serializable {
     private String fileId;
     private String name;
     private String relativePath;
+
+
 }
