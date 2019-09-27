@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -25,6 +26,8 @@ public class DeployLogEntity implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
     private boolean complete;
+
+    @JsonIgnore
     @ManyToOne
     private ComponentEntity componentEntity;
 }

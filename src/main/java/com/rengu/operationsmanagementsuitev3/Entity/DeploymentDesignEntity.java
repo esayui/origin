@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -39,6 +40,7 @@ public class DeploymentDesignEntity implements Serializable {
         this.runTime = runTime;
     }
 
+    @JsonIgnore
     @ManyToOne
     private ComponentEntity   componentEntity;
 

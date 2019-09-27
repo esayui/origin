@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -25,14 +26,12 @@ public class ComponentEntity implements Serializable {
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
-
     private String name;
-
     private String relativePath;
     private String description;
     private boolean deleted = false;
 
-
+    @JsonIgnore
     @ManyToOne
     private UserEntity userEntity;
 

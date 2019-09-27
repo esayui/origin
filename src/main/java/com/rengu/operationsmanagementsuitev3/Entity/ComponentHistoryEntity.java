@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -30,6 +31,7 @@ public class ComponentHistoryEntity implements Serializable {
     private String description;
 
 
+    @JsonIgnore
     @ManyToOne
     private ComponentEntity componentEntity;
 }

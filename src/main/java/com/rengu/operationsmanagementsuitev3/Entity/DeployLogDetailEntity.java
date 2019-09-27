@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -30,6 +31,7 @@ public class DeployLogDetailEntity implements Serializable {
     private long componentTag;
     private String targetPath;
     private boolean complete;
+    @JsonIgnore
     @ManyToOne
     private DeployLogEntity deployLogEntity;
 }

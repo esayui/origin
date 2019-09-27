@@ -2,6 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -40,6 +41,7 @@ public class ComponentParamEntity implements Serializable {
     private String pid;
 
 
+    @JsonIgnore
     @ManyToOne
     private ComponentEntity componentEntity;
 

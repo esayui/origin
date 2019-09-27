@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -27,10 +28,13 @@ public class ComponentFileHistoryEntity implements Serializable {
     private String name;
     private String extension;
     private boolean isFolder;
+    @JsonIgnore
     @ManyToOne
     private FileEntity fileEntity;
+    @JsonIgnore
     @ManyToOne
     private ComponentFileHistoryEntity parentNode;
+    @JsonIgnore
     @ManyToOne
     private ComponentHistoryEntity componentHistoryEntity;
 }
