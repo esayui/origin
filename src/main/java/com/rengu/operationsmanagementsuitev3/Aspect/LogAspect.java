@@ -37,6 +37,7 @@ public class LogAspect {
 
     @Pointcut(value = "execution(public * com.rengu.operationsmanagementsuitev3.Controller..*(..))")
     private void requestPonitCut() {
+
     }
 
     @Before(value = "requestPonitCut()")
@@ -103,11 +104,11 @@ public class LogAspect {
                         description = "用户：" + username + "，降级管理员：" + userEntity.getUsername() + "为普通用户";
                         break;
                     }
-                    case "saveProjectByUser": {
-                        ProjectEntity projectEntity = (ProjectEntity) result.getData();
+                    case "saveComponentByUser": {
+                        ComponentEntity componentEntity = (ComponentEntity) result.getData();
                         object = UserActionLogService.PROJECT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
-                        description = "用户：" + username + "，创建工程：" + projectEntity.getName();
+                        description = "用户：" + username + "，创建应用：" + componentEntity.getName();
                         break;
                     }
                     default:
@@ -228,42 +229,42 @@ public class LogAspect {
                         ComponentEntity componentEntity = (ComponentEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.COPY_TYPE;
-                        description = "用户：" + username + "，复制组件：" + componentEntity.getName();
+                        description = "用户：" + username + "，复制应用：" + componentEntity.getName();
                         break;
                     }
                     case "deleteComponentById": {
                         ComponentEntity componentEntity = (ComponentEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.DELETE_TYPE;
-                        description = "用户：" + username + "，删除组件：" + componentEntity.getName();
+                        description = "用户：" + username + "，删除应用：" + componentEntity.getName();
                         break;
                     }
                     case "restoreComponentById": {
                         ComponentEntity componentEntity = (ComponentEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.RESTORE_TYPE;
-                        description = "用户：" + username + "，撤销删除组件：" + componentEntity.getName();
+                        description = "用户：" + username + "，撤销删除应用：" + componentEntity.getName();
                         break;
                     }
                     case "cleanComponentById": {
                         ComponentEntity componentEntity = (ComponentEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.CLEAN_TYPE;
-                        description = "用户：" + username + "，清除组件：" + componentEntity.getName();
+                        description = "用户：" + username + "，清除应用：" + componentEntity.getName();
                         break;
                     }
                     case "updateComponentById": {
                         ComponentEntity componentEntity = (ComponentEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.UPDATE_TYPE;
-                        description = "用户：" + username + "，更新组件：" + componentEntity.getName() + "信息";
+                        description = "用户：" + username + "，更新应用：" + componentEntity.getName() + "信息";
                         break;
                     }
                     case "exportComponentFileByComponent": {
                         ComponentEntity componentEntity = (ComponentEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.EXPORT_TYPE;
-                        description = "用户：" + username + "，下载组件：" + componentEntity.getName() + "文件";
+                        description = "用户：" + username + "，下载应用：" + componentEntity.getName() + "文件";
                         break;
                     }
 
@@ -271,7 +272,7 @@ public class LogAspect {
                         List<ComponentParamEntity> componentParamEntities = (List<ComponentParamEntity>) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
-                        description = "用户：" + username + "，保存组件参数配置：" + componentParamEntities.get(0).getName();
+                        description = "用户：" + username + "，保存应用基础参数配置：" + componentParamEntities.get(0).getName();
                         break;
                     }
 
@@ -279,23 +280,23 @@ public class LogAspect {
                         List<ComponentFileEntity> componentEntity = (List<ComponentFileEntity>) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
-                        description = "用户：" + username + "，保存组件文件：" + componentEntity.get(0).getName();
+                        description = "用户：" + username + "，保存应用运行程序文件：" + componentEntity.get(0).getName();
                         break;
                     }
 
-                    case "saveDeviceByComponent": {
-                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
-                        object = UserActionLogService.COMPONENT_OBJECT;
-                        type = UserActionLogService.CREATE_TYPE;
-                        description = "用户：" + username + "，保存组件设备：ip=" + deviceEntity.getHostAddress();
-                        break;
-                    }
+//                    case "saveDeviceByComponent": {
+//                        DeviceEntity deviceEntity = (DeviceEntity) result.getData();
+//                        object = UserActionLogService.COMPONENT_OBJECT;
+//                        type = UserActionLogService.CREATE_TYPE;
+//                        description = "用户：" + username + "，保存应用分配设备：ip=" + deviceEntity.getHostAddress();
+//                        break;
+//                    }
 
                     case "saveDeploymentDesignByComponent": {
                         DeploymentDesignEntity deploymentDesignEntity = (DeploymentDesignEntity) result.getData();
                         object = UserActionLogService.COMPONENT_OBJECT;
                         type = UserActionLogService.CREATE_TYPE;
-                        description = "用户：" + username + "，保存实验：" + deploymentDesignEntity.getName();
+                        description = "用户：" + username + "，新建保存实验：" + deploymentDesignEntity.getName();
                         break;
                     }
 

@@ -2,6 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Repository;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,13 +19,15 @@ import java.util.List;
 @Repository
 public interface ComponentRepository extends JpaRepository<ComponentEntity, String> {
 
-    boolean existsByNameAndVersionAndDeletedAndProjectEntity(String name, String version, boolean deleted, ProjectEntity projectEntity);
 
-    Page<ComponentEntity> findByDeletedAndProjectEntity(Pageable pageable, boolean deleted, ProjectEntity projectEntity);
+    Page<ComponentEntity> findByDeletedAndUserEntity(Pageable pageable, boolean deleted,  UserEntity userEntity);
 
-    List<ComponentEntity> findByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
+    List<ComponentEntity> findByDeletedAndUserEntity(boolean deleted,  UserEntity userEntity);
 
-    List<ComponentEntity> findAllByProjectEntity(ProjectEntity projectEntity);
+    List<ComponentEntity> findAllByUserEntity( UserEntity userEntity);
 
-    long countByDeletedAndProjectEntity(boolean deleted, ProjectEntity projectEntity);
+    long countByDeletedAndUserEntity(boolean deleted,  UserEntity userEntity);
+
+
+    boolean existsByNameAndDeletedAndUserEntity(String name, boolean deleted, UserEntity userEntity);
 }

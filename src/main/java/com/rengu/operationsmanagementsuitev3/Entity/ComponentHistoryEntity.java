@@ -26,7 +26,6 @@ public class ComponentHistoryEntity implements Serializable {
     private Date createTime = new Date();
     private long tag = System.currentTimeMillis();
     private String name;
-    private String version;
     private String relativePath;
     private String description;
 

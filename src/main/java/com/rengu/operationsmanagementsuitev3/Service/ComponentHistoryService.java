@@ -49,7 +49,7 @@ public class ComponentHistoryService {
         componentHistoryEntity.setComponentEntity(sourceComponent);
         componentHistoryRepository.save(componentHistoryEntity);
         componentFileHistoryService.saveComponentFileHistorysByComponent(sourceComponent, componentHistoryEntity);
-        log.info(sourceComponent.getName() + "-" + sourceComponent.getVersion() + "保存历史成功。");
+        log.info(sourceComponent.getName()+ "保存历史成功。");
     }
 
     @CacheEvict(value = "ComponentHistory_Cache", allEntries = true)

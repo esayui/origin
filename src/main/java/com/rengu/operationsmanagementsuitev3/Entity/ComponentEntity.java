@@ -25,15 +25,16 @@ public class ComponentEntity implements Serializable {
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
+
     private String name;
-    private String version;
+
     private String relativePath;
     private String description;
     private boolean deleted = false;
 
 
     @ManyToOne
-    private ProjectEntity projectEntity;
+    private UserEntity userEntity;
 
 
     @Override
@@ -42,7 +43,6 @@ public class ComponentEntity implements Serializable {
                 "id='" + id + '\'' +
                 ", createTime=" + createTime +
                 ", name='" + name + '\'' +
-                ", version='" + version + '\'' +
                 ", relativePath='" + relativePath + '\'' +
                 ", description='" + description + '\'' +
                 ", deleted=" + deleted +

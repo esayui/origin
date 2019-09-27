@@ -34,4 +34,7 @@ public class UserActionLogController {
     public ResultEntity getUserActionLogs(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResultUtils.build(userActionLogService.getUserActionLogs(pageable));
     }
+
+
+
 }

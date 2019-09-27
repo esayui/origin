@@ -3,6 +3,7 @@ package com.rengu.operationsmanagementsuitev3.Aspect;
 import com.rengu.operationsmanagementsuitev3.Controller.ComponentController;
 import com.rengu.operationsmanagementsuitev3.Controller.ComponentFileController;
 import com.rengu.operationsmanagementsuitev3.Controller.ProjectController;
+import com.rengu.operationsmanagementsuitev3.Controller.UserController;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
@@ -35,9 +36,9 @@ public class ComponentHistoryAspect {
 
     @AfterReturning(pointcut = "componentPointCut()", returning = "result")
     public void doAfterReturning(JoinPoint joinPoint, ResultEntity result) {
-        if (joinPoint.getTarget().getClass().equals(ProjectController.class)) {
+        if (joinPoint.getTarget().getClass().equals(UserController.class)) {
             switch (joinPoint.getSignature().getName()) {
-                case "saveComponentByProject": {
+                case "saveComponentByUser": {
                     ComponentEntity componentEntity = (ComponentEntity) result.getData();
                     componentHistoryService.saveComponentHistoryByComponent(componentEntity);
                     break;

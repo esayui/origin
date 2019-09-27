@@ -113,6 +113,7 @@ public class DeploymentDesignNodeController {
         return ResultUtils.build(deploymentDesignDetailService.scanDeploymentDesignDetailsByDeploymentDesignNode(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId), extensions));
     }
 
+
     //根据Id实例初始化
     @GetMapping(value = "/cmd/initialize")
     public ResultEntity initializeByDeploymentDesignANode(String[] deploymentDesignNodeIds) throws IOException {

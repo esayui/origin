@@ -36,15 +36,17 @@ public class ComponentController {
     private final ComponentParamService componentParamService;
     private final DeploymentDesignService deploymentDesignService;
     private final DeviceService deviceService;
+    private final DeployLogService deployLogService;
 
     @Autowired
-    public ComponentController(ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService,ComponentParamService componentParamService,DeploymentDesignService deploymentDesignService,DeviceService deviceService) {
+    public ComponentController(ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService,ComponentParamService componentParamService,DeploymentDesignService deploymentDesignService,DeviceService deviceService,DeployLogService deployLogService) {
         this.componentService = componentService;
         this.componentFileService = componentFileService;
         this.componentHistoryService = componentHistoryService;
         this.componentParamService = componentParamService;
         this.deploymentDesignService = deploymentDesignService;
         this.deviceService = deviceService;
+        this.deployLogService = deployLogService;
     }
 
 
@@ -223,4 +225,11 @@ public class ComponentController {
         return ResultUtils.build(deviceService.countDevicesByDeleted(deleted));
 
     }
+
+
+    @GetMapping(value = "/{componentId}/deploylogs")
+    public ResultEntity getDeployLogsByProject(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "componentId") String componentId) {
+        return ResultUtils.build(deployLogService.getDeployLogsByComponent(pageable, componentService.getComponentById(componentId)));
+    }
+
 }

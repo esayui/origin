@@ -77,9 +77,9 @@ public class ProjectService {
     @CacheEvict(value = "Project_Cache", allEntries = true)
     public ProjectEntity cleanProjectById(String projectId) throws IOException {
         ProjectEntity projectEntity = getProjectById(projectId);
-        deployLogService.deleteDeployLogByProject(projectEntity);
+        //deployLogService.deleteDeployLogByProject(projectEntity);
         //deviceService.deleteDeviceByComponent(projectEntity);
-        componentService.deleteComponentByProject(projectEntity);
+        //componentService.deleteComponentByUser(projectEntity);
         //deploymentDesignService.deleteDeploymentDesignByProject(projectEntity);
         projectRepository.delete(projectEntity);
         return projectEntity;

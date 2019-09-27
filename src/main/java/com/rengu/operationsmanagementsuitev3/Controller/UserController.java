@@ -1,8 +1,10 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
+import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
 import com.rengu.operationsmanagementsuitev3.Service.UserActionLogService;
 import com.rengu.operationsmanagementsuitev3.Service.UserService;
@@ -26,13 +28,13 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final ProjectService projectService;
+    private final ComponentService componentService;
     private final UserActionLogService userActionLogService;
 
     @Autowired
-    public UserController(UserService userService, ProjectService projectService, UserActionLogService userActionLogService) {
+    public UserController(UserService userService, ComponentService componentService, UserActionLogService userActionLogService) {
         this.userService = userService;
-        this.projectService = projectService;
+        this.componentService = componentService;
         this.userActionLogService = userActionLogService;
     }
 
@@ -95,15 +97,36 @@ public class UserController {
         return ResultUtils.build(userActionLogService.getUserActionLogsByUsername(pageable, userService.getUserById(userId).getUsername()));
     }
 
-    // 根据id创建工程
-    @PostMapping(value = "/{userId}/project")
-    public ResultEntity saveProjectByUser(@PathVariable(value = "userId") String userId, ProjectEntity projectEntity) {
-        return ResultUtils.build(projectService.saveProjectByUser(projectEntity, userService.getUserById(userId)));
+    // 根据Id创建组件
+    @PostMapping(value = "/{userId}/component")
+    public ResultEntity saveComponentByUser(@PathVariable(value = "userId") String userId, ComponentEntity componentEntity) {
+        return ResultUtils.build(componentService.saveComponentByUser(userService.getUserById(userId), componentEntity));
     }
 
-    // 根据用户id查询工程
-    @GetMapping(value = "/{userId}/projects")
-    public ResultEntity getProjectsByDeletedAndUser(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
-        return ResultUtils.build(projectService.getProjectsByDeletedAndUser(pageable, deleted, userService.getUserById(userId)));
+    // 根据Id查询组件
+    @GetMapping(value = "/{userId}/component")
+    public ResultEntity getComponentsByDeletedAndUser(@PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(componentService.getComponentsByDeletedAndUser(deleted, userService.getUserById(userId)));
     }
+
+    // 根据Id查询组件
+    @GetMapping(value = "/{userId}/components")
+    public ResultEntity getComponentsByDeletedAndUser(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
+        return ResultUtils.build(componentService.getComponentsByDeletedAndUser(pageable, deleted, userService.getUserById(userId)));
+    }
+
+
+
+
+//    // 根据id创建工程
+//    @PostMapping(value = "/{userId}/project")
+//    public ResultEntity saveProjectByUser(@PathVariable(value = "userId") String userId, ProjectEntity projectEntity) {
+//        return ResultUtils.build(projectService.saveProjectByUser(projectEntity, userService.getUserById(userId)));
+//    }
+//
+//    // 根据用户id查询工程
+//    @GetMapping(value = "/{userId}/projects")
+//    public ResultEntity getProjectsByDeletedAndUser(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
+//        return ResultUtils.build(projectService.getProjectsByDeletedAndUser(pageable, deleted, userService.getUserById(userId)));
+//    }
 }

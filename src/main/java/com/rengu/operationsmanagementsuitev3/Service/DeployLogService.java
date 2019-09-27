@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeployLogEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.DeployLogRepository;
@@ -50,8 +51,8 @@ public class DeployLogService {
     }
 
     @CacheEvict(value = "DeployLog_Cache", allEntries = true)
-    public List<DeployLogEntity> deleteDeployLogByProject(ProjectEntity projectEntity) {
-        List<DeployLogEntity> deployLogEntityList = getDeployLogsByProject(projectEntity);
+    public List<DeployLogEntity> deleteDeployLogByComponent(ComponentEntity componentEntity) {
+        List<DeployLogEntity> deployLogEntityList = getDeployLogsByComponent(componentEntity);
         for (DeployLogEntity deployLogEntity : deployLogEntityList) {
             deleteDeployLogById(deployLogEntity.getId());
         }
@@ -73,12 +74,12 @@ public class DeployLogService {
         return deployLogRepository.findById(deployLogId).get();
     }
 
-    public Page<DeployLogEntity> getDeployLogsByProject(Pageable pageable, ProjectEntity projectEntity) {
-        return deployLogRepository.findAllByProjectEntity(pageable, projectEntity);
+    public Page<DeployLogEntity> getDeployLogsByComponent(Pageable pageable, ComponentEntity componentEntity) {
+        return deployLogRepository.findAllByComponentEntity(pageable, componentEntity);
     }
 
-    public List<DeployLogEntity> getDeployLogsByProject(ProjectEntity projectEntity) {
-        return deployLogRepository.findAllByProjectEntity(projectEntity);
+    public List<DeployLogEntity> getDeployLogsByComponent(ComponentEntity componentEntity) {
+        return deployLogRepository.findAllByComponentEntity(componentEntity);
     }
 
     public Page<DeployLogEntity> getDeployLogs(Pageable pageable) {

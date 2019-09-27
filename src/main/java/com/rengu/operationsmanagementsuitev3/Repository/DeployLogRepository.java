@@ -1,5 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Repository;
 
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeployLogEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,7 @@ import java.util.List;
 @Repository
 public interface DeployLogRepository extends JpaRepository<DeployLogEntity, String> {
 
-    Page<DeployLogEntity> findAllByProjectEntity(Pageable pageable, ProjectEntity projectEntity);
+    Page<DeployLogEntity> findAllByComponentEntity(Pageable pageable, ComponentEntity componentEntity);
 
-    List<DeployLogEntity> findAllByProjectEntity(ProjectEntity projectEntity);
+    List<DeployLogEntity> findAllByComponentEntity(ComponentEntity componentEntity);
 }

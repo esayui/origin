@@ -26,5 +26,5 @@ public class DeployLogEntity implements Serializable {
     private Date createTime = new Date();
     private boolean complete;
     @ManyToOne
-    private ProjectEntity projectEntity;
+    private ComponentEntity componentEntity;
 }

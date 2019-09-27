@@ -2,6 +2,7 @@ package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
@@ -34,9 +35,9 @@ public class ComponentService {
     private final ComponentFileService componentFileService;
     private final ComponentHistoryService componentHistoryService;
     @Autowired
-    private  DeviceService deviceService;
+    private DeployLogService deployLogService;
     @Autowired
-    private  DeploymentDesignService deploymentDesignService;
+    private DeploymentDesignService deploymentDesignService;
     @Autowired
     private DeploymentDesignDetailService deploymentDesignDetailService;
 
@@ -49,15 +50,17 @@ public class ComponentService {
 
     // 根据工程保存组件
     @CacheEvict(value = " Component_Cache", allEntries = true)
-    public ComponentEntity saveComponentByProject(ProjectEntity projectEntity, ComponentEntity componentEntity) {
+    public ComponentEntity saveComponentByUser(UserEntity userEntity, ComponentEntity componentEntity) {
         if (StringUtils.isEmpty(componentEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_ARGS_NOT_FOUND);
         }
-        if (StringUtils.isEmpty(componentEntity.getVersion())) {
-            throw new RuntimeException(ApplicationMessages.COMPONENT_VERSION_ARGS_NOT_FOUND);
-        }
-        if (hasComponentByNameAndVersionAndDeletedAndProject(componentEntity.getName(), componentEntity.getVersion(), false, projectEntity)) {
-            throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_AND_VERSION_EXISTED + componentEntity.getName() + "-" + componentEntity.getVersion());
+
+
+//        if (StringUtils.isEmpty(componentEntity.getVersion())) {
+//            throw new RuntimeException(ApplicationMessages.COMPONENT_VERSION_ARGS_NOT_FOUND);
+//        }
+        if (hasComponentByNameAndDeletedAndUser(componentEntity.getName(),false, userEntity)) {
+            throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_AND_VERSION_EXISTED + componentEntity.getName() );
         }
 
 
@@ -65,7 +68,7 @@ public class ComponentService {
             throw new RuntimeException(ApplicationMessages.COMPONENT_RELATIVE_PATH_ARGS_NOT_FOUND);
         }
         componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
-        componentEntity.setProjectEntity(projectEntity);
+        componentEntity.setUserEntity(userEntity);
 
 
         return componentRepository.save(componentEntity);
@@ -82,12 +85,12 @@ public class ComponentService {
         return componentEntity;
     }
 
-    public void copyComponentByProject(ProjectEntity sourceProject, ProjectEntity targetProject) {
-        List<ComponentEntity> componentEntityList = getComponentsByProject(sourceProject);
+    public void copyComponentByUser(UserEntity source, UserEntity target) {
+        List<ComponentEntity> componentEntityList = getComponentsByUser(source);
         for (ComponentEntity sourceComponent : componentEntityList) {
             ComponentEntity targetComponent = new ComponentEntity();
             BeanUtils.copyProperties(sourceComponent, targetComponent, "id", "createTime");
-            targetComponent.setProjectEntity(targetProject);
+            targetComponent.setUserEntity(target);
             componentRepository.save(targetComponent);
             componentFileService.copyComponentFileByComponent(sourceComponent, targetComponent);
         }
@@ -118,13 +121,13 @@ public class ComponentService {
         componentHistoryService.deleteComponentHistoryByComponent(componentEntity);
         componentFileService.deleteComponentFileByComponent(componentEntity);
         componentRepository.delete(componentEntity);
-        //deviceService.deleteDeviceByComponent(componentEntity);
+        deployLogService.deleteDeployLogByComponent(componentEntity);
         deploymentDesignService.deleteDeploymentDesignByComponent(componentEntity);
         return componentEntity;
     }
 
-    public List<ComponentEntity> deleteComponentByProject(ProjectEntity projectEntity) throws IOException {
-        List<ComponentEntity> componentEntityList = getComponentsByProject(projectEntity);
+    public List<ComponentEntity> deleteComponentByUser(UserEntity userEntity) throws IOException {
+        List<ComponentEntity> componentEntityList = getComponentsByUser(userEntity);
         for (ComponentEntity componentEntity : componentEntityList) {
             cleanComponentById(componentEntity.getId());
         }
@@ -135,16 +138,16 @@ public class ComponentService {
     @CacheEvict(value = " Component_Cache", allEntries = true)
     public ComponentEntity updateComponentById(String componentId, ComponentEntity componentArgs) {
         boolean isModifiedName = false;
-        boolean isModifiedVersion = false;
+        //boolean isModifiedVersion = false;
         ComponentEntity componentEntity = getComponentById(componentId);
         if (!StringUtils.isEmpty(componentArgs.getName()) && !componentEntity.getName().equals(componentArgs.getName())) {
             isModifiedName = true;
         }
-        if (!StringUtils.isEmpty(componentArgs.getVersion()) && !componentEntity.getVersion().equals(componentArgs.getVersion())) {
-            isModifiedVersion = true;
-        }
-        if ((isModifiedName || isModifiedVersion) && hasComponentByNameAndVersionAndDeletedAndProject(componentArgs.getName(), componentArgs.getVersion(), false, componentEntity.getProjectEntity())) {
-            throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_AND_VERSION_EXISTED + componentArgs.getName() + "-" + componentArgs.getVersion());
+//        if (!StringUtils.isEmpty(componentArgs.getVersion()) && !componentEntity.getVersion().equals(componentArgs.getVersion())) {
+//            isModifiedVersion = true;
+//        }
+        if (isModifiedName && hasComponentByNameAndDeletedAndUser(componentArgs.getName(),  false, componentEntity.getUserEntity())) {
+            throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_AND_VERSION_EXISTED + componentArgs.getName());
         }
         if (!StringUtils.isEmpty(componentArgs.getRelativePath()) && !componentEntity.getRelativePath().equals(componentArgs.getRelativePath())) {
             componentEntity.setRelativePath(componentArgs.getRelativePath());
@@ -155,18 +158,18 @@ public class ComponentService {
         if (isModifiedName) {
             componentEntity.setName(componentArgs.getName());
         }
-        if (isModifiedVersion) {
-            componentEntity.setVersion(componentArgs.getVersion());
-        }
+//        if (isModifiedVersion) {
+//            componentEntity.setVersion(componentArgs.getVersion());
+//        }
         return componentRepository.save(componentEntity);
     }
 
     // 根据组件名称、版本、是否删除及工程查询组件是否存在
-    public boolean hasComponentByNameAndVersionAndDeletedAndProject(String name, String version, boolean deleted, ProjectEntity projectEntity) {
-        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(version)) {
+    public boolean hasComponentByNameAndDeletedAndUser(String name,  boolean deleted, UserEntity userEntity) {
+        if (StringUtils.isEmpty(name) ) {
             return false;
         }
-        return componentRepository.existsByNameAndVersionAndDeletedAndProjectEntity(name, version, deleted, projectEntity);
+        return componentRepository.existsByNameAndDeletedAndUserEntity(name, deleted, userEntity);
     }
 
     // 根据Id查询组件是否存在
@@ -192,31 +195,31 @@ public class ComponentService {
     }
 
     // 根据工程查询组件
-    public Page<ComponentEntity> getComponentsByDeletedAndProject(Pageable pageable, boolean deleted, ProjectEntity projectEntity) {
-        return componentRepository.findByDeletedAndProjectEntity(pageable, deleted, projectEntity);
+    public Page<ComponentEntity> getComponentsByDeletedAndUser(Pageable pageable, boolean deleted, UserEntity userEntity) {
+        return componentRepository.findByDeletedAndUserEntity(pageable, deleted, userEntity);
     }
 
     // 根据工程查询组件
-    public List<ComponentEntity> getComponentsByProject(ProjectEntity projectEntity) {
-        return componentRepository.findAllByProjectEntity(projectEntity);
+    public List<ComponentEntity> getComponentsByUser(UserEntity userEntity) {
+        return componentRepository.findAllByUserEntity(userEntity);
     }
 
     // 根据工程查询组件
     @Cacheable(value = " Component_Cache", key = "#deleted + #projectEntity.getId()")
-    public List<ComponentEntity> getComponentsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
-        return componentRepository.findByDeletedAndProjectEntity(deleted, projectEntity);
+    public List<ComponentEntity> getComponentsByDeletedAndUser(boolean deleted, UserEntity userEntity) {
+        return componentRepository.findByDeletedAndUserEntity(deleted, userEntity);
     }
 
     // 根据工程查询组件数量
-    public long countComponentsByDeletedAndProject(boolean deleted, ProjectEntity projectEntity) {
-        return componentRepository.countByDeletedAndProjectEntity(deleted, projectEntity);
+    public long countComponentsByDeletedAndUser(boolean deleted, UserEntity userEntity) {
+        return componentRepository.countByDeletedAndUserEntity(deleted, userEntity);
     }
 
     // 生成不重复的组件名称
     private String getComponentName(ComponentEntity componentEntity) {
         String name = componentEntity.getName();
-        String version = componentEntity.getVersion();
-        if (hasComponentByNameAndVersionAndDeletedAndProject(name, version, false, componentEntity.getProjectEntity())) {
+       // String version = componentEntity.getVersion();
+        if (hasComponentByNameAndDeletedAndUser(name, false, componentEntity.getUserEntity())) {
             int index = 0;
             String tempName = name;
             if (name.contains("@")) {
@@ -224,7 +227,7 @@ public class ComponentService {
                 index = Integer.parseInt(name.substring(name.lastIndexOf("@") + 1)) + 1;
                 name = tempName + "@" + index;
             }
-            while (hasComponentByNameAndVersionAndDeletedAndProject(name, version, false, componentEntity.getProjectEntity())) {
+            while (hasComponentByNameAndDeletedAndUser(name,false, componentEntity.getUserEntity())) {
                 name = tempName + "@" + index;
                 index = index + 1;
             }

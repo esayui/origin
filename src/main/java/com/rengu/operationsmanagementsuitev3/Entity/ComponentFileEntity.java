@@ -27,8 +27,8 @@ public class ComponentFileEntity implements Serializable {
     private Date createTime = new Date();
     private String name;
     private int type;//实验脚本文件类型 0：exe源码 1：脚本文件 2：结果文件
-//    private String extension;
-//    private boolean isFolder;
+    private String extension;
+    private boolean isFolder;
     @ManyToOne
     private FileEntity fileEntity;
 

@@ -53,7 +53,7 @@ public class DeploymentDesignDetailService {
     @CacheEvict(value = "DeploymentDesignDetail_Cache", allEntries = true)
     public DeploymentDesignDetailEntity saveDeploymentDesignDetailByDeploymentDesignNodeAndComponentHistory(DeploymentDesignNodeEntity deploymentDesignNodeEntity, ComponentHistoryEntity componentHistoryEntity) {
         if (hasDeploymentDesignDetailByDeploymentDesignNodeAndComponent(deploymentDesignNodeEntity, componentHistoryEntity.getComponentEntity())) {
-            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_DETAIL_COMPONENT_EXISTED + componentHistoryEntity.getComponentEntity().getName() + "-" + componentHistoryEntity.getComponentEntity().getVersion());
+            throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_DETAIL_COMPONENT_EXISTED + componentHistoryEntity.getComponentEntity().getName());
         }
         DeploymentDesignDetailEntity deploymentDesignDetailEntity = new DeploymentDesignDetailEntity();
         deploymentDesignDetailEntity.setDeploymentDesignNodeEntity(deploymentDesignNodeEntity);
@@ -204,7 +204,7 @@ public class DeploymentDesignDetailService {
 
 
     /**
-     *
+     * 发送指令给实例节点
      * @param operateType  0 initialize;1 start;2 terminate
      * @param deploymentDesignNodeByIds
      * @return

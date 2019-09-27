@@ -92,7 +92,7 @@ public class DeployMetaService {
             outputStream = socket.getOutputStream();
             // 建立部署日志节点
             DeployLogEntity deployLogEntity = new DeployLogEntity();
-            deployLogEntity.setProjectEntity(deploymentDesignEntity.getComponentEntity().getProjectEntity());
+            deployLogEntity.setComponentEntity(deploymentDesignEntity.getComponentEntity());
             List<DeployLogDetailEntity> deployLogDetailEntityList = new ArrayList<>();
             // 记录文件发送数量、进度、速度等
             long totalSize = 0;
@@ -114,7 +114,7 @@ public class DeployMetaService {
                 DeployLogDetailEntity deployLogDetailEntity = new DeployLogDetailEntity();
                 deployLogDetailEntity.setHostName(deviceEntity.getHostAddress());
                 deployLogDetailEntity.setComponentName(deployMetaEntity.getComponentHistoryEntity().getName());
-                deployLogDetailEntity.setComponentVersion(deployMetaEntity.getComponentHistoryEntity().getVersion());
+                //deployLogDetailEntity.setComponentVersion(deployMetaEntity.getComponentHistoryEntity().getVersion());
                 deployLogDetailEntity.setComponentTag(deployMetaEntity.getComponentHistoryEntity().getTag());
                 deployLogDetailEntity.setTargetPath(targetPath);
                 deployLogDetailEntity.setDeployLogEntity(deployLogEntity);
@@ -135,7 +135,7 @@ public class DeployMetaService {
                             deployLogEntity.setComplete(false);
                             deployLogDetailEntity.setComplete(false);
                             progress = ((double) totalSendSize / totalSize) * 100;
-                            log.info(deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署失败，接收路径回复超时。当前进度：" + progress + "%");
+                            log.info(deployMetaEntity.getComponentHistoryEntity().getName()  + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署失败，接收路径回复超时。当前进度：" + progress + "%");
                             simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING_ERROR, FilenameUtils.getName(targetPath) + "-部署失败"));
                             continue deploylable;
                         }
@@ -202,7 +202,7 @@ public class DeployMetaService {
                         deployLogEntity.setComplete(false);
                         deployLogDetailEntity.setComplete(false);
                         progress = (double) totalSendSize / totalSize;
-                        log.info(deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署失败，文件读取异常。当前进度：" + progress + "%");
+                        log.info(deployMetaEntity.getComponentHistoryEntity().getName() +  "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署失败，文件读取异常。当前进度：" + progress + "%");
                         simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING_ERROR, FilenameUtils.getName(targetPath) + "-部署失败"));
                         continue deploylable;
                     }
@@ -223,7 +223,7 @@ public class DeployMetaService {
                             deployLogEntity.setComplete(false);
                             deployLogDetailEntity.setComplete(false);
                             progress = (double) totalSendSize / totalSize;
-                            log.info(deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署失败，接收文件结束标志回复超时。当前进度：" + progress + "%");
+                            log.info(deployMetaEntity.getComponentHistoryEntity().getName() +  "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署失败，接收文件结束标志回复超时。当前进度：" + progress + "%");
                             simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING_ERROR, FilenameUtils.getName(targetPath) + "-部署失败"));
                             continue deploylable;
                         }
@@ -231,7 +231,7 @@ public class DeployMetaService {
                 }
                 deployLogDetailEntity.setComplete(true);
                 progress = ((double) totalSendSize / totalSize) * 100;
-                log.info(deployMetaEntity.getComponentHistoryEntity().getName() + "-" + deployMetaEntity.getComponentHistoryEntity().getVersion() + "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署成功，当前进度：" + progress + "%,当前速度：" + speed + "kb/s");
+                log.info(deployMetaEntity.getComponentHistoryEntity().getName() +  "@" + deviceEntity.getHostAddress() + ":" + targetPath + ",部署成功，当前进度：" + progress + "%,当前速度：" + speed + "kb/s");
                 simpMessagingTemplate.convertAndSend("/deployProgress/" + deploymentDesignEntity.getId(), new DeployProgressEntity(deviceEntity.getHostAddress(), speed, progress, DEPLOYING_SUCCEED, FilenameUtils.getName(targetPath) + "-部署成功"));
             }
             // 发送部署结束标志
