@@ -1,6 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentParamEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentRepository;
@@ -40,17 +41,20 @@ public class ComponentService {
     private DeploymentDesignService deploymentDesignService;
     @Autowired
     private DeploymentDesignDetailService deploymentDesignDetailService;
+    @Autowired
+    private ComponentParamService componentParamService;
 
     @Autowired
-    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService) {
+    public ComponentService(ComponentRepository componentRepository, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService,ComponentParamService componentParamService) {
         this.componentRepository = componentRepository;
         this.componentFileService = componentFileService;
         this.componentHistoryService = componentHistoryService;
+        this.componentParamService = componentParamService;
     }
 
     // 根据工程保存组件
     @CacheEvict(value = " Component_Cache", allEntries = true)
-    public ComponentEntity saveComponentByUser(UserEntity userEntity, ComponentEntity componentEntity) {
+    public ComponentEntity saveComponentByUser(UserEntity userEntity, ComponentEntity componentEntity, ComponentParamEntity[] componentParamEntities) {
         if (StringUtils.isEmpty(componentEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_ARGS_NOT_FOUND);
         }
@@ -64,14 +68,14 @@ public class ComponentService {
         }
 
 
-        if (StringUtils.isEmpty(componentEntity.getRelativePath())) {
-            throw new RuntimeException(ApplicationMessages.COMPONENT_RELATIVE_PATH_ARGS_NOT_FOUND);
-        }
-        componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
+//        if (StringUtils.isEmpty(componentEntity.getRelativePath())) {
+//            throw new RuntimeException(ApplicationMessages.COMPONENT_RELATIVE_PATH_ARGS_NOT_FOUND);
+//        }
+       // componentEntity.setRelativePath(FormatUtils.formatPath(componentEntity.getRelativePath()));
         componentEntity.setUserEntity(userEntity);
-
-
-        return componentRepository.save(componentEntity);
+        ComponentEntity componentEntity1 = componentRepository.save(componentEntity);
+        componentParamService.saveComponentParamsByComponent(componentEntity1,componentParamEntities);
+        return componentEntity1;
     }
 
     // 根据id复制组件
@@ -84,6 +88,7 @@ public class ComponentService {
         componentFileService.copyComponentFileByComponent(componentArgs, componentEntity);
         return componentEntity;
     }
+
 
     public void copyComponentByUser(UserEntity source, UserEntity target) {
         List<ComponentEntity> componentEntityList = getComponentsByUser(source);
@@ -126,11 +131,15 @@ public class ComponentService {
         return componentEntity;
     }
 
-    public List<ComponentEntity> deleteComponentByUser(UserEntity userEntity) throws IOException {
+    public List<ComponentEntity> deleteComponentByUser(UserEntity userEntity){
         List<ComponentEntity> componentEntityList = getComponentsByUser(userEntity);
-        for (ComponentEntity componentEntity : componentEntityList) {
-            cleanComponentById(componentEntity.getId());
-        }
+        componentEntityList.forEach(x-> {
+            try {
+                cleanComponentById(x.getId());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
         return componentEntityList;
     }
 
@@ -149,18 +158,16 @@ public class ComponentService {
         if (isModifiedName && hasComponentByNameAndDeletedAndUser(componentArgs.getName(),  false, componentEntity.getUserEntity())) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_NAME_AND_VERSION_EXISTED + componentArgs.getName());
         }
-        if (!StringUtils.isEmpty(componentArgs.getRelativePath()) && !componentEntity.getRelativePath().equals(componentArgs.getRelativePath())) {
-            componentEntity.setRelativePath(componentArgs.getRelativePath());
-        }
+//        if (!StringUtils.isEmpty(componentArgs.getRelativePath()) && !componentEntity.getRelativePath().equals(componentArgs.getRelativePath())) {
+//            componentEntity.setRelativePath(componentArgs.getRelativePath());
+//        }
         if (componentArgs.getDescription() != null && !componentEntity.getDescription().equals(componentArgs.getDescription())) {
             componentEntity.setDescription(componentArgs.getDescription());
         }
         if (isModifiedName) {
             componentEntity.setName(componentArgs.getName());
         }
-//        if (isModifiedVersion) {
-//            componentEntity.setVersion(componentArgs.getVersion());
-//        }
+
         return componentRepository.save(componentEntity);
     }
 
@@ -205,7 +212,7 @@ public class ComponentService {
     }
 
     // 根据工程查询组件
-    @Cacheable(value = " Component_Cache", key = "#deleted + #projectEntity.getId()")
+    @Cacheable(value = " Component_Cache")
     public List<ComponentEntity> getComponentsByDeletedAndUser(boolean deleted, UserEntity userEntity) {
         return componentRepository.findByDeletedAndUserEntity(deleted, userEntity);
     }

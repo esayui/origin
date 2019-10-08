@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 /**
+ * 应用基础参数配置
  * Author: XYmar
  * Date: 2019/9/19 15:49
  */
@@ -41,7 +42,6 @@ public class ComponentParamController {
     public ResultEntity updateComponentParamById(@PathVariable(value = "componentparamId") String componentparamId, ComponentParamEntity componentParamArgs) {
         return ResultUtils.build(componentParamService.updateComponentParamById(componentparamId, componentParamArgs));
     }
-
 
     //根据Id给参数配置赋值
     @PatchMapping(value = "/{componentparamId}/setValue")

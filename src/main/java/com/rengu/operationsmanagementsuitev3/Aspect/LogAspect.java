@@ -304,6 +304,27 @@ public class LogAspect {
                 }
             }
 
+            if(joinPoint.getTarget().getClass().equals(ComponentParamController.class)){
+                switch(joinPoint.getSignature().getName()){
+                    case "deleteComponentParamById" : {
+                        ComponentParamEntity componentParamEntity = (ComponentParamEntity)result.getData();
+                        object = UserActionLogService.COMPONENT_PARAM_OBJECT;
+                        type = UserActionLogService.DELETE_TYPE;
+                        description = "用户：" + username + "，删除应用："+componentParamEntity.getComponentEntity().getName()+"  基础参数：" + componentParamEntity.getName();
+                        break;
+                    }
+
+                    case "updateComponentParamById" :{
+                        ComponentParamEntity componentParamEntity = (ComponentParamEntity)result.getData();
+                        object = UserActionLogService.COMPONENT_PARAM_OBJECT;
+                        type = UserActionLogService.UPDATE_TYPE;
+                        description = "用户：" + username + "，更新应用："+componentParamEntity.getComponentEntity().getName()+"  基础参数：" + componentParamEntity.getName();
+                        break;
+                    }
+                }
+            }
+
+
             // 实例节点接口
             if (joinPoint.getTarget().getClass().equals(DeploymentDesignNodeController.class)) {
                 switch (joinPoint.getSignature().getName()) {

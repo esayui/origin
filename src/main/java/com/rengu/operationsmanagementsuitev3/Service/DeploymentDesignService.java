@@ -1,9 +1,7 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.*;
+import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignParamRepository;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import lombok.extern.slf4j.Slf4j;
@@ -33,25 +31,32 @@ public class DeploymentDesignService {
 
     private final DeploymentDesignRepository deploymentDesignRepository;
     private final DeploymentDesignNodeService deploymentDesignNodeService;
+    private final DeploymentDesignParamRepository deploymentDesignParamRepository;
 
     @Autowired
-    public DeploymentDesignService(DeploymentDesignRepository deploymentDesignRepository, DeploymentDesignNodeService deploymentDesignNodeService) {
+    public DeploymentDesignService(DeploymentDesignRepository deploymentDesignRepository, DeploymentDesignNodeService deploymentDesignNodeService,DeploymentDesignParamRepository deploymentDesignParamRepository) {
         this.deploymentDesignRepository = deploymentDesignRepository;
         this.deploymentDesignNodeService = deploymentDesignNodeService;
+        this.deploymentDesignParamRepository = deploymentDesignParamRepository;
     }
 
     // 根据工程保存部署设计
     @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
-    public DeploymentDesignEntity saveDeploymentDesignByComponent(ComponentEntity componentEntity, DeploymentDesignEntity deploymentDesignEntity) {
+    public DeploymentDesignEntity saveDeploymentDesignByComponent(ComponentEntity componentEntity, DeploymentDesignEntity deploymentDesignEntity,DeploymentDesignParamEntity[] deploymentDesignParamEntities) {
         if (StringUtils.isEmpty(deploymentDesignEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_ARGS_NOT_FOUND);
         }
         if (hasDeploymentDesignByNameAndDeletedAndComponent(deploymentDesignEntity.getName(), false, componentEntity)) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_EXISTED + deploymentDesignEntity.getName());
         }
-        deploymentDesignEntity.setComponentEntity(componentEntity);
-
-        return deploymentDesignRepository.save(deploymentDesignEntity);
+       for(DeploymentDesignParamEntity deploymentDesignParamEntity:deploymentDesignParamEntities){
+          if(StringUtils.isEmpty(deploymentDesignParamEntity.getValue())||StringUtils.isEmpty(deploymentDesignParamEntity.getType())){
+              throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_PARAM_VALUE_NULL + deploymentDesignParamEntity.getName());
+          }
+          deploymentDesignParamRepository.save(deploymentDesignParamEntity);
+       }
+       deploymentDesignEntity.setComponentEntity(componentEntity);
+       return deploymentDesignRepository.save(deploymentDesignEntity);
     }
 
     // 根据Id复制部署设计
@@ -71,9 +76,6 @@ public class DeploymentDesignService {
     public DeploymentDesignEntity baselineDeploymentDesignById(String deploymentDesignId) {
         DeploymentDesignEntity deploymentDesignEntity = copyDeploymentDesignById(deploymentDesignId);
         deploymentDesignEntity.setBaseline(true);
-
-
-
         deploymentDesignRepository.save(deploymentDesignEntity);
         return deploymentDesignEntity;
     }
@@ -106,9 +108,7 @@ public class DeploymentDesignService {
 
     public List<DeploymentDesignEntity> deleteDeploymentDesignByComponent(ComponentEntity componentEntity) {
         List<DeploymentDesignEntity> deploymentDesignEntityList = getDeploymentDesignsByComponent(componentEntity);
-        for (DeploymentDesignEntity deploymentDesignEntity : deploymentDesignEntityList) {
-            cleanDeploymentDesignById(deploymentDesignEntity.getId());
-        }
+        deploymentDesignEntityList.forEach(x->cleanDeploymentDesignById(x.getId()));
         return deploymentDesignEntityList;
     }
 
@@ -145,11 +145,15 @@ public class DeploymentDesignService {
     }
 
     // 下发整个部署设计
-    public void deployDeploymentDesignById(String deploymentDesignId) throws IOException {
+    public void deployDeploymentDesignById(String deploymentDesignId){
         DeploymentDesignEntity deploymentDesignEntity = getDeploymentDesignById(deploymentDesignId);
-        for (DeploymentDesignNodeEntity deploymentDesignNodeEntity : deploymentDesignNodeService.getDeploymentDesignNodesByDeploymentDesign(deploymentDesignEntity)) {
-            deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeEntity.getId());
-        }
+        deploymentDesignNodeService.getDeploymentDesignNodesByDeploymentDesign(deploymentDesignEntity).forEach(x-> {
+            try {
+                deploymentDesignNodeService.deployDeploymentDesignNodeById(x.getId());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     // 查询全部部署组件

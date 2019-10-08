@@ -1,9 +1,6 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ProjectEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.UserEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
 import com.rengu.operationsmanagementsuitev3.Service.UserActionLogService;
@@ -99,8 +96,8 @@ public class UserController {
 
     // 根据Id创建组件
     @PostMapping(value = "/{userId}/component")
-    public ResultEntity saveComponentByUser(@PathVariable(value = "userId") String userId, ComponentEntity componentEntity) {
-        return ResultUtils.build(componentService.saveComponentByUser(userService.getUserById(userId), componentEntity));
+    public ResultEntity saveComponentByUser(@PathVariable(value = "userId") String userId, ComponentEntity componentEntity,@RequestBody ComponentParamEntity[] componentParamEntities) {
+        return ResultUtils.build(componentService.saveComponentByUser(userService.getUserById(userId), componentEntity,componentParamEntities));
     }
 
     // 根据Id查询组件

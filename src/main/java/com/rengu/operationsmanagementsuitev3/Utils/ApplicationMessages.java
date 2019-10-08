@@ -22,6 +22,8 @@ public class ApplicationMessages {
     public static final String USER_ID_EXISTED = "该用户ID已存在：";
     public static final String USER_HAS_ADMIN_ROLE = "该用户已具备管理员权限";
     public static final String USER_NOT_HAS_ADMIN_ROLE = "该用户不具备管理员权限";
+    public static final String USER_LOG_SETTIME_ILEGAL="日志删除定时时间格式不合法";
+
 
     // 角色相关提示信息
     public static final String ROLE_ARGS_NOT_FOUND = "未发现角色参数";
@@ -109,12 +111,13 @@ public class ApplicationMessages {
     public static final String DEPLOYMENT_DESIGN_ID_ARGS_NOT_FOUND = "部署设计Id参数不存在或不合法";
     public static final String DEPLOYMENT_DESIGN_ID_NOT_FOUND = "未发现该部署设计Id：";
     public static final String DEPLOYMENT_DESIGN_ID_EXISTED = "该部署设计Id已存在：";
+    public static final String DEPLOYMENT_DESIGN_PARAM_VALUE_NULL = "该实验参数不合法：";
 
     // 部署设计节点相关提示信息
     public static final String DEPLOYMENT_DESIGN_NODE_ID_ARGS_NOT_FOUND = "部署设计节点Id参数不存在或不合法";
     public static final String DEPLOYMENT_DESIGN_NODE_ID_NOT_FOUND = "未发现该部署设计节点Id：";
     public static final String DEPLOYMENT_DESIGN_NODE_ID_EXISTED = "该部署设计节点Id已存在：";
-    public static final String DEPLOYMENT_DESIGN_NODE_DEVICE_ARGS_NOT_FOUND = "部署设计节点设备参数不存在或不合法";
+    public static final String DEPLOYMENT_DESIGN_NODE_DEVICE_ARGS_NOT_FOUND = "部署设计节点设备参数不存在或不合法：";
     public static final String DEPLOYMENT_DESIGN_NODE_DEVICE_NOT_FOUND = "未发现该部署设计节点设备：";
     public static final String DEPLOYMENT_DESIGN_NODE_DEVICE_EXISTED = "该部署设计节点设备已存在：";
 
@@ -148,4 +151,5 @@ public class ApplicationMessages {
     public static final String SCAN_DISK_TIME_OUT = "获取设备磁盘信息超时";
     public static final String SCAN_PROCESS_TIME_OUT = "获取设备进程信息超时";
     public static final String SCAN_DEPLOY_DESIGN_TIME_OUT = "获取部署状态信息超时";
+
 }

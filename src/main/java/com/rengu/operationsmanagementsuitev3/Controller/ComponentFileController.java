@@ -17,6 +17,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * 应用程序版本
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
  * @create: 2018-08-31 09:40

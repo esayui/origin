@@ -27,7 +27,7 @@ public class ComponentEntity implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
     private String name;
-    private String relativePath;
+    //private String relativePath;
     private String description;
     private boolean deleted = false;
 
@@ -42,7 +42,7 @@ public class ComponentEntity implements Serializable {
                 "id='" + id + '\'' +
                 ", createTime=" + createTime +
                 ", name='" + name + '\'' +
-                ", relativePath='" + relativePath + '\'' +
+               //", relativePath='" + relativePath + '\'' +
                 ", description='" + description + '\'' +
                 ", deleted=" + deleted +
                 '}';

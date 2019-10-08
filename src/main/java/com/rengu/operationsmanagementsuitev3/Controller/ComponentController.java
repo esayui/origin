@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
+ * 应用
  * @program: OperationsManagementSuiteV3
  * @author: hanchangming
  * @create: 2018-08-27 14:42
@@ -100,10 +101,12 @@ public class ComponentController {
 
     //根据Id创建组件参数配置
     @PostMapping(value = "/{componentId}/params")
-    public ResultEntity saveComponentParamsByComponent(@PathVariable(value = "componentId") String componentId,@RequestBody ComponentParamEntity[] componentParamEntities){
+    public ResultEntity saveComponentParamsByComponent(@PathVariable(value = "componentId") String componentId,@RequestBody ComponentParamEntity...componentParamEntities){
         return ResultUtils.build(componentParamService.saveComponentParamsByComponent(componentService.getComponentById(componentId),componentParamEntities));
     }
 
+
+    //根据Id查询组件参数配置
     @GetMapping(value = "/{componentId}/params")
     public ResultEntity getComponentParamsByComponent(@PathVariable(value = "componentId") String componentId){
         return ResultUtils.build(componentParamService.getComponentParamsByComponent(componentService.getComponentById(componentId)));
@@ -178,8 +181,8 @@ public class ComponentController {
 
     // 根据工程Id创建部署设计
     @PostMapping(value = "/{componentId}/deploymentdesign")
-    public ResultEntity saveDeploymentDesignByComponent(@PathVariable(value = "componentId") String componentId, DeploymentDesignEntity deploymentDesignEntity) {
-        return ResultUtils.build(deploymentDesignService.saveDeploymentDesignByComponent(componentService.getComponentById(componentId), deploymentDesignEntity));
+    public ResultEntity saveDeploymentDesignByComponent(@PathVariable(value = "componentId") String componentId, DeploymentDesignEntity deploymentDesignEntity,@RequestBody DeploymentDesignParamEntity[] deploymentDesignParamEntities) {
+        return ResultUtils.build(deploymentDesignService.saveDeploymentDesignByComponent(componentService.getComponentById(componentId), deploymentDesignEntity,deploymentDesignParamEntities));
     }
 
     // 根据工程Id查看部署设计

@@ -4,6 +4,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentParamEntity;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentParamRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import com.rengu.operationsmanagementsuitev3.Utils.CronDateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Author: XYmar
@@ -56,11 +58,9 @@ public class ComponentParamService {
         if(!StringUtils.isEmpty(componentParamEntity.getDescription())){
             componentParamEntityOld.setDescription(componentParamEntity.getDescription());
         }
-
         componentParamEntityOld.setName(componentParamEntity.getName());
         componentParamEntityOld.setType(componentParamEntity.getType());
-
-
+        componentParamEntityOld.setValue(null);
         return componentParamRepository.save(componentParamEntityOld);
     }
 
@@ -103,20 +103,24 @@ public class ComponentParamService {
     }
 
 
-    public List<ComponentParamEntity> saveComponentParamsByComponent(ComponentEntity componentEntity, ComponentParamEntity[] componentParamEntities) {
+    public List<ComponentParamEntity> saveComponentParamsByComponent(ComponentEntity componentEntity, ComponentParamEntity...componentParamEntities) {
         List<ComponentParamEntity> coms = new ArrayList<>();
         String pid = UUID.randomUUID().toString();
         Date date = new Date();
-        for(ComponentParamEntity componentParamEntity:componentParamEntities){
-            componentParamEntity.setPid(pid);
-            componentParamEntity.setCreateTime(date);
-            coms.add(saveComponentParamByComponent(componentEntity,componentParamEntity));
-
-        }
+        List<ComponentParamEntity> coml = new ArrayList<>(componentParamEntities.length);
+        Collections.addAll(coml,componentParamEntities);
+        Consumer<ComponentParamEntity> consumer = x->{
+            x.setPid(pid);
+            x.setCreateTime(date);
+            x.setComponentEntity(componentEntity);
+            coms.add(x);
+        };
+        coml.forEach(consumer::accept);
+        componentParamRepository.saveAll(coms);
         return coms;
     }
 
-    public Optional<ComponentParamEntity> getComponentParamsByComponent(ComponentEntity componentEntity) {
+    public List<ComponentParamEntity> getComponentParamsByComponent(ComponentEntity componentEntity) {
 
         return componentParamRepository.findAllByComponentEntity(componentEntity);
 

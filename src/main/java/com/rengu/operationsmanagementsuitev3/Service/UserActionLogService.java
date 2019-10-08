@@ -26,8 +26,9 @@ public class UserActionLogService {
     public static final int PROJECT_OBJECT = 2;
     public static final int DEVICE_OBJECT = 3;
     public static final int COMPONENT_OBJECT = 4;
-    public static final int DEPLOYMENT_DESIGN_OBJECT = 5;
-    public static final int DEPLOYMENT_DESIGN_NODE_OBJECT = 6;
+    public static final int COMPONENT_PARAM_OBJECT = 5;
+    public static final int DEPLOYMENT_DESIGN_OBJECT = 6;
+    public static final int DEPLOYMENT_DESIGN_NODE_OBJECT = 7;
 
     // 操作类别
     public static final int ERROR_TYPE = 0;
@@ -39,6 +40,7 @@ public class UserActionLogService {
     public static final int COPY_TYPE = 6;
     public static final int SCAN_TYPE = 7;
     public static final int EXPORT_TYPE = 7;
+
 
     @Autowired
     private UserActionLogRepository userActionLogRepository;

@@ -29,11 +29,11 @@ public class DeploymentDesignEntity implements Serializable {
     private String name;
     private String type;
     private boolean deleted = false;
-
     private int runTime;
+    private String params;
 
 
-    public void setTestCount(int runTime) {
+    public void setRunTime(int runTime) {
         if(!(runTime >0)){
             runTime =1;
         }

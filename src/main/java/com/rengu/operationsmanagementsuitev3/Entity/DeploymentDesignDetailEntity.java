@@ -25,6 +25,8 @@ public class DeploymentDesignDetailEntity implements Serializable {
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
+
+
     @JsonIgnore
     @ManyToOne
     private DeploymentDesignNodeEntity deploymentDesignNodeEntity;

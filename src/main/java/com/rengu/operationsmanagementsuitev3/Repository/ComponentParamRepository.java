@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface ComponentParamRepository extends JpaRepository<ComponentParamEntity,String> {
 
 
-    Optional<ComponentParamEntity> findAllByComponentEntity(ComponentEntity componentEntity);
+    List<ComponentParamEntity> findAllByComponentEntity(ComponentEntity componentEntity);
 }
