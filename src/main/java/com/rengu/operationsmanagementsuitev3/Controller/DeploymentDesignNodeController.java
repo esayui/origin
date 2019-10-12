@@ -5,6 +5,8 @@ import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.*;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +22,7 @@ import java.util.concurrent.TimeoutException;
  * @create: 2018-09-04 10:49
  **/
 
+@Api(tags = "4-实验实例管理")
 @RestController
 @RequestMapping(value = "/deploymentdesignnodes")
 public class DeploymentDesignNodeController {
@@ -40,18 +43,21 @@ public class DeploymentDesignNodeController {
     }
 
     // 根据Id删除部署设计节点
+    @ApiOperation("根据实验实例Id删除实验实例")
     @DeleteMapping(value = "/{deploymentDesignNodeId}")
     public ResultEntity deleteDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) {
         return ResultUtils.build(deploymentDesignNodeService.deleteDeploymentDesignNodeById(deploymentDesignNodeId));
     }
 
     // 根据id查询部署设计节点
+    @ApiOperation("根据实验实例Id查询实验实例")
     @GetMapping(value = "/{deploymentDesignNodeId}")
     public ResultEntity getDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) {
         return ResultUtils.build(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId));
     }
 
     // 根据id部署部署设计节点 即新建实例
+    @ApiOperation("根据实验实例Id部署实验实例")
     @PutMapping(value = "/{deploymentDesignNodeId}/deploy")
     public void deployDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) throws IOException {
         deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeId);
@@ -115,6 +121,7 @@ public class DeploymentDesignNodeController {
 
 
     //根据Id实例初始化
+    @ApiOperation("根据实验实例Id初始化实验实例")
     @GetMapping(value = "/cmd/initialize")
     public ResultEntity initializeByDeploymentDesignANode(String[] deploymentDesignNodeIds) throws IOException {
         List<DeploymentDesignNodeEntity> nodes = new ArrayList<>();
@@ -125,6 +132,7 @@ public class DeploymentDesignNodeController {
     }
 
     //根据Id实例开始运行
+    @ApiOperation("根据实验实例Id运行实验实例")
     @GetMapping(value = "/cmd/start")
     public ResultEntity startByDeploymentDesignANode(String[] deploymentDesignNodeIds) throws IOException {
         List<DeploymentDesignNodeEntity> nodes = new ArrayList<>();
@@ -135,6 +143,7 @@ public class DeploymentDesignNodeController {
     }
 
     //根据Id实例终止
+    @ApiOperation("根据实验实例Id终止实验实例")
     @GetMapping(value = "/cmd/terminate")
     public ResultEntity terminateByDeploymentDesignANode(String[] deploymentDesignNodeIds) throws IOException {
         List<DeploymentDesignNodeEntity> nodes = new ArrayList<>();

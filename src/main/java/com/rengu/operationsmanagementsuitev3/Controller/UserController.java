@@ -6,6 +6,8 @@ import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
 import com.rengu.operationsmanagementsuitev3.Service.UserActionLogService;
 import com.rengu.operationsmanagementsuitev3.Service.UserService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
  **/
 
 
+@Api(tags = {"1-用户管理","2-应用管理"})
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
@@ -95,18 +98,21 @@ public class UserController {
     }
 
     // 根据Id创建组件
+    @ApiOperation("根据用户Id创建应用")
     @PostMapping(value = "/{userId}/component")
     public ResultEntity saveComponentByUser(@PathVariable(value = "userId") String userId, ComponentEntity componentEntity,@RequestBody ComponentParamEntity[] componentParamEntities) {
         return ResultUtils.build(componentService.saveComponentByUser(userService.getUserById(userId), componentEntity,componentParamEntities));
     }
 
     // 根据Id查询组件
+    @ApiOperation("根据用户Id查询应用列表")
     @GetMapping(value = "/{userId}/component")
     public ResultEntity getComponentsByDeletedAndUser(@PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
         return ResultUtils.build(componentService.getComponentsByDeletedAndUser(deleted, userService.getUserById(userId)));
     }
 
     // 根据Id查询组件
+    @ApiOperation("根据用户Id查询应用列表（翻页）")
     @GetMapping(value = "/{userId}/components")
     public ResultEntity getComponentsByDeletedAndUser(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
         return ResultUtils.build(componentService.getComponentsByDeletedAndUser(pageable, deleted, userService.getUserById(userId)));

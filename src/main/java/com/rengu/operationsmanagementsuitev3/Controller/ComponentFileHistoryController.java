@@ -3,6 +3,7 @@ package com.rengu.operationsmanagementsuitev3.Controller;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentFileHistoryService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
+import io.swagger.annotations.Api;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import java.nio.charset.StandardCharsets;
  * @create: 2018-09-03 14:23
  **/
 
+@Api(tags = "应用版本历史管理")
 @RestController
 @RequestMapping(value = "/componentfilehistorys")
 public class ComponentFileHistoryController {

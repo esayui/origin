@@ -3,6 +3,8 @@ package com.rengu.operationsmanagementsuitev3.Controller;
 import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Service.*;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,7 @@ import java.util.UUID;
  * @create: 2018-08-27 14:42
  **/
 
+@Api(tags = {"2-应用管理","2-1-应用基础参数管理","3-实验管理","2-2-应用版本管理"})
 @RestController
 @RequestMapping(value = "/components")
 public class ComponentController {
@@ -63,30 +66,35 @@ public class ComponentController {
     }
 
     // 根据Id删除组件
+    @ApiOperation("根据应用Id删除应用")
     @DeleteMapping(value = "/{componentId}")
     public ResultEntity deleteComponentById(@PathVariable(value = "componentId") String componentId) {
         return ResultUtils.build(componentService.deleteComponentById(componentId));
     }
 
     // 根据Id撤销删除组件
+    @ApiOperation("根据应用Id撤销删除应用")
     @PatchMapping(value = "/{componentId}/restore")
     public ResultEntity restoreComponentById(@PathVariable(value = "componentId") String componentId) {
         return ResultUtils.build(componentService.restoreComponentById(componentId));
     }
 
     // 根据id清除组件
+    @ApiOperation("根据应用Id清除（彻底删除）应用")
     @DeleteMapping(value = "/{componentId}/clean")
     public ResultEntity cleanComponentById(@PathVariable(value = "componentId") String componentId) throws IOException {
         return ResultUtils.build(componentService.cleanComponentById(componentId));
     }
 
     // 根据Id修改组件
+    @ApiOperation("根据应用Id修改应用")
     @PatchMapping(value = "/{componentId}")
     public ResultEntity updateComponentById(@PathVariable(value = "componentId") String componentId, ComponentEntity componentArgs) {
         return ResultUtils.build(componentService.updateComponentById(componentId, componentArgs));
     }
 
     // 根据Id查询组件
+    @ApiOperation("根据应用Id查询应用")
     @GetMapping(value = "/{componentId}")
     public ResultEntity getComponentById(@PathVariable(value = "componentId") String componentId) {
         return ResultUtils.build(componentService.getComponentById(componentId));
@@ -100,6 +108,7 @@ public class ComponentController {
     }
 
     //根据Id创建组件参数配置
+    @ApiOperation("根据应用Id添加基础参数配置")
     @PostMapping(value = "/{componentId}/params")
     public ResultEntity saveComponentParamsByComponent(@PathVariable(value = "componentId") String componentId,@RequestBody ComponentParamEntity...componentParamEntities){
         return ResultUtils.build(componentParamService.saveComponentParamsByComponent(componentService.getComponentById(componentId),componentParamEntities));
@@ -107,6 +116,7 @@ public class ComponentController {
 
 
     //根据Id查询组件参数配置
+    @ApiOperation("根据应用Id查询应用基础参数配置列表")
     @GetMapping(value = "/{componentId}/params")
     public ResultEntity getComponentParamsByComponent(@PathVariable(value = "componentId") String componentId){
         return ResultUtils.build(componentParamService.getComponentParamsByComponent(componentService.getComponentById(componentId)));
@@ -116,6 +126,7 @@ public class ComponentController {
 
 
     // 根据Id查询组件历史
+
     @GetMapping(value = "/{componentId}/history")
     public ResultEntity getComponentHistorysByComponent(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "componentId") String componentId) {
         return ResultUtils.build(componentHistoryService.getComponentHistorysByComponent(pageable, componentService.getComponentById(componentId)));
@@ -128,6 +139,7 @@ public class ComponentController {
     }
 
     // 根据id和父节点Id创建文件夹
+    @ApiOperation("根据应用Id添加应用版本文件")
     @PostMapping(value = "/{componentId}/createfolder")
     public ResultEntity saveComponentFileByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId, ComponentFileEntity componentFileEntity) {
         return ResultUtils.build(componentFileService.saveComponentFileByParentNodeAndComponent(componentService.getComponentById(componentId), parentNodeId, componentFileEntity));
@@ -166,6 +178,7 @@ public class ComponentController {
 
 
     // 根据id导出组件文件
+    @ApiOperation("根据应用Id导出应用版本文件")
     @GetMapping(value = "/{componentId}/export")
     public void exportComponentFileByComponent(@PathVariable(value = "componentId") String componentId, HttpServletResponse httpServletResponse) throws IOException {
         File exportFile = componentFileService.exportComponentFileByComponent(componentService.getComponentById(componentId));
@@ -180,12 +193,14 @@ public class ComponentController {
 
 
     // 根据工程Id创建部署设计
+    @ApiOperation("根据应用Id创建实验")
     @PostMapping(value = "/{componentId}/deploymentdesign")
     public ResultEntity saveDeploymentDesignByComponent(@PathVariable(value = "componentId") String componentId, DeploymentDesignEntity deploymentDesignEntity,@RequestBody DeploymentDesignParamEntity[] deploymentDesignParamEntities) {
         return ResultUtils.build(deploymentDesignService.saveDeploymentDesignByComponent(componentService.getComponentById(componentId), deploymentDesignEntity,deploymentDesignParamEntities));
     }
 
     // 根据工程Id查看部署设计
+    @ApiOperation("根据应用Id查询实验列表")
     @GetMapping(value = "/{componentId}/deploymentdesigns")
     public ResultEntity getDeploymentDesignsByDeletedAndComponent(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "componentId") String componentId, @RequestParam(value = "deleted") boolean deleted) {
         return ResultUtils.build(deploymentDesignService.getDeploymentDesignsByDeletedAndComponent(pageable, deleted, componentService.getComponentById(componentId)));

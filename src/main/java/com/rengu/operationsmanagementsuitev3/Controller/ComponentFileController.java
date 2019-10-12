@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
+import io.swagger.annotations.Api;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets;
  * @create: 2018-08-31 09:40
  **/
 
+@Api(tags = "2-2-应用版本管理")
 @RestController
 @RequestMapping(value = "/componentfiles")
 public class ComponentFileController {

@@ -7,6 +7,8 @@ import com.rengu.operationsmanagementsuitev3.Service.DeploymentDesignNodeService
 import com.rengu.operationsmanagementsuitev3.Service.DeploymentDesignService;
 import com.rengu.operationsmanagementsuitev3.Service.DeviceService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,6 +25,7 @@ import java.io.IOException;
  * @create: 2018-09-04 09:44
  **/
 
+@Api(tags = {"3-实验管理","4-实验实例管理"})
 @RestController
 @RequestMapping(value = "/deploymentdesigns")
 public class DeploymentDesignController {
@@ -51,36 +54,42 @@ public class DeploymentDesignController {
     }
 
     // 根据Id删除部署设计
+    @ApiOperation("根据实验Id删除实验")
     @DeleteMapping(value = "/{deploymentDesignId}")
     public ResultEntity deleteDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) {
         return ResultUtils.build(deploymentDesignService.deleteDeploymentDesignById(deploymentDesignId));
     }
 
     // 根据Id撤销删除部署设计
+    @ApiOperation("根据实验Id撤销删除实验")
     @PatchMapping(value = "/{deploymentDesignId}/restore")
     public ResultEntity restoreDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) {
         return ResultUtils.build(deploymentDesignService.restoreDeploymentDesignById(deploymentDesignId));
     }
 
     // 根据id清除部署设计
+    @ApiOperation("根据实验Id清除（彻底删除）实验")
     @DeleteMapping(value = "/{deploymentDesignId}/clean")
     public ResultEntity cleanDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) {
         return ResultUtils.build(deploymentDesignService.cleanDeploymentDesignById(deploymentDesignId));
     }
 
     // 根据Id修改部署设计
+    @ApiOperation("根据实验Id修改实验配置")
     @PatchMapping(value = "/{deploymentDesignId}")
     public ResultEntity updateDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId, DeploymentDesignEntity deploymentDesignArgs) {
         return ResultUtils.build(deploymentDesignService.updateDeploymentDesignById(deploymentDesignId, deploymentDesignArgs));
     }
 
     // 根据Id查询部署设计
+    @ApiOperation("根据实验Id查询实验")
     @GetMapping(value = "/{deploymentDesignId}")
     public ResultEntity getDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) {
         return ResultUtils.build(deploymentDesignService.getDeploymentDesignById(deploymentDesignId));
     }
 
     // 下发整个部署设计
+    @ApiOperation("根据实验Id开始实验")
     @PutMapping(value = "/{deploymentDesignId}/deploy")
     public void deployDeploymentDesignById(@PathVariable(value = "deploymentDesignId") String deploymentDesignId) throws IOException {
         deploymentDesignService.deployDeploymentDesignById(deploymentDesignId);
@@ -94,6 +103,7 @@ public class DeploymentDesignController {
     }
 
     // 根据Id建立部署设计节点
+    @ApiOperation("根据实验Id创建实验实例")
     @PostMapping(value = "/{deploymentDesignId}/deploymentdesignnode")
     public ResultEntity saveDeploymentDesignNodeByDeploymentDesign(@PathVariable(value = "deploymentDesignId") String deploymentDesignId, DeploymentDesignNodeEntity deploymentDesignNodeEntity) {
         return ResultUtils.build(deploymentDesignNodeService.saveDeploymentDesignNodeByDeploymentDesign(deploymentDesignService.getDeploymentDesignById(deploymentDesignId), deploymentDesignNodeEntity));
