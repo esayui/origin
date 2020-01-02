@@ -17,7 +17,6 @@ public class DeployNodeRuntimeLog implements Serializable {
     String  id = UUID.randomUUID().toString();
     //initialize;start;terminate
     int cmdcode;
-
     String deploymentDesignName;
     // 0 success 1 fail
     String ips;

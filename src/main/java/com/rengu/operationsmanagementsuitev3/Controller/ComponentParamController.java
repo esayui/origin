@@ -45,14 +45,14 @@ public class ComponentParamController {
     // 根据Id修改组件参数配置
     @ApiOperation("根据应用参数Id修改指定参数配置")
     @PatchMapping(value = "/{componentparamId}")
-    public ResultEntity updateComponentParamById(@PathVariable(value = "componentparamId") String componentparamId, ComponentParamEntity componentParamArgs) {
+    public ResultEntity updateComponentParamById(@PathVariable(value = "componentparamId") String componentparamId,@RequestBody ComponentParamEntity componentParamArgs) {
         return ResultUtils.build(componentParamService.updateComponentParamById(componentparamId, componentParamArgs));
     }
 
     //根据Id给参数配置赋值
     @ApiOperation("根据应用参数Id给指定参数配置赋值")
     @PatchMapping(value = "/{componentparamId}/setValue")
-    public ResultEntity  updateComponentParamValueById(@PathVariable(value = "componentparamId") String componentparamId, ComponentParamEntity componentParamArgs) {
+    public ResultEntity  updateComponentParamValueById(@PathVariable(value = "componentparamId") String componentparamId,@RequestBody ComponentParamEntity componentParamArgs) {
         return ResultUtils.build(componentParamService.updateComponentParamValueById(componentparamId, componentParamArgs));
     }
 

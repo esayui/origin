@@ -1,5 +1,8 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentHistoryEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
@@ -10,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,10 +53,20 @@ public class DeploymentDesignNodeController {
         return ResultUtils.build(deploymentDesignNodeService.deleteDeploymentDesignNodeById(deploymentDesignNodeId));
     }
 
+    @ApiOperation("根据实验实例Id给实例赋值")
+    @PatchMapping(value = "/{deploymentDesignNodeId}/setvalue")
+    public ResultEntity setDeploymentDesignNodeValueById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId,@RequestBody String params) {
+
+
+        return ResultUtils.build(deploymentDesignNodeService.setDeploymentDesignNodeValueById(deploymentDesignNodeId,params));
+    }
+
+
     // 根据id查询部署设计节点
     @ApiOperation("根据实验实例Id查询实验实例")
     @GetMapping(value = "/{deploymentDesignNodeId}")
     public ResultEntity getDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) {
+
         return ResultUtils.build(deploymentDesignNodeService.getDeploymentDesignNodeById(deploymentDesignNodeId));
     }
 
@@ -62,6 +76,16 @@ public class DeploymentDesignNodeController {
     public void deployDeploymentDesignNodeById(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId) throws IOException {
         deploymentDesignNodeService.deployDeploymentDesignNodeById(deploymentDesignNodeId);
     }
+
+
+    @ApiOperation("根据实验实例Id下载结果文件")
+    @GetMapping(value ="/{deploymentDesignNodeId}/downloadlog")
+    public ResultEntity downloadResultFile(@PathVariable(value = "deploymentDesignNodeId") String deploymentDesignNodeId, HttpServletResponse response){
+           return ResultUtils.build(deploymentDesignNodeService.downloadNodeResult(deploymentDesignNodeId,response));
+
+    }
+
+
 
     // 根据id解绑设备
     @PatchMapping(value = "/{deploymentDesignNodeId}/unbind")
@@ -122,33 +146,36 @@ public class DeploymentDesignNodeController {
 
     //根据Id实例初始化
     @ApiOperation("根据实验实例Id初始化实验实例")
-    @GetMapping(value = "/cmd/initialize")
-    public ResultEntity initializeByDeploymentDesignANode(String[] deploymentDesignNodeIds) throws IOException {
+    @PostMapping(value = "/cmd/initialize")
+    public ResultEntity initializeByDeploymentDesignANode(@RequestBody JSONArray arrays) throws IOException {
         List<DeploymentDesignNodeEntity> nodes = new ArrayList<>();
-        for(String id:deploymentDesignNodeIds){
-            nodes.add(deploymentDesignNodeService.getDeploymentDesignNodeById(id));
+        for(int i =0;i<arrays.size();i++){
+            JSONObject object = arrays.getJSONObject(i);
+            nodes.add(deploymentDesignNodeService.getDeploymentDesignNodeById(object.getString("id")));
         }
         return ResultUtils.build(deploymentDesignDetailService.operateCmdByDeploymentDesignANode(0,nodes));
     }
 
     //根据Id实例开始运行
     @ApiOperation("根据实验实例Id运行实验实例")
-    @GetMapping(value = "/cmd/start")
-    public ResultEntity startByDeploymentDesignANode(String[] deploymentDesignNodeIds) throws IOException {
+    @PostMapping(value = "/cmd/start")
+    public ResultEntity startByDeploymentDesignANode(@RequestBody JSONArray arrays) throws IOException {
         List<DeploymentDesignNodeEntity> nodes = new ArrayList<>();
-        for(String id:deploymentDesignNodeIds){
-            nodes.add(deploymentDesignNodeService.getDeploymentDesignNodeById(id));
+        for(int i =0;i<arrays.size();i++){
+            JSONObject object = arrays.getJSONObject(i);
+            nodes.add(deploymentDesignNodeService.getDeploymentDesignNodeById(object.getString("id")));
         }
         return ResultUtils.build(deploymentDesignDetailService.operateCmdByDeploymentDesignANode(1,nodes));
     }
 
     //根据Id实例终止
     @ApiOperation("根据实验实例Id终止实验实例")
-    @GetMapping(value = "/cmd/terminate")
-    public ResultEntity terminateByDeploymentDesignANode(String[] deploymentDesignNodeIds) throws IOException {
+    @PostMapping(value = "/cmd/terminate")
+    public ResultEntity terminateByDeploymentDesignANode(@RequestBody JSONArray arrays) throws IOException {
         List<DeploymentDesignNodeEntity> nodes = new ArrayList<>();
-        for(String id:deploymentDesignNodeIds){
-            nodes.add(deploymentDesignNodeService.getDeploymentDesignNodeById(id));
+        for(int i =0;i<arrays.size();i++){
+            JSONObject object = arrays.getJSONObject(i);
+            nodes.add(deploymentDesignNodeService.getDeploymentDesignNodeById(object.getString("id")));
         }
         return ResultUtils.build(deploymentDesignDetailService.operateCmdByDeploymentDesignANode(2,nodes));
     }

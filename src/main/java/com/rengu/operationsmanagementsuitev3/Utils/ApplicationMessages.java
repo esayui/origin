@@ -72,6 +72,7 @@ public class ApplicationMessages {
 
     //组件参数相关提示信息
     public static final String COMPONENT_PARAM_ID_NOT_FOUND ="未发现该组件参数配置id";
+    public static final String COMPONENT_FILE_PARAM_ID_NOT_FOUND ="未发现该组件参数配置id";
     public static final String COMPONENT_PARAM_NAMEANDVALUE_EXISTED = "该组件参数设置已存在";
 
 

@@ -1,10 +1,15 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ChunkEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.DeploymentDesignNodeEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.FileEntity;
+import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
+import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignNodeRepository;
 import com.rengu.operationsmanagementsuitev3.Repository.FileRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import com.rengu.operationsmanagementsuitev3.Utils.NodeCreatorUtil;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,10 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -40,9 +42,17 @@ public class FileService {
 
     private final FileRepository fileRepository;
 
+    private final DeploymentDesignNodeService deploymentDesignNodeService;
+    private final DeploymentDesignNodeRepository deploymentDesignNodeRepository;
+    private final ComponentFileRepository componentFileRepository;
+
+
     @Autowired
-    public FileService(FileRepository fileRepository) {
+    public FileService(FileRepository fileRepository,DeploymentDesignNodeService deploymentDesignNodeService,DeploymentDesignNodeRepository deploymentDesignNodeRepository,ComponentFileRepository componentFileRepository) {
         this.fileRepository = fileRepository;
+        this.deploymentDesignNodeRepository = deploymentDesignNodeRepository;
+        this.deploymentDesignNodeService = deploymentDesignNodeService;
+        this.componentFileRepository = componentFileRepository;
     }
 
     // 保存文件块
@@ -50,6 +60,9 @@ public class FileService {
         File chunk = new File(ApplicationConfig.CHUNKS_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + File.separator + chunkEntity.getChunkNumber() + ".tmp");
         chunk.getParentFile().mkdirs();
         chunk.createNewFile();
+        if(multipartFile == null){
+            return;
+        }
         IOUtils.copy(multipartFile.getInputStream(), new FileOutputStream(chunk));
     }
 
@@ -67,7 +80,35 @@ public class FileService {
         fileEntity.setType(FilenameUtils.getExtension(file.getName()));
         fileEntity.setSize(FileUtils.sizeOf(file));
         fileEntity.setLocalPath(file.getAbsolutePath());
-        return fileRepository.save(fileEntity);
+        FileEntity receiveFile = fileRepository.save(fileEntity);
+
+
+        if(file.getName().equals("hosts")){
+
+            InputStream is = new FileInputStream(file);
+            NodeCreatorUtil.inputStream = is;
+        }
+
+        if(deploymentDesignNodeRepository.existsById(file.getName().split("\\.")[0])){
+            //TODO
+            //这里给C1发送file
+            DeploymentDesignNodeEntity deploymentDesignNodeEntity = deploymentDesignNodeRepository.findById(file.getName().split("\\.")[0]).get();
+            ComponentFileEntity componentFileEntity = new ComponentFileEntity();
+            componentFileEntity.setHistory(true);
+            componentFileEntity.setType(2);
+            componentFileEntity.setExtension(file.getName().split("\\.")[1]);
+            componentFileEntity.setFolder(false);
+            componentFileEntity.setFileEntity(receiveFile);
+            componentFileEntity.setName(file.getName().split("\\.")[0]);
+            componentFileEntity.setComponentEntity(deploymentDesignNodeEntity.getDeploymentDesignEntity().getComponentEntity());
+            componentFileRepository.save(componentFileEntity);
+            deploymentDesignNodeService.sendFile(receiveFile,ApplicationConfig.CLIENT_ADDRESS,ApplicationConfig.CLIENT1_TCP_RECEIVE,file.getName().substring(0,file.getName().lastIndexOf(".")));
+
+        };
+
+
+
+        return receiveFile;
     }
 
     // 根据Id删除文件
@@ -132,9 +173,9 @@ public class FileService {
             File file = null;
             String extension = FilenameUtils.getExtension(chunkEntity.getFilename());
             if (StringUtils.isEmpty(extension)) {
-                file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getIdentifier());
+                file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getFilename());
             } else {
-                file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getIdentifier() + "." + FilenameUtils.getExtension(chunkEntity.getFilename()));
+                file = new File(ApplicationConfig.FILES_SAVE_PATH + File.separator + chunkEntity.getFilename());
             }
             return mergeChunks(file, chunkEntity);
         }
@@ -152,10 +193,14 @@ public class FileService {
                 throw new RuntimeException(ApplicationMessages.FILE_CHUNK_NOT_FOUND + chunk.getAbsolutePath());
             }
         }
-        @Cleanup FileInputStream fileInputStream = new FileInputStream(file);
+        FileInputStream fileInputStream = null;
+        fileInputStream = new FileInputStream(file);
         if (!chunkEntity.getIdentifier().equals(DigestUtils.md5Hex(fileInputStream))) {
-            throw new RuntimeException("文件合并失败，请检查：" + file.getAbsolutePath() + "是否正确。");
+            System.out.println("MD5:"+DigestUtils.md5Hex(fileInputStream)+"不一致");
+           // throw new RuntimeException("文件合并失败，请检查：" + file.getAbsolutePath() + "是否正确。");
         }
+        fileInputStream.close();
+
         return saveFile(file);
     }
 }

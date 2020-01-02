@@ -28,6 +28,25 @@ public class OrderService {
     public static final String DEPLOY_DESIGN_SCAN_RESULT_TAG = "C102";
     public static final String PROCESS_SCAN_RESULT_TAG = "C105";
     public static final String DISK_SCAN_RESULT_TAG = "C106";
+    public static final String COMPONENT_VERSION_CONTROL_TAG = "C107" ;
+    public static final String DEPLOY_DESIGN_NODE_RESULT_TAG = "C108" ;
+    public static final String DEPLOY_DESIGN_NODE_STATE_TAG = "C109" ;
+
+    //守护进程回馈状态信息代码
+
+    public static final String DEPLOY_DESIGN_NODE_STATE_ORIGIN = "CS01";
+    public static final String DEPLOY_DESIGN_NODE_STATE_INITIALIZED = "CS02";
+    public static final String DEPLOY_DESIGN_NODE_STATE_RUNNING = "CS03";
+    public static final String DEPLOY_DESIGN_NODE_STATE_ERROR = "CS04";
+    public static final String DEPLOY_DESIGN_NODE_STATE_FINISH = "CS05";
+    public static final String DEPLOY_DESIGN_NODE_STATE_TEST = "CS99";
+
+    public static final String DEPLOY_DESIGN_NODE_ERROR_SYSTEM = "CE01";
+    public static final String DEPLOY_DESIGN_NODE_ERROR_ENVIRONMENT = "CE02";
+
+    public static final String DEPLOY_DESIGN_NODE_ERROR_TAG = "C110" ;
+    public static final String DEPLOY_PBS = "C111";
+
 
     public void sendProcessScanOrderByUDP(OrderEntity orderEntity) throws IOException {
         String tag = FormatUtils.getString(orderEntity.getTag(), 4);

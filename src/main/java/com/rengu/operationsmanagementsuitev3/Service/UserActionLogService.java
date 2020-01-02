@@ -40,6 +40,7 @@ public class UserActionLogService {
     public static final int COPY_TYPE = 6;
     public static final int SCAN_TYPE = 7;
     public static final int EXPORT_TYPE = 7;
+    public static final int DOWNLOAD_TYPE = 8;
 
 
     @Autowired

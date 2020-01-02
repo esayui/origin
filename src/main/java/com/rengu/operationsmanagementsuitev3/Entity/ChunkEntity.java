@@ -24,4 +24,19 @@ public class ChunkEntity implements Serializable {
     private String identifier;
     private String filename;
     private String relativePath;
+
+
+    @Override
+    public String toString() {
+        return "ChunkEntity{" +
+                "createTime=" + createTime +
+                ", chunkNumber=" + chunkNumber +
+                ", totalChunks=" + totalChunks +
+                ", chunkSize=" + chunkSize +
+                ", totalSize=" + totalSize +
+                ", identifier='" + identifier + '\'' +
+                ", filename='" + filename + '\'' +
+                ", relativePath='" + relativePath + '\'' +
+                '}';
+    }
 }

@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-public class ComponentFileHistoryEntity implements Serializable {
+public class ComponentFileHistoryEntity implements Serializable,Comparable<ComponentFileHistoryEntity> {
 
     @Id
     private String id = UUID.randomUUID().toString();
@@ -37,4 +37,18 @@ public class ComponentFileHistoryEntity implements Serializable {
     @JsonIgnore
     @ManyToOne
     private ComponentHistoryEntity componentHistoryEntity;
+
+
+
+    public int compareTo(ComponentFileHistoryEntity o) {
+        int flag = this.createTime.compareTo(o.createTime);
+        if(flag<0){
+            flag = 1;
+        }else if(flag>0){
+            flag = -1;
+        }
+
+        return flag;
+    }
+
 }

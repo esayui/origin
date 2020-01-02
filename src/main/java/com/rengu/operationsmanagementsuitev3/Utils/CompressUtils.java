@@ -9,10 +9,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -84,4 +86,51 @@ public class CompressUtils {
         zipFile.extractAll(outputDir.getAbsolutePath());
         return outputDir;
     }
+
+
+    /**
+     * 将多个文件压缩到指定输出流中
+     *
+     * @param files 需要压缩的文件列表
+     * @param outputStream  压缩到指定的输出流
+     * @author hongwei.lian
+     * @date 2018年9月7日 下午3:11:59
+     */
+    public static void compressZip(List<File> files, OutputStream outputStream) {
+        ZipOutputStream zipOutStream = null;
+        try {
+            //-- 包装成ZIP格式输出流
+            zipOutStream = new ZipOutputStream(new BufferedOutputStream(outputStream));
+            // -- 设置压缩方法
+            zipOutStream.setMethod(ZipOutputStream.DEFLATED);
+            //-- 将多文件循环写入压缩包
+            for (int i = 0; i < files.size(); i++) {
+                File file = files.get(i);
+                FileInputStream filenputStream = new FileInputStream(file);
+                byte[] data = new byte[(int) file.length()];
+                filenputStream.read(data);
+                //-- 添加ZipEntry，并ZipEntry中写入文件流，这里，加上i是防止要下载的文件有重名的导致下载失败
+                zipOutStream.putNextEntry(new ZipEntry(i + file.getName()));
+                zipOutStream.write(data);
+                filenputStream.close();
+                zipOutStream.closeEntry();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }  finally {
+            try {
+                if (Objects.nonNull(zipOutStream)) {
+                    zipOutStream.flush();
+                    zipOutStream.close();
+                }
+                if (Objects.nonNull(outputStream)) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }

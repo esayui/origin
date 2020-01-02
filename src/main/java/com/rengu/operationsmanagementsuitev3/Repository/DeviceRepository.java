@@ -27,4 +27,6 @@ public interface DeviceRepository extends JpaRepository<DeviceEntity, String> {
     List<DeviceEntity> findByDeleted(boolean deleted);
 
     long countByDeleted(boolean deleted);
+
+    DeviceEntity findByHostAddressAndDeleted(String ip, boolean b);
 }

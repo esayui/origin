@@ -18,8 +18,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @program: OperationsManagementSuiteV3
@@ -167,5 +166,31 @@ public class ComponentFileHistoryService {
             FileUtils.copyFile(new File(componentFileHistoryEntity.getFileEntity().getLocalPath()), file);
         }
         return exportDir;
+    }
+
+    public List<ComponentFileHistoryEntity> getComponentFileHistorysByComponentHistorys(List<ComponentHistoryEntity> componentHistorysByComponent) {
+        List<ComponentFileHistoryEntity> fileHistory = new ArrayList<>();
+
+        Map<String,ComponentFileHistoryEntity> map = new HashMap<>();
+
+        if(componentHistorysByComponent!=null&&componentHistorysByComponent.size()>0){
+            componentHistorysByComponent.forEach(p->{
+                List<ComponentFileHistoryEntity> componentFileHistoryEntity = componentFileHistoryRepository.findAllByComponentHistoryEntity(p);
+                if(componentFileHistoryEntity!=null&&componentFileHistoryEntity.size()>0){
+                   for(ComponentFileHistoryEntity com:componentFileHistoryEntity){
+                       map.put(com.getFileEntity().getLocalPath(),com);
+                   }
+                }
+            });
+        }
+
+        for(Map.Entry<String,ComponentFileHistoryEntity> entry:map.entrySet()){
+            fileHistory.add(entry.getValue());
+        }
+
+        Collections.sort(fileHistory);
+
+
+        return fileHistory;
     }
 }

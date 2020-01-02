@@ -1,10 +1,8 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.FileEntity;
-import com.rengu.operationsmanagementsuitev3.Entity.FileMetaEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.*;
 import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
+import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.CompressUtils;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
@@ -18,6 +16,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,14 +49,57 @@ public class ComponentFileService {
 
     // 根据组件父节点创建文件夹
     @CacheEvict(value = "ComponentFile_Cache", allEntries = true)
-    public ComponentFileEntity saveComponentFileByParentNodeAndComponent(ComponentEntity componentEntity, String parentNodeId, ComponentFileEntity componentFileEntity) {
+    public ComponentFileEntity saveComponentFileByParentNodeAndComponent(ComponentEntity componentEntity, String parentNodeId,   MultipartFile file) {
+        if(file == null||file.getSize()<=0){
+            throw new RuntimeException("上传文件失败");
+        }
+        File parentDir = new File(ApplicationConfig.SAVE_FILE_ROOT+File.separator+UUID.randomUUID().toString());
+
+        if(!parentDir.exists()){
+            parentDir.mkdirs();
+        }
+
+        File destFile = new File(parentDir.getAbsolutePath()+File.separator+file.getOriginalFilename());
+
+        try {
+            file.transferTo(destFile);
+        } catch (IOException e) {
+            //e.printStackTrace();
+            throw new RuntimeException(destFile.getAbsolutePath()+"  接收文件失败:"+e);
+        }
+
+        ComponentFileEntity componentFileEntity = new ComponentFileEntity();
+        String filename = destFile.getName();
+
+        componentFileEntity.setName(filename.substring(0,filename.lastIndexOf(".")));
+        componentFileEntity.setExtension(filename.substring(filename.lastIndexOf(".")+1));
+        componentFileEntity.setFolder(destFile.isDirectory());
+        componentFileEntity.setType(0);
+
         ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
+        System.out.println(componentFileEntity.getName());
         if (StringUtils.isEmpty(componentFileEntity.getName())) {
             throw new RuntimeException(ApplicationMessages.COMPONENT_FILE_NAME_ARGS_NOT_FOUND);
         }
-        componentFileEntity.setName(getName(componentFileEntity.getName(), parentNode, componentEntity));
+       // componentFileEntity.setName(getName(componentFileEntity.getName(), parentNode, componentEntity));
         componentFileEntity.setParentNode(parentNode);
         componentFileEntity.setComponentEntity(componentEntity);
+
+        try {
+            FileEntity fileEntity = fileService.saveFile(destFile);
+            componentFileEntity.setFileEntity(fileEntity);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<ComponentFileEntity> componentFiles = new ArrayList<>();
+        componentFiles = componentFileRepository.findAllByComponentEntity(componentEntity);
+        for(ComponentFileEntity comfile:componentFiles){
+            comfile.setHistory(true);
+        }
+        if(componentFiles.size()>0) {
+            componentFileRepository.saveAll(componentFiles);
+        }
+
 
         return componentFileRepository.save(componentFileEntity);
 //        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
@@ -260,6 +302,12 @@ public class ComponentFileService {
         return componentFileRepository.findByParentNodeAndComponentEntityAndType(parentNode, componentEntity,fileType);
     }
 
+    // 根据组件查询组件文件
+    @Cacheable(value = "ComponentFile_Cache", key = "#methodName  + #componentEntity.getId()")
+    public List<ComponentFileEntity> getComponentFilesByParentNodeAndComponent(ComponentEntity componentEntity,int fileType) {
+        return componentFileRepository.findByComponentEntityAndType(componentEntity,fileType);
+    }
+
     @Cacheable(value = "ComponentFile_Cache", key = "#methodName +#parentNodeId + #componentEntity.getId()")
     public List<ComponentFileEntity> getComponentFilesByParentNodeAndComponent(String parentNodeId, ComponentEntity componentEntity) {
         ComponentFileEntity parentNode = hasComponentFileById(parentNodeId) ? getComponentFileById(parentNodeId) : null;
@@ -320,5 +368,31 @@ public class ComponentFileService {
             FileUtils.copyFile(new File(componentFileEntity.getFileEntity().getLocalPath()), file);
        // }
         return exportDir;
+    }
+
+    public List<ComponentFileEntity> findAllComponentFileByComponent(ComponentEntity componentById) {
+
+        List<ComponentFileEntity> componentFileEntities = new ArrayList<>();
+        componentFileEntities = componentFileRepository.findAllByTypeAndComponentEntity(0,componentById);
+        return componentFileEntities;
+    }
+
+    public ComponentFileEntity setComponentFileAsUse(ComponentFileEntity componentFileEntity) {
+        if(componentFileEntity == null){
+            throw  new RuntimeException("没有找到该应用版本文件");
+        }
+        List<ComponentFileEntity> currentFile  = null;
+        currentFile = componentFileRepository.findAllByIsHistoryAndComponentEntity(false,componentFileEntity.getComponentEntity());
+        if(currentFile!=null&&currentFile.size()>0){
+            for(ComponentFileEntity comp:currentFile){
+                comp.setHistory(true);
+                componentFileRepository.save(comp);
+            }
+        }
+
+        componentFileEntity.setHistory(false);
+        componentFileRepository.save(componentFileEntity);
+
+        return componentFileEntity;
     }
 }

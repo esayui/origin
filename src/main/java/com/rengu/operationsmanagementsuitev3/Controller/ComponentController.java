@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -20,7 +21,7 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
+
 
 /**
  * 应用
@@ -37,14 +38,16 @@ public class ComponentController {
     private final ComponentService componentService;
     private final ComponentFileService componentFileService;
     private final ComponentHistoryService componentHistoryService;
+    private final ComponentFileHistoryService componentFileHistoryService;
     private final ComponentParamService componentParamService;
     private final DeploymentDesignService deploymentDesignService;
     private final DeviceService deviceService;
     private final DeployLogService deployLogService;
 
     @Autowired
-    public ComponentController(ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService,ComponentParamService componentParamService,DeploymentDesignService deploymentDesignService,DeviceService deviceService,DeployLogService deployLogService) {
+    public ComponentController(ComponentFileHistoryService componentFileHistoryService,ComponentService componentService, ComponentFileService componentFileService, ComponentHistoryService componentHistoryService,ComponentParamService componentParamService,DeploymentDesignService deploymentDesignService,DeviceService deviceService,DeployLogService deployLogService) {
         this.componentService = componentService;
+        this.componentFileHistoryService = componentFileHistoryService;
         this.componentFileService = componentFileService;
         this.componentHistoryService = componentHistoryService;
         this.componentParamService = componentParamService;
@@ -133,17 +136,30 @@ public class ComponentController {
     }
 
     // 根据Id查询组件历史
+    @ApiOperation("根据应用Id获取应用程序历史")
     @GetMapping(value = "/{componentId}/historys")
     public ResultEntity getComponentHistorysByComponent(@PathVariable(value = "componentId") String componentId) {
-        return ResultUtils.build(componentHistoryService.getComponentHistorysByComponent(componentService.getComponentById(componentId)));
+        return ResultUtils.build(componentFileHistoryService.getComponentFileHistorysByComponentHistorys(componentHistoryService.getComponentHistorysByComponent(componentService.getComponentById(componentId))));
     }
+
 
     // 根据id和父节点Id创建文件夹
     @ApiOperation("根据应用Id添加应用版本文件")
     @PostMapping(value = "/{componentId}/createfolder")
-    public ResultEntity saveComponentFileByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId, ComponentFileEntity componentFileEntity) {
-        return ResultUtils.build(componentFileService.saveComponentFileByParentNodeAndComponent(componentService.getComponentById(componentId), parentNodeId, componentFileEntity));
+    @ResponseBody
+    public ResultEntity saveComponentFileByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId,  @RequestBody MultipartFile file) {
+        return ResultUtils.build(componentFileService.saveComponentFileByParentNodeAndComponent(componentService.getComponentById(componentId), parentNodeId, file));
     }
+
+
+
+    @ApiOperation("根据应用Id获取应用版本文件列表")
+    @GetMapping(value = "/{componentId}/files")
+    @ResponseBody
+    public ResultEntity getComponentFileListByComponent(@PathVariable(value = "componentId") String componentId) {
+        return ResultUtils.build(componentFileService.findAllComponentFileByComponent(componentService.getComponentById(componentId)));
+    }
+
 
     // 根据id和父节点Id创建文件
 
@@ -169,7 +185,7 @@ public class ComponentController {
      * @param fileType 实验文件类型 0：exe源码 1：脚本文件 2：结果文件
      * @return
      */
-    @GetMapping(value = "/{componentId}/files")
+    @GetMapping(value = "/{componentId}/filesbytype")
     public ResultEntity getComponentFilesByParentNodeAndComponent(@PathVariable(value = "componentId") String componentId, @RequestHeader(value = "parentNodeId", required = false, defaultValue = "") String parentNodeId,@RequestHeader(value = "fileType", required = false, defaultValue = "0") String fileType) {
         return ResultUtils.build(componentFileService.getComponentFilesByParentNodeAndComponent(parentNodeId, componentService.getComponentById(componentId),Integer.parseInt(fileType)));
     }
@@ -190,6 +206,9 @@ public class ComponentController {
         IOUtils.copy(new FileInputStream(exportFile), httpServletResponse.getOutputStream());
         httpServletResponse.flushBuffer();
     }
+
+
+
 
 
     // 根据工程Id创建部署设计

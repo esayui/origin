@@ -51,26 +51,7 @@ public class UDPReceiveThread {
             int OSType = 0;
             String OSName = "";
 
-
-            String codeType = new String(bytes, pointer, 4).trim();
-            switch(codeType){
-                case "cmd":{
-                    try {
-                        pointer = pointer+4;
-
-                    } catch (Exception e) {
-                        log.info("命令解析异常:" + e.getMessage());
-                        e.printStackTrace();
-                    }
-                    break;
-                }
-
-                case "heart":{
-                    try {
-
-
-
-                        pointer = pointer + 4;
+                    try{
                         OSType = bytes[pointer];
                         pointer = pointer + 1;
                         OSName = new String(bytes, pointer, 16).trim();
@@ -111,8 +92,8 @@ public class UDPReceiveThread {
                     simpMessagingTemplate.convertAndSend("/onlineDevice", JsonUtils.toJson(DeviceService.ONLINE_HOST_ADRESS));
                     break;
                 }
-            }
 
-        }
+
+
     }
 }

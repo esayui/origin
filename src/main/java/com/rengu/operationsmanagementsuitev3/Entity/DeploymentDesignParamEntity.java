@@ -28,4 +28,15 @@ public class DeploymentDesignParamEntity implements Serializable {
     @ManyToOne
     private DeploymentDesignEntity deploymentDesignEntity;
 
+
+    @Override
+    public String toString() {
+        return "DeploymentDesignParamEntity{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                ", description='" + description + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

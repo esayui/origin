@@ -49,10 +49,8 @@ public class ComponentParamService {
     //更新参数配置
     @CacheEvict(value = "ComponentParam_Cache", allEntries = true)
     public ComponentParamEntity updateComponentParamById(String componentParamId,ComponentParamEntity componentParamEntity){
-
-
         ComponentParamEntity componentParamEntityOld = getComponentParamById(componentParamId);
-        if(!StringUtils.isEmpty(componentParamEntity.getName())&&!(componentParamEntityOld.getName().equals(componentParamEntity.getName())&&componentParamEntityOld.getType()==componentParamEntity.getType())){
+        if(StringUtils.isEmpty(componentParamEntity.getName())||(componentParamEntityOld.getName().equals(componentParamEntity.getName())&&componentParamEntityOld.getType()==componentParamEntity.getType())){
             throw new RuntimeException(ApplicationMessages.COMPONENT_PARAM_NAMEANDVALUE_EXISTED + componentParamEntity.getName());
         }
         if(!StringUtils.isEmpty(componentParamEntity.getDescription())){

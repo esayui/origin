@@ -1,11 +1,14 @@
 package com.rengu.operationsmanagementsuitev3.Controller;
 
 import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileEntity;
+import com.rengu.operationsmanagementsuitev3.Entity.ComponentFileParamEntity;
 import com.rengu.operationsmanagementsuitev3.Entity.ResultEntity;
+import com.rengu.operationsmanagementsuitev3.Service.ComponentFileParamService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentFileService;
 import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,13 +33,20 @@ import java.nio.charset.StandardCharsets;
 public class ComponentFileController {
 
     private final ComponentFileService componentFileService;
+    private final ComponentFileParamService componentFileParamService;
     private final ComponentService componentService;
 
     @Autowired
-    public ComponentFileController(ComponentFileService componentFileService, ComponentService componentService) {
+    public ComponentFileController(ComponentFileService componentFileService, ComponentService componentService,ComponentFileParamService componentFileParamService) {
         this.componentFileService = componentFileService;
         this.componentService = componentService;
+        this.componentFileParamService = componentFileParamService;
     }
+
+
+
+
+
 
     // 根据Id复制组件文件
     @PatchMapping(value = "/{sourceNodeId}/copy")
@@ -49,6 +59,22 @@ public class ComponentFileController {
 //    public ResultEntity moveComponentFileById(@PathVariable(value = "sourceNodeId") String sourceNodeId, @RequestParam(value = "targetComponentId") String targetComponentId, @RequestParam(value = "targetNodeId", required = false, defaultValue = "") String targetNodeId) throws IOException {
 //        return ResultUtils.build(componentFileService.moveComponentFileById(sourceNodeId, targetNodeId, componentService.getComponentById(targetComponentId)));
 //    }
+
+    @ApiOperation("根据应用文件Id获取应用版本文件参数列表")
+    @GetMapping(value = "/{componentfileId}/params")
+    public ResultEntity getComponentFileParamsById(@PathVariable(value="componentfileId")String componentfileId){
+       return  ResultUtils.build(componentFileParamService.getComponentFileParamsByComponent(componentFileService.getComponentFileById(componentfileId)));
+
+    }
+
+    @ApiOperation("根据应用文件Id设置当前版本")
+    @PutMapping(value = "/{componentfileId}")
+    public ResultEntity setComponentFileAsUse(@PathVariable(value="componentfileId")String componentfileId){
+        return  ResultUtils.build(componentFileService.setComponentFileAsUse(componentFileService.getComponentFileById(componentfileId)));
+
+    }
+
+
 
     // 根据Id删除组件文件
     @DeleteMapping(value = "/{componentfileId}")

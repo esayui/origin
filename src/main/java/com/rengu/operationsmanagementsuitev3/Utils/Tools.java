@@ -9,7 +9,7 @@ public class Tools {
         StringBuilder sb =new StringBuilder();
         try {
             Process process=Runtime.getRuntime().exec(command);
-            BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(process.getInputStream(),"gbk"));
             String line;
             while((line=bufferedReader.readLine())!=null)
             {
@@ -19,5 +19,10 @@ public class Tools {
             return e.toString();
         }
         return sb.toString();
+    }
+
+
+    public static void main(String[] args) {
+        System.out.println(execCMD("ipconfig"));
     }
 }

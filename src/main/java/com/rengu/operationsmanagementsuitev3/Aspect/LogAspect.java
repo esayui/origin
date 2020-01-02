@@ -352,6 +352,14 @@ public class LogAspect {
                         break;
                     }
 
+                    case "downloadResultFile":{
+                        DeploymentDesignNodeEntity deploymentDesignNodeEntity = (DeploymentDesignNodeEntity)result.getData();
+                        object = UserActionLogService.DEPLOYMENT_DESIGN_NODE_OBJECT;
+                        type = UserActionLogService.DOWNLOAD_TYPE;
+                        description = "用户：" + username + "，下载实验节点："+deploymentDesignNodeEntity.getId()+" 的结果文件。";
+                        break;
+                    }
+
 
                     default:
                 }

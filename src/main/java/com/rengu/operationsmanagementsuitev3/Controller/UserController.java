@@ -5,6 +5,7 @@ import com.rengu.operationsmanagementsuitev3.Service.ComponentService;
 import com.rengu.operationsmanagementsuitev3.Service.ProjectService;
 import com.rengu.operationsmanagementsuitev3.Service.UserActionLogService;
 import com.rengu.operationsmanagementsuitev3.Service.UserService;
+import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ResultUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -117,6 +118,15 @@ public class UserController {
     public ResultEntity getComponentsByDeletedAndUser(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(value = "userId") String userId, @RequestParam(value = "deleted") boolean deleted) {
         return ResultUtils.build(componentService.getComponentsByDeletedAndUser(pageable, deleted, userService.getUserById(userId)));
     }
+
+
+    @PatchMapping(value = "/changeClient")
+    public ResultEntity changeClientIP(String ip){
+        ApplicationConfig.CLIENT_ADDRESS = ip;
+        return ResultUtils.build(ApplicationConfig.CLIENT_ADDRESS);
+
+    }
+
 
 
 

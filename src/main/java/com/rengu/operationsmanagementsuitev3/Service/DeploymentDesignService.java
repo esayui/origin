@@ -1,10 +1,14 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rengu.operationsmanagementsuitev3.Entity.*;
+import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignParamRepository;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
+import com.rengu.operationsmanagementsuitev3.Utils.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -15,7 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,13 +40,26 @@ public class DeploymentDesignService {
     private final DeploymentDesignRepository deploymentDesignRepository;
     private final DeploymentDesignNodeService deploymentDesignNodeService;
     private final DeploymentDesignParamRepository deploymentDesignParamRepository;
+    private final ComponentFileRepository componentFileRepository;
+
 
     @Autowired
-    public DeploymentDesignService(DeploymentDesignRepository deploymentDesignRepository, DeploymentDesignNodeService deploymentDesignNodeService,DeploymentDesignParamRepository deploymentDesignParamRepository) {
+    public DeploymentDesignService(ComponentFileRepository componentFileRepository,DeploymentDesignRepository deploymentDesignRepository, DeploymentDesignNodeService deploymentDesignNodeService,DeploymentDesignParamRepository deploymentDesignParamRepository) {
         this.deploymentDesignRepository = deploymentDesignRepository;
         this.deploymentDesignNodeService = deploymentDesignNodeService;
         this.deploymentDesignParamRepository = deploymentDesignParamRepository;
+        this.componentFileRepository = componentFileRepository;
+
     }
+
+
+    public List<DeploymentDesignParamEntity> findParamsByDeploymentDesignId(String deploymentId){
+        List<DeploymentDesignParamEntity> data = null;
+        data = deploymentDesignParamRepository.findAllByDeploymentDesignEntityId(deploymentId);
+        return data;
+
+    }
+
 
     // 根据工程保存部署设计
     @CacheEvict(value = "DeploymentDesign_Cache", allEntries = true)
@@ -49,14 +70,19 @@ public class DeploymentDesignService {
         if (hasDeploymentDesignByNameAndDeletedAndComponent(deploymentDesignEntity.getName(), false, componentEntity)) {
             throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_NAME_EXISTED + deploymentDesignEntity.getName());
         }
+
+        deploymentDesignEntity.setComponentEntity(componentEntity);
+       DeploymentDesignEntity deploymentDesignEntity1 =  deploymentDesignRepository.save(deploymentDesignEntity);
        for(DeploymentDesignParamEntity deploymentDesignParamEntity:deploymentDesignParamEntities){
           if(StringUtils.isEmpty(deploymentDesignParamEntity.getValue())||StringUtils.isEmpty(deploymentDesignParamEntity.getType())){
               throw new RuntimeException(ApplicationMessages.DEPLOYMENT_DESIGN_PARAM_VALUE_NULL + deploymentDesignParamEntity.getName());
           }
+           deploymentDesignParamEntity.setDeploymentDesignEntity(deploymentDesignEntity1);
           deploymentDesignParamRepository.save(deploymentDesignParamEntity);
+
        }
-       deploymentDesignEntity.setComponentEntity(componentEntity);
-       return deploymentDesignRepository.save(deploymentDesignEntity);
+
+       return deploymentDesignEntity1;
     }
 
     // 根据Id复制部署设计
@@ -125,6 +151,8 @@ public class DeploymentDesignService {
         if (deploymentDesignArgs.getType() != null && !deploymentDesignEntity.getType().equals(deploymentDesignArgs.getType())) {
             deploymentDesignEntity.setType(deploymentDesignArgs.getType());
         }
+        deploymentDesignEntity.setExampleCount(deploymentDesignArgs.getExampleCount());
+
         return deploymentDesignRepository.save(deploymentDesignEntity);
     }
 
@@ -209,5 +237,47 @@ public class DeploymentDesignService {
         } else {
             return name;
         }
+    }
+
+
+    public Object downloadResult(String deploymentDesignId, HttpServletResponse response) {
+        List<DeploymentDesignNodeEntity> nodes = deploymentDesignNodeService.getDeploymentDesignNodesByDeploymentDesign(getDeploymentDesignById(deploymentDesignId));
+        JSONObject object = new JSONObject();
+        List<File> files = new ArrayList<File>();
+        if(nodes!=null&&nodes.size()>0) {
+            for (DeploymentDesignNodeEntity node : nodes){
+                System.out.println(node.getId());
+
+                List<ComponentFileEntity> logFiles = componentFileRepository.findAllByName(node.getId());
+                if(logFiles!=null&&logFiles.size()>0) {
+                    File file = new File(logFiles.get(0).getFileEntity().getLocalPath());
+                    if (file.exists()) {
+                        files.add(file);
+                    }
+                }
+             }
+        };
+
+        if(files.size() == 0){
+            return object;
+        }
+
+        OutputStream os = null;
+        try{
+            os = response.getOutputStream();
+            CompressUtils.compressZip(files,os);
+            object.put("flag",true);
+            object.put("description","下载成功！");
+            return object;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+
+            IOUtils.closeQuietly(os);
+        }
+
+
+
+        return null;
     }
 }

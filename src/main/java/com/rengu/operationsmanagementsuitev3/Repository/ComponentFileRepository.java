@@ -30,4 +30,14 @@ public interface ComponentFileRepository extends JpaRepository<ComponentFileEnti
     Optional<ComponentFileEntity> findByNameAndParentNodeAndComponentEntity(String name, ComponentFileEntity parentNode, ComponentEntity componentEntity);
 
     List<ComponentFileEntity> findByParentNodeAndComponentEntityAndType(ComponentFileEntity parentNode, ComponentEntity componentEntity, int fileType);
+
+    void deleteAllByComponentEntity(ComponentEntity componentEntity);
+
+    List<ComponentFileEntity> findByComponentEntityAndType(ComponentEntity componentEntity, int fileType);
+
+    List<ComponentFileEntity> findAllByIsHistoryAndComponentEntity(boolean b, ComponentEntity componentById);
+
+    List<ComponentFileEntity> findAllByTypeAndComponentEntity(int i, ComponentEntity componentById);
+
+    List<ComponentFileEntity> findAllByName(String deploymentDesignNodeId);
 }

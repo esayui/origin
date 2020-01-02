@@ -40,13 +40,15 @@ public class FileController {
 
     // 检查文件块是否存在
     @PostMapping(value = "/chunks")
-    public void saveChunk(ChunkEntity chunkEntity, @RequestParam(value = "file") MultipartFile multipartFile) throws IOException {
-        fileService.saveChunk(chunkEntity, multipartFile);
+    @ResponseBody
+    public void saveChunk(ChunkEntity chunkEntity, @RequestBody MultipartFile file) throws IOException {
+        fileService.saveChunk(chunkEntity, file);
     }
 
     // 合并文件块
     @PostMapping(value = "/chunks/merge")
     public ResultEntity mergeChunks(ChunkEntity chunkEntity) throws IOException {
+
         return ResultUtils.build(fileService.mergeChunks(chunkEntity));
     }
 

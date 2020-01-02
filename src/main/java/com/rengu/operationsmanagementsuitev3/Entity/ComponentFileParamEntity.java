@@ -1,26 +1,22 @@
 package com.rengu.operationsmanagementsuitev3.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * Author: XYmar
- * Date: 2019/9/19 12:50
- */
-
 @Entity
 @Data
-public class ComponentParamEntity implements Serializable {
+public class ComponentFileParamEntity implements Serializable {
 
     @Id
     private String id = UUID.randomUUID().toString();
@@ -38,13 +34,9 @@ public class ComponentParamEntity implements Serializable {
     private String description;
 
 
-    //同一批参数设置 批次甄别
-    private String pid;
-
-
     @JsonIgnore
     @ManyToOne
-    private ComponentEntity componentEntity;
+    private ComponentFileEntity componentFileEntity;
 
     public void setCreateTime(Date createTime) {
         if (createTime == null) {
@@ -55,13 +47,13 @@ public class ComponentParamEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "ComponentParamEntity{" +
+        return "ComponentFileParamEntity{" +
                 "id='" + id + '\'' +
                 ", createTime=" + createTime +
                 ", name='" + name + '\'' +
                 ", type=" + type +
                 ", description='" + description + '\'' +
-                ", pid='" + pid + '\'' +
                 '}';
     }
 }
+

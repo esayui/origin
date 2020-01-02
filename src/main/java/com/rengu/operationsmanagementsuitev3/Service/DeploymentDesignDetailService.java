@@ -1,7 +1,9 @@
 package com.rengu.operationsmanagementsuitev3.Service;
 
 import com.rengu.operationsmanagementsuitev3.Entity.*;
+import com.rengu.operationsmanagementsuitev3.Repository.ComponentFileRepository;
 import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignDetailRepository;
+import com.rengu.operationsmanagementsuitev3.Repository.DeploymentDesignParamRepository;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationConfig;
 import com.rengu.operationsmanagementsuitev3.Utils.ApplicationMessages;
 import com.rengu.operationsmanagementsuitev3.Utils.FormatUtils;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -37,16 +39,21 @@ import java.util.concurrent.TimeoutException;
 public class DeploymentDesignDetailService {
 
     private final DeploymentDesignDetailRepository deploymentDesignDetailRepository;
+    private final DeploymentDesignParamRepository deploymentDesignParamRepository;
+    private final ComponentFileRepository componentFileRepository;
     private final OrderService orderService;
     private final ScanHandlerService scanHandlerService;
     private final DeploymentDesignScanResultService deploymentDesignScanResultService;
 
     @Autowired
-    public DeploymentDesignDetailService(DeploymentDesignDetailRepository deploymentDesignDetailRepository, OrderService orderService, ScanHandlerService scanHandlerService, DeploymentDesignScanResultService deploymentDesignScanResultService) {
+    public DeploymentDesignDetailService(DeploymentDesignDetailRepository deploymentDesignDetailRepository, OrderService orderService, ScanHandlerService scanHandlerService, DeploymentDesignScanResultService deploymentDesignScanResultService,DeploymentDesignParamRepository deploymentDesignParamRepository,ComponentFileRepository componentFileRepository) {
         this.deploymentDesignDetailRepository = deploymentDesignDetailRepository;
         this.orderService = orderService;
         this.scanHandlerService = scanHandlerService;
         this.deploymentDesignScanResultService = deploymentDesignScanResultService;
+        this.deploymentDesignParamRepository = deploymentDesignParamRepository;
+        this.componentFileRepository = componentFileRepository;
+
     }
 
     // 根据组件历史和部署设计节点保存部署设计详情
@@ -180,26 +187,28 @@ public class DeploymentDesignDetailService {
         orderEntity.setTargetPath(deviceEntity.getDeployPath() + deploymentDesignDetailEntity.getComponentHistoryEntity().getRelativePath());
         orderEntity.setTargetDevice(deviceEntity);
         orderService.sendDeployDesignScanOrderByUDP(orderEntity);
-        Future<DeploymentDesignScanResultEntity> result = scanHandlerService.deploymentDesignScanHandler(orderEntity, deploymentDesignDetailEntity);
-        long startTime = System.currentTimeMillis();
-        while (true) {
-            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 12) {
-                if (!ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {
-                    log.info("扫描Id：" + orderEntity.getId() + ",扫描超时，程序退出。");
-                    throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
-                }
-            }
-            if (result.isDone()) {
-                DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = result.get();
-                if (StringUtils.isEmpty(orderId)) {
-                    orderId = UUID.randomUUID().toString();
-                }
-                deploymentDesignScanResultEntity.setOrderId(orderId);
-                ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.remove(orderEntity.getId());
-                log.info("扫描Id：" + orderEntity.getId() + ",扫描结束。");
-                return deploymentDesignScanResultService.saveDeploymentDesignScanResult(deploymentDesignScanResultEntity);
-            }
-        }
+//        Future<DeploymentDesignScanResultEntity> result = scanHandlerService.deploymentDesignScanHandler(orderEntity, deploymentDesignDetailEntity);
+//        long startTime = System.currentTimeMillis();
+//        while (true) {
+//            if (System.currentTimeMillis() - startTime >= ApplicationConfig.SCAN_TIME_OUT * 12) {
+//                if (!ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.containsKey(orderEntity.getId())) {
+//                    log.info("扫描Id：" + orderEntity.getId() + ",扫描超时，程序退出。");
+//                    throw new RuntimeException(ApplicationMessages.SCAN_DEPLOY_DESIGN_TIME_OUT);
+//                }
+//            }
+//            if (result.isDone()) {
+//                DeploymentDesignScanResultEntity deploymentDesignScanResultEntity = result.get();
+//                if (StringUtils.isEmpty(orderId)) {
+//                    orderId = UUID.randomUUID().toString();
+//                }
+//                deploymentDesignScanResultEntity.setOrderId(orderId);
+//                ScanHandlerService.DEPLOY_DESIGN_SCAN_RESULT.remove(orderEntity.getId());
+//                log.info("扫描Id：" + orderEntity.getId() + ",扫描结束。");
+//                return deploymentDesignScanResultService.saveDeploymentDesignScanResult(deploymentDesignScanResultEntity);
+//            }
+//        }
+
+        return null;
     }
 
 
@@ -212,33 +221,57 @@ public class DeploymentDesignDetailService {
      */
     public DeployNodeRuntimeLog operateCmdByDeploymentDesignANode(int operateType,List<DeploymentDesignNodeEntity> deploymentDesignNodeByIds) throws IOException {
 
-        DeployNodeRuntimeLog deployNodeRuntimeLog = new DeployNodeRuntimeLog();
-        StringBuilder stringBuilder  = new StringBuilder();
-        byte[] bytes = new byte[12];
-        ByteBuffer buf = ByteBuffer.wrap(bytes);
-        buf.put(FormatUtils.getString("cmd",8).getBytes());
-        buf.putInt(operateType);
+        //todo
+        if(operateType == 0){
+            //重新更新node ip
 
-        DatagramSocket ds=new DatagramSocket();
-
-        for(DeploymentDesignNodeEntity deploymentDesignNodeEntity:deploymentDesignNodeByIds) {
-            String hostAddress = deploymentDesignNodeEntity.getDeviceEntity().getHostAddress();
-
-            //2、确定数据，并封装数据到数据包.DatagramPacket(byte[] buf, int length, InetAddress address, int port) DatagramPacket(byte[] buf, int length, InetAddress address, int port)
-            DatagramPacket dp = new DatagramPacket(buf.array(), 12, InetAddress.getByName(hostAddress), ApplicationConfig.UDP_DEPLOY_PORT);
-
-            //3、通过socket服务，将已有的数据报发送出去，通过send方法。
-            ds.send(dp);
-
-            stringBuilder.append(hostAddress+"、");
 
         }
 
+
+        DeployNodeRuntimeLog deployNodeRuntimeLog = new DeployNodeRuntimeLog();
+
+       // StringBuilder stringBuilder  = new StringBuilder();
+        byte[] bytes = new byte[264];
+        ByteBuffer buf = ByteBuffer.wrap(bytes);
+        //C001 控制命令标识
+        buf.put(FormatUtils.getString("C001",4).getBytes());
+        buf.position(4);
+        buf.put(FormatUtils.toLH(operateType));
+
+
+        for(DeploymentDesignNodeEntity node:deploymentDesignNodeByIds) {
+            DataOutputStream  oos= null;
+            Socket s = null;
+            try {
+                s = new Socket(node.getDeviceEntity().getHostAddress(), ApplicationConfig.CLIENT2_TCP_RECEIVE);
+                oos = new DataOutputStream(s.getOutputStream());
+                byte[] nodeIdbyte = FormatUtils.getString(node.getId(),256).getBytes();
+                buf.put(nodeIdbyte);
+                oos.write(buf.array());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                if(s!=null){
+                    s.shutdownOutput();
+                    s.close();
+                }
+                if(oos!=null){
+                    oos.close();
+                }
+            }
+
+            System.out.println("发送给："+node.getDeviceEntity().getHostAddress()+"  指令");
+
+        }
+
+
+
         deployNodeRuntimeLog.setDeploymentDesignName(deploymentDesignNodeByIds.get(0).getDeploymentDesignEntity().getName());
         deployNodeRuntimeLog.setCmdcode(operateType);
-        deployNodeRuntimeLog.setIps(stringBuilder.substring(0,stringBuilder.length()-1));
+        //deployNodeRuntimeLog.setIps(stringBuilder.substring(0,stringBuilder.length()-1));
         //4、关闭资源
-        ds.close();
+        //ds.close();
 
         return deployNodeRuntimeLog;
     }

@@ -29,15 +29,15 @@ public class DeploymentDesignEntity implements Serializable {
     private String name;
     private String type;
     private boolean deleted = false;
-    private int runTime;
-    private String params;
+    private int exampleCount;
 
 
-    public void setRunTime(int runTime) {
-        if(!(runTime >0)){
-            runTime =1;
+
+    public void setExampleCount(int exampleCount) {
+        if(!(exampleCount >0)){
+            exampleCount =1;
         }
-        this.runTime = runTime;
+        this.exampleCount = exampleCount;
     }
 
     @JsonIgnore
@@ -53,7 +53,7 @@ public class DeploymentDesignEntity implements Serializable {
                 ", name='" + name + '\'' +
                 ", description='" + type + '\'' +
                 ", deleted=" + deleted +
-                ", testCount=" + runTime +
+                ", testCount=" + exampleCount +
                 '}';
     }
 }

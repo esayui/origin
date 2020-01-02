@@ -59,17 +59,18 @@ public class ComponentHistoryAspect {
                     break;
                 }
                 case "saveComponentFileByParentNodeAndComponent": {
+
                     ComponentEntity componentEntity = ((ComponentFileEntity) result.getData()).getComponentEntity();
                     componentHistoryService.saveComponentHistoryByComponent(componentEntity);
                     break;
                 }
                 case "saveComponentFilesByParentNodeAndComponent": {
-                    List<ComponentFileEntity> componentFileEntityList = (List<ComponentFileEntity>) result.getData();
-                    if (!componentFileEntityList.isEmpty()) {
-                        ComponentFileEntity componentFileEntity = componentFileEntityList.get(0);
-                        ComponentEntity componentEntity = componentFileEntity.getComponentEntity();
-                        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
-                    }
+//                    List<ComponentFileEntity> componentFileEntityList = (List<ComponentFileEntity>) result.getData();
+//                    if (!componentFileEntityList.isEmpty()) {
+//                        ComponentFileEntity componentFileEntity = componentFileEntityList.get(0);
+//                        ComponentEntity componentEntity = componentFileEntity.getComponentEntity();
+//                        componentHistoryService.saveComponentHistoryByComponent(componentEntity);
+//                    }
                     break;
                 }
                 default:
